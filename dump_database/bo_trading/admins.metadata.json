@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"bo_trading.admins"},{"v":{"$numberInt":"2"},"unique":true,"key":{"username":{"$numberInt":"1"}},"name":"username_1","background":true,"ns":"bo_trading.admins"}],"uuid":"e90754e93de140c2b679cf0e5ea38da2","collectionName":"admins"}
