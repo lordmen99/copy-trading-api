@@ -1,12 +1,8 @@
 import IUserModel from '@src/models/cpUser/IUserModel';
-import BaseSchema from './BaseSchema';
-
-const mongoose = BaseSchema.mongooseInstance;
-const mongooseConnection = BaseSchema.mongooseConnection;
-
+import mongoose from 'mongoose';
 class UserSchema {
   static get schema() {
-    const schema = mongoose.Schema({
+    const schema = new mongoose.Schema({
       full_name: {
         type: String,
       },
@@ -37,4 +33,4 @@ class UserSchema {
   }
 }
 
-export default mongooseConnection.model<IUserModel>('cp_users', UserSchema.schema);
+export default mongoose.model<IUserModel>('cp_users', UserSchema.schema);

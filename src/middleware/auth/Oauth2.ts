@@ -55,64 +55,6 @@
 //   ),
 // );
 
-// /**
-//  * @api {post} /oauth/token 1. Sign in
-//  * @apiVersion 0.1.0
-//  * @apiGroup I. Authorization
-//  *
-//  * @apiHeader {String} Content-Type application/json.
-//  * @apiHeader {String} Accept application/json.
-//  *
-//  * @apiHeaderExample {Header} Header-Example
-//  *    "Content-Type": "application/json"
-//  *    "Accept": "application/json"
-//  *
-//  * @apiParam {String} username
-//  * @apiParam {String} password
-//  * @apiParam {String} grant_type password
-//  * @apiParam {String} client_id b109f3bbbc244eb82441917ed06d618b9008dd09b3bef
-//  * @apiParam {String} client_secret password
-//  * @apiParam {String} scope offline_access
-//  *
-//  * @apiSuccess {Object} data
-//  *
-//  * @apiSuccessExample {json} Success
-//  *    HTTP/1.1 200 OK
-//  *    {
-//  *      "access_token": "b02997aa94260d7b94d097a73d54c33efdff3fdadc6ea6209b17ab2e9e1f4e13283ee4ce52",
-//  *      "token_type": "Bearer"
-//  *    }
-//  *
-//  * @apiError (404 Not Found) NotFound API not found
-//  * @apiErrorExample {json} 404 Not Found Error
-//  *    HTTP/1.1 404 Not Found
-//  *
-//  * @apiError (500 Internal Server Error) InternalServerError The server encountered an internal error
-//  * @apiErrorExample {json} 500 Usert exist
-//  *    HTTP/1.1 500 Internal Server Error
-//  *    {
-//  *       {
-//  *          "error": "server_error",
-//  *          "error_description": "Usert exist"
-//  *       }
-//  *    }
-//  * @apiErrorExample {json} 500 Login Fail
-//  *    HTTP/1.1 500 Internal Server Error
-//  *    {
-//  *       {
-//  *          "error": "server_error",
-//  *          "error_description": "Login Fail"
-//  *       }
-//  *    }
-//  * @apiErrorExample {json} 500 Usert active
-//  *    HTTP/1.1 500 Internal Server Error
-//  *    {
-//  *       {
-//  *          "error": "server_error",
-//  *          "error_description": "UserT_ACTIVE"
-//  *       }
-//  *    }
-//  */
 // const token = [
 //   passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
 //   server.token(),

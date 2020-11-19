@@ -1,6 +1,6 @@
-# copy-trading-api
+# Copy Trading Api
 
-Copy Trading Api with NodeJS/Typescript/Express/Mongoose
+With NodeJS/Typescript/Express/Mongoose
 
 ## I. Cài đặt
 
@@ -20,7 +20,8 @@ yarn install
 ### 3. Xây dựng môi trường Production (hoặc test)
 
 ```
-- Tạo ra file .env.production (với môi trường test là file .env.test) bao gồm các tham số tham khảo trong file.env.example
+- Tạo ra file .env.production (với môi trường test là file .env.test)
+  bao gồm các tham số tham khảo trong file.env.example
 - Chạy lệnh: yarn build:prod - Nếu muốn build cả APIDoc thì chạy lệnh: yarn build
 ```
 
@@ -30,7 +31,15 @@ yarn install
 yarn lint
 ```
 
-## II. Template khi tạo pull request để review
+## II. Một số lưu ý
+
+### 1. Database MongoDB
+
+- Khi tạo một collection (schema) mới thì cần có tiền tố đầu là cp\_(tên collection)
+- cp\_: đại diện cho các bảng thuộc về hệ thống copy trading
+- Tuyệt đối không xóa các bảng khác trong Database
+
+## III. Template khi tạo pull request để review
 
 ### 1. Description
 
