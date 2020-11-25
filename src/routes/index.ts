@@ -1,4 +1,6 @@
 import {Router} from 'express';
+import ExpertsRouter from './experts';
+// import TradingHistoryRouter from './tradingHistory';
 import UsersRouter from './users';
 
 class MainRoutes {
@@ -11,6 +13,8 @@ class MainRoutes {
 
   private config() {
     this.routers.use('/users', new UsersRouter().router);
+    // this.routers.use('/trading', new TradingHistoryRouter().router);
+    this.routers.use('/experts', new ExpertsRouter().router);
   }
 }
 

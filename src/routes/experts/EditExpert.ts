@@ -1,10 +1,10 @@
-import UserController from '@src/controllers/UserController';
+import ExpertController from '@src/controllers/ExpertController';
 import {Router} from 'express';
 
 /**
- * @api {get} /users 1. Get User infor
+ * @api {post} /experts/edit_expert 2. Edit Expert
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup II. Experts
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -15,6 +15,15 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {String} _id
+ * @apiParam {String} fullname
+ * @apiParam {String} username
+ * @apiParam {String} email
+ * @apiParam {String} phone
+ * @apiParam {String} avatar
+ * @apiParam {Number} total_amount
+ * @apiParam {Boolean} is_virtual
+ *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
@@ -22,12 +31,16 @@ import {Router} from 'express';
  *  {
  *      "data": [
  *            {
- *              "id": 1,
- *              "User_id": 26,
- *              "email_friend": "danh.nguyenminh@pgpg.com",
- *              "status": "IN_ACTIVE",
- *              "created_at": "2020-04-07T03:27:46.000Z",
- *              "updated_at": "2020-04-07T03:27:46.000Z"
+ *              "is_virtual": true,
+ *              "_id": "5fbe0f803252b8487841c417",
+ *              "fullname": "DanhNguyen",
+ *              "username": "coldblooda9",
+ *              "email": "coldblooda9@gmail.com",
+ *              "phone": "313113131",
+ *              "avatar": "",
+ *              "total_amount": 10000,
+ *              "status": 'ACTIVE',
+ *              "__v": 0
  *            }
  *        ]
  *  }
@@ -43,4 +56,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', new UserController().getUserById);
+export default (route: Router) => route.post('/edit_expert', new ExpertController().editExpert);

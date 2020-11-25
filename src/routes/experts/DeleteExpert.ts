@@ -1,10 +1,10 @@
-import UserController from '@src/controllers/UserController';
+import ExpertController from '@src/controllers/ExpertController';
 import {Router} from 'express';
 
 /**
- * @api {get} /users 1. Get User infor
+ * @api {post} /experts/delete_expert 3. Delete Expert
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup II. Experts
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -15,21 +15,14 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {String} _id
+ *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
  *  HTTP/1.1 200 OK
  *  {
- *      "data": [
- *            {
- *              "id": 1,
- *              "User_id": 26,
- *              "email_friend": "danh.nguyenminh@pgpg.com",
- *              "status": "IN_ACTIVE",
- *              "created_at": "2020-04-07T03:27:46.000Z",
- *              "updated_at": "2020-04-07T03:27:46.000Z"
- *            }
- *        ]
+ *      "data": true
  *  }
  *
  * @apiError (404 Not Found) NotFound API not found
@@ -43,4 +36,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', new UserController().getUserById);
+export default (route: Router) => route.post('/delete_expert', new ExpertController().deleteExpert);

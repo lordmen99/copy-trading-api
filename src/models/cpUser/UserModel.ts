@@ -6,12 +6,12 @@ export default class UserModel {
   constructor(UserModel: IUserModel) {
     this._UserModel = UserModel;
   }
-  get full_name(): string {
-    return this._UserModel.full_name;
+  get fullname(): string {
+    return this._UserModel.fullname;
   }
 
-  get user_name(): string {
-    return this._UserModel.user_name;
+  get username(): string {
+    return this._UserModel.username;
   }
 
   get email(): string {
@@ -22,11 +22,19 @@ export default class UserModel {
     return this._UserModel.phone;
   }
 
+  get avatar(): string {
+    return this._UserModel.avatar;
+  }
+
   get total_amount(): number {
     return this._UserModel.total_amount;
   }
 
-  get is_admin(): boolean {
-    return this._UserModel.is_admin;
+  get is_virtual(): boolean {
+    return this._UserModel.is_virtual;
+  }
+
+  get status(): string {
+    return this._UserModel.status;
   }
 }

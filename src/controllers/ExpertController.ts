@@ -1,34 +1,23 @@
-import UserBussiness from '@src/business/UserBussiness';
-import IUserModel from '@src/models/cpUser/IUserModel';
-import {AddUser, EditUser} from '@src/validator/users/users.validator';
+import ExpertBussiness from '@src/business/ExpertBussiness';
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import {AddExpert, EditExpert} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
 
-export default class UserController {
-  public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
+export default class ExpertController {
+  public async getListExperts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const id = (req.user as IUserModel).id;
-      const userBusiness = new UserBussiness();
-      const result = await userBusiness.findById(id);
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.getListExperts();
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
     }
   }
 
-  public async getListUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const userBusiness = new UserBussiness();
-      const result = await userBusiness.getListUsers();
-      res.status(200).send({data: result});
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  public async addUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async addExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
-      const data = new AddUser();
+      const data = new AddExpert();
       data.fullname = params.fullname;
       data.username = params.username;
       data.email = params.email;
@@ -37,8 +26,8 @@ export default class UserController {
       data.total_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
       data.status = 'ACTIVE';
-      const userBusiness = new UserBussiness();
-      const result = await userBusiness.addUser(data);
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.addExpert(data);
 
       res.status(200).send({data: result});
     } catch (err) {
@@ -46,10 +35,10 @@ export default class UserController {
     }
   }
 
-  public async autoGenerateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async autoGenerateExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
-      const userBusiness = new UserBussiness();
+      const expertBusiness = new ExpertBussiness();
       const faker = require('faker');
 
       for (let i = 0; i < params.number; i++) {
@@ -59,7 +48,7 @@ export default class UserController {
         let phone = faker.phone.phoneNumber();
         let total_amount = faker.finance.amount();
 
-        const data = new AddUser();
+        const data = new AddExpert();
 
         data.fullname = fullname;
         data.username = username;
@@ -69,8 +58,8 @@ export default class UserController {
         data.total_amount = total_amount;
         data.is_virtual = true;
         data.status = 'ACTIVE';
-        const userEntity = data as IUserModel;
-        userBusiness.addUser(userEntity);
+        const expertEntity = data as IExpertModel;
+        expertBusiness.addExpert(expertEntity);
       }
 
       res.status(200).send({data: true});
@@ -79,10 +68,10 @@ export default class UserController {
     }
   }
 
-  public async editUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async editExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
-      const data = new EditUser();
+      const data = new EditExpert();
       data._id = params._id;
       data.fullname = params.fullname;
       data.username = params.username;
@@ -91,8 +80,20 @@ export default class UserController {
       data.avatar = params.avatar;
       data.total_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
-      const userBusiness = new UserBussiness();
-      const result = await userBusiness.editUser(data);
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.editExpert(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async deleteExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.deleteExpert(params._id);
 
       res.status(200).send({data: result});
     } catch (err) {

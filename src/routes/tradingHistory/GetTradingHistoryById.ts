@@ -1,10 +1,10 @@
-import UserController from '@src/controllers/UserController';
+import TradingHistoryController from '@src/controllers/TradingHistoryController';
 import {Router} from 'express';
 
 /**
- * @api {get} /users 1. Get User infor
+ * @api {get} /users 1. Get trading history
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup II. Trading History
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -43,4 +43,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', new UserController().getUserById);
+export default (route: Router) => route.get('', new TradingHistoryController().getTradingHistoryById);

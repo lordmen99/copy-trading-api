@@ -1,10 +1,12 @@
-import IUserModel from '@src/models/cpUser/IUserModel';
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import mongoose from 'mongoose';
-class UserSchema {
+
+class ExpertSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       fullname: {
         type: String,
+        index: true,
       },
       username: {
         type: String,
@@ -49,4 +51,4 @@ class UserSchema {
   }
 }
 
-export default mongoose.model<IUserModel>('cp_users', UserSchema.schema);
+export default mongoose.model<IExpertModel>('cp_expert', ExpertSchema.schema);

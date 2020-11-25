@@ -5,13 +5,17 @@ import express from 'express';
 import passport from 'passport';
 import {errorMiddleware, notFoundMiddleware} from './middleware/Exceptions';
 import routes from './routes';
+import Scheduler from './schedulers';
 
 class App {
   public app: express.Application;
+  public scheduler: Scheduler;
 
   constructor() {
     this.app = express();
     this.config();
+    this.scheduler = new Scheduler();
+    this.scheduler.config();
   }
 
   private config() {

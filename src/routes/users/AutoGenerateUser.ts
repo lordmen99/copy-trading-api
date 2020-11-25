@@ -2,7 +2,7 @@ import UserController from '@src/controllers/UserController';
 import {Router} from 'express';
 
 /**
- * @api {get} /users 1. Get User infor
+ * @api {post} /users/auto_generate_user 4. Auto Generate User
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -15,21 +15,14 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {Number} number
+ *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
  *  HTTP/1.1 200 OK
  *  {
- *      "data": [
- *            {
- *              "id": 1,
- *              "User_id": 26,
- *              "email_friend": "danh.nguyenminh@pgpg.com",
- *              "status": "IN_ACTIVE",
- *              "created_at": "2020-04-07T03:27:46.000Z",
- *              "updated_at": "2020-04-07T03:27:46.000Z"
- *            }
- *        ]
+ *      "data": true
  *  }
  *
  * @apiError (404 Not Found) NotFound API not found
@@ -43,4 +36,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', new UserController().getUserById);
+export default (route: Router) => route.post('/auto_generate_user', new UserController().autoGenerateUser);
