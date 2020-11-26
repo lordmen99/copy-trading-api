@@ -1,4 +1,5 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import {contants} from '@src/utils';
 import mongoose from 'mongoose';
 
 class ExpertSchema {
@@ -44,7 +45,7 @@ class ExpertSchema {
       status: {
         type: String,
         required: true,
-        default: 'ACTIVE',
+        default: contants.STATUS.ACTIVE,
       },
     });
     return schema;

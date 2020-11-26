@@ -1,4 +1,5 @@
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
+import {contants} from '@src/utils';
 import mongoose from 'mongoose';
 
 class TradingCopySchema {
@@ -31,7 +32,15 @@ class TradingCopySchema {
       status: {
         type: String,
         required: true,
-        default: 'ACTIVE',
+        default: contants.STATUS.ACTIVE,
+      },
+      createdAt: {
+        type: Date,
+        required: true,
+      },
+      updatedAt: {
+        type: Date,
+        required: true,
       },
     });
     return schema;

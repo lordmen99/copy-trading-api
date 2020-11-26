@@ -3,6 +3,7 @@ import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
+import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {validate} from 'class-validator';
 
@@ -32,7 +33,7 @@ export default class UserBussiness {
 
   public async getListUsers(): Promise<IUserModel[]> {
     try {
-      const result = this._userRepository.findWhere('ACTIVE');
+      const result = this._userRepository.findWhere(contants.STATUS.ACTIVE);
       if (result) {
         return result;
       }
@@ -78,11 +79,11 @@ export default class UserBussiness {
           maximum_rate: 0,
           stop_loss: 0,
           taken_profit: 0,
-          status: 'ACTIVE',
+          status: contants.STATUS.ACTIVE,
         };
         const userEntity = user as IUserModel;
 
-        const resultExpert = await this._expertRepository.findWhere('ACTIVE');
+        const resultExpert = await this._expertRepository.findWhere(contants.STATUS.ACTIVE);
         const random = Math.floor(Math.random() * resultExpert.length);
         const randomInvestment = Math.floor(Math.random() * userEntity.total_amount);
         const randomRate = Math.floor(Math.random() * 30) + 1;
@@ -98,9 +99,10 @@ export default class UserBussiness {
           tradingCopyEntity.maximum_rate = randomRate;
           tradingCopyEntity.stop_loss = randomStopLoss;
           tradingCopyEntity.taken_profit = randomProfit;
-          const resultTradingCopy = await this._tradingCopyRepository.create(tradingCopyEntity).catch((err) => {
-            throw err;
-          });
+          tradingCopyEntity.createdAt = new Date();
+          tradingCopyEntity.updatedAt = new Date();
+
+          await this._tradingCopyRepository.create(tradingCopyEntity);
         }
         return null;
       }

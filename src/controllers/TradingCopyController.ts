@@ -1,5 +1,6 @@
 import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
+import {contants} from '@src/utils';
 import {CreateTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {NextFunction, Request, Response} from 'express';
 
@@ -25,7 +26,7 @@ export default class TradingCopyController {
       data.maximum_rate = params.maximum_rate;
       data.stop_loss = params.stop_loss;
       data.taken_profit = params.taken_profit;
-      data.status = 'ACTIVE';
+      data.status = contants.STATUS.ACTIVE;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.createTradingCopy(data);
 

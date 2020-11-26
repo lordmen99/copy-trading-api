@@ -1,5 +1,6 @@
 import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
+import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
 
@@ -39,7 +40,7 @@ export default class UserController {
       data.avatar = params.avatar;
       data.total_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
-      data.status = 'ACTIVE';
+      data.status = contants.STATUS.ACTIVE;
       const userBusiness = new UserBussiness();
       const result = await userBusiness.addUser(data);
 
@@ -71,7 +72,7 @@ export default class UserController {
         data.avatar = '';
         data.total_amount = total_amount;
         data.is_virtual = true;
-        data.status = 'ACTIVE';
+        data.status = contants.STATUS.ACTIVE;
         const userEntity = data as IUserModel;
         userBusiness.addUserAndFollowExpert(userEntity);
       }

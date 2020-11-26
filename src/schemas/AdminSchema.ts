@@ -1,7 +1,7 @@
-import IUserModel from '@src/models/cpUser/IUserModel';
+import IAdminModel from '@src/models/cpAdmin/IAdminModel';
 import {contants} from '@src/utils';
 import mongoose from 'mongoose';
-class UserSchema {
+class AdminSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       fullname: {
@@ -14,11 +14,11 @@ class UserSchema {
       },
       hashed_password: {
         type: String,
-        // required: true,
+        required: true,
       },
       salt: {
         type: String,
-        // required: true,
+        required: true,
       },
       email: {
         type: String,
@@ -31,15 +31,6 @@ class UserSchema {
       avatar: {
         type: String,
       },
-      total_amount: {
-        type: Number,
-        required: true,
-      },
-      is_virtual: {
-        type: Boolean,
-        required: true,
-        default: 0,
-      },
       status: {
         type: String,
         required: true,
@@ -50,4 +41,4 @@ class UserSchema {
   }
 }
 
-export default mongoose.model<IUserModel>('cp_users', UserSchema.schema);
+export default mongoose.model<IAdminModel>('cp_admins', AdminSchema.schema);

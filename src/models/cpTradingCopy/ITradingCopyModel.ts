@@ -8,4 +8,6 @@ export default interface ITradingCopyModel extends mongoose.Document {
   stop_loss: number; //
   taken_profit: number; //
   status: string; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
+  createdAt: Date; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
+  updatedAt: Date; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
 }

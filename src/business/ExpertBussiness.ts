@@ -1,9 +1,10 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import {contants} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 
-export default class UserBussiness {
+export default class ExpertBussiness {
   private _expertRepository: ExpertRepository;
 
   constructor() {
@@ -12,7 +13,7 @@ export default class UserBussiness {
 
   public async getListExperts(): Promise<IExpertModel[]> {
     try {
-      const result = this._expertRepository.findWhere('ACTIVE');
+      const result = this._expertRepository.findWhere(contants.STATUS.ACTIVE);
       if (result) {
         return result;
       }

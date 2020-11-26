@@ -1,17 +1,18 @@
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
 import IUserModel from '@src/models/cpUser/IUserModel';
+import {contants} from '@src/utils';
 import {AddUser} from '@src/validator/users/users.validator';
 
 export default () => {
   try {
     const userBusiness = new UserBussiness();
     const faker = require('faker');
-    let fullname = faker.name.findName();
-    let username = faker.internet.userName();
-    let email = faker.internet.email();
-    let phone = faker.phone.phoneNumber();
-    let total_amount = faker.finance.amount();
+    const fullname = faker.name.findName();
+    const username = faker.internet.userName();
+    const email = faker.internet.email();
+    const phone = faker.phone.phoneNumber();
+    const total_amount = faker.finance.amount();
 
     const data = new AddUser();
 
@@ -21,7 +22,7 @@ export default () => {
     data.phone = phone;
     data.total_amount = total_amount;
     data.is_virtual = true;
-    data.status = 'ACTIVE';
+    data.status = contants.STATUS.ACTIVE;
 
     const userEntity = data as IUserModel;
 

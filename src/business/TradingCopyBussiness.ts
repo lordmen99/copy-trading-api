@@ -3,7 +3,7 @@ import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import {CreateTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {validate} from 'class-validator';
 
-export default class TradingHistoryBussiness {
+export default class TradingCopyBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
 
   constructor() {

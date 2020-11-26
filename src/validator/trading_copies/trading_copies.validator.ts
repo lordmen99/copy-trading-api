@@ -26,4 +26,8 @@ export class CreateTradingCopy {
   taken_profit: number;
 
   status: string;
+
+  createdAt?: Date;
+
+  updatedAt?: Date;
 }

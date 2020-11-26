@@ -34,4 +34,12 @@ export default class TradingHistoryModel {
   get status(): string {
     return this._tradingCopyModel.status;
   }
+
+  get createdAt(): Date {
+    return this._tradingCopyModel.createdAt;
+  }
+
+  get updatedAt(): Date {
+    return this._tradingCopyModel.updatedAt;
+  }
 }

@@ -1,5 +1,6 @@
 import ExpertBussiness from '@src/business/ExpertBussiness';
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import {contants} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
 
@@ -39,7 +40,7 @@ export default class ExpertController {
       data.avatar = params.avatar;
       data.total_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
-      data.status = 'ACTIVE';
+      data.status = contants.STATUS.ACTIVE;
       const expertBusiness = new ExpertBussiness();
       const result = await expertBusiness.addExpert(data);
 
@@ -71,7 +72,7 @@ export default class ExpertController {
         data.avatar = '';
         data.total_amount = total_amount;
         data.is_virtual = true;
-        data.status = 'ACTIVE';
+        data.status = contants.STATUS.ACTIVE;
         const expertEntity = data as IExpertModel;
         expertBusiness.addExpert(expertEntity);
       }

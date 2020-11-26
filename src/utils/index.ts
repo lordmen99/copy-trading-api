@@ -1,3 +1,4 @@
+import contants from './contants';
 import security from './securityPass';
 
-export {security};
+export {security, contants};
