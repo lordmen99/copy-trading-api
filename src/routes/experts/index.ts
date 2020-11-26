@@ -3,6 +3,7 @@ import addExpert from './AddExpert';
 import autoGenerateExpert from './AutoGenerateExpert';
 import deleteExpert from './DeleteExpert';
 import editExpert from './EditExpert';
+import getExpertById from './GetExpertById';
 import getListExperts from './GetListExperts';
 
 export default class ExpertRouter {
@@ -14,5 +15,6 @@ export default class ExpertRouter {
     editExpert(this.router);
     deleteExpert(this.router);
     autoGenerateExpert(this.router);
+    getExpertById(this.router);
   }
 }

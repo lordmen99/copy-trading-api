@@ -1,10 +1,10 @@
-import UserController from '@src/controllers/UserController';
+import ExpertController from '@src/controllers/ExpertController';
 import {Router} from 'express';
 
 /**
- * @api {get} /users/get_user_by_id 5. Get User infor
+ * @api {get} /experts/get_expert_by_id 6. Get Expert infor
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup II. Experts
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -49,4 +49,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', new UserController().getUserById);
+export default (route: Router) => route.get('/get_expert_by_id', new ExpertController().getExpertById);

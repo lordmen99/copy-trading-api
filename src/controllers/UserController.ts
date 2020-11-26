@@ -1,14 +1,17 @@
 import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
-import {AddUser, EditUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class UserController {
   public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const id = (req.user as IUserModel).id;
+      // const id = (req.user as IUserModel).id;
+      const params = req.query;
       const userBusiness = new UserBussiness();
-      const result = await userBusiness.findById(id);
+      const data = new GetUser();
+      data._id = params._id.toString();
+      const result = await userBusiness.findById(data);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -53,11 +56,11 @@ export default class UserController {
       const faker = require('faker');
 
       for (let i = 0; i < params.number; i++) {
-        let fullname = faker.name.findName();
-        let username = faker.internet.userName();
-        let email = faker.internet.email();
-        let phone = faker.phone.phoneNumber();
-        let total_amount = faker.finance.amount();
+        const fullname = faker.name.findName();
+        const username = faker.internet.userName();
+        const email = faker.internet.email();
+        const phone = faker.phone.phoneNumber();
+        const total_amount = faker.finance.amount();
 
         const data = new AddUser();
 

@@ -1,6 +1,6 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
-import {AddExpert, EditExpert} from '@src/validator/experts/experts.validator';
+import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 
 export default class UserBussiness {
@@ -89,6 +89,19 @@ export default class UserBussiness {
         if (result) {
           return result ? true : false;
         }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async findById(params: GetExpert): Promise<IExpertModel> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        return this._expertRepository.findById(params._id);
       }
     } catch (err) {
       throw err;

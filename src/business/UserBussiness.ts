@@ -1,6 +1,6 @@
 import IUserModel from '@src/models/cpUser/IUserModel';
 import UserRepository from '@src/repository/UserRepository';
-import {AddUser, EditUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {validate} from 'class-validator';
 
 export default class UserBussiness {
@@ -10,13 +10,13 @@ export default class UserBussiness {
     this._userRepository = new UserRepository();
   }
 
-  public async findById(id: string): Promise<IUserModel> {
+  public async findById(params: GetUser): Promise<IUserModel> {
     try {
-      const errors = await validate(id);
+      const errors = await validate(params);
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._userRepository.findById(id);
+        return this._userRepository.findById(params._id);
       }
     } catch (err) {
       throw err;

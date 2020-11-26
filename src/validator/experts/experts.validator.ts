@@ -68,3 +68,11 @@ export class EditExpert {
   @IsNotEmpty({message: 'Status is required'})
   is_virtual?: boolean;
 }
+
+export class GetExpert {
+  @IsNotEmpty({message: 'Id is required'})
+  @IsString({
+    message: 'Id is string',
+  })
+  _id?: string;
+}

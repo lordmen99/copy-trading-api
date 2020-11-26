@@ -1,6 +1,6 @@
 import ExpertBussiness from '@src/business/ExpertBussiness';
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
-import {AddExpert, EditExpert} from '@src/validator/experts/experts.validator';
+import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class ExpertController {
@@ -8,6 +8,20 @@ export default class ExpertController {
     try {
       const expertBusiness = new ExpertBussiness();
       const result = await expertBusiness.getListExperts();
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getExpertById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel).id;
+      const params = req.query;
+      const expertBusiness = new ExpertBussiness();
+      const data = new GetExpert();
+      data._id = params._id.toString();
+      const result = await expertBusiness.findById(data);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -42,11 +56,11 @@ export default class ExpertController {
       const faker = require('faker');
 
       for (let i = 0; i < params.number; i++) {
-        let fullname = faker.name.findName();
-        let username = faker.internet.userName();
-        let email = faker.internet.email();
-        let phone = faker.phone.phoneNumber();
-        let total_amount = faker.finance.amount();
+        const fullname = faker.name.findName();
+        const username = faker.internet.userName();
+        const email = faker.internet.email();
+        const phone = faker.phone.phoneNumber();
+        const total_amount = faker.finance.amount();
 
         const data = new AddExpert();
 
