@@ -2,9 +2,9 @@ import TradingHistoryController from '@src/controllers/TradingHistoryController'
 import {Router} from 'express';
 
 /**
- * @api {get} /trading_history 1. Get trading history
+ * @api {get} /users 1. Get trading history
  * @apiVersion 0.1.0
- * @apiGroup IV. Trading History
+ * @apiGroup III. Trading Copy
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.

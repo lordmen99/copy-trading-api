@@ -30,4 +30,8 @@ export default class TradingHistoryModel {
   get taken_profit(): number {
     return this._tradingCopyModel.taken_profit;
   }
+
+  get status(): string {
+    return this._tradingCopyModel.status;
+  }
 }

@@ -7,7 +7,6 @@ class TradingCopySchema {
       id_user: {
         type: String,
         required: true,
-        index: true,
       },
       id_expert: {
         type: String,
@@ -29,9 +28,14 @@ class TradingCopySchema {
         type: Number,
         required: true,
       },
+      status: {
+        type: String,
+        required: true,
+        default: 'ACTIVE',
+      },
     });
     return schema;
   }
 }
 
-export default mongoose.model<ITradingCopyModel>('cp_trading_history', TradingCopySchema.schema);
+export default mongoose.model<ITradingCopyModel>('cp_trading_copy', TradingCopySchema.schema);

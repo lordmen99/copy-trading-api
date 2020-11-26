@@ -73,7 +73,7 @@ export default class UserController {
         data.is_virtual = true;
         data.status = 'ACTIVE';
         const userEntity = data as IUserModel;
-        userBusiness.addUser(userEntity);
+        userBusiness.addUserAndFollowExpert(userEntity);
       }
 
       res.status(200).send({data: true});
