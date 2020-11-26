@@ -3,8 +3,6 @@ import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import passport from 'passport';
-import {Manager} from 'socket.io-client';
-import config from './config';
 import {errorMiddleware, notFoundMiddleware} from './middleware/Exceptions';
 import routes from './routes';
 
@@ -14,7 +12,6 @@ class App {
   constructor() {
     this.app = express();
     this.config();
-    this.socketConnectTrading();
   }
 
   private config() {
@@ -34,20 +31,6 @@ class App {
     this.app.use(notFoundMiddleware);
     /** internal server Error  */
     this.app.use(errorMiddleware);
-  }
-
-  private socketConnectTrading() {
-    try {
-      console.log('2222');
-      const manager = new Manager(`ws://localhost:6789/`, {path: config.SOCKET_TRADING_URI});
-
-      const socket = manager.socket('/');
-      socket.on('commit', (data) => {
-        console.log(`connect ${socket.id}`);
-      });
-    } catch (error) {
-      console.log('SOCKET TRADING: ' + error.message);
-    }
   }
 }
 

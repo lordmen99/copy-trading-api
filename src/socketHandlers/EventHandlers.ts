@@ -9,10 +9,6 @@ const app: AppData = {
 
 export default (io: Server) => {
   try {
-    io.on('connect', (socket: Socket<any, any>) => {
-      console.log('Connection Successfull 2222');
-    });
-
     io.on('connection', (socket: Socket<any, any>) => {
       console.log('Connection Successfull');
       const eventHandlers = [TradingSystem(app, socket)];
@@ -24,16 +20,16 @@ export default (io: Server) => {
       app.allSockets.push(socket);
     });
 
-    io.on('connect_failed', () => {
-      console.log('Connection Failed');
+    io.on('connect_error', (error) => {
+      console.log(`Socket Connect Error: ${error}`);
     });
 
-    io.on('disconnect', () => {
-      console.log('Disconnected');
+    io.on('error', (error) => {
+      console.log(`Socket Error: ${error}`);
     });
 
-    io.on('Error ', () => {
-      console.log('Disconnected');
+    io.on('disconnect', (reason) => {
+      console.log(`Socket Disconnected: ${reason}`);
     });
   } catch (error) {
     logger.error(`-----------------------BEGIN ERROR-------------------------------`);
