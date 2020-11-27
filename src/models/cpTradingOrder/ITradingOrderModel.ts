@@ -11,5 +11,6 @@ export default interface ITradingOrderModel extends mongoose.Document {
   total_amount: number; // Số tiền đánh
   status: string; // ACTIVE là trạng thái đang chờ thực hiện, FINISH là trạng thái thực hiện xong rồi
   createdAt: Date;
-  updatedAt: Date;
+  orderedAt: Date;
+  timeSetup: Date;
 }

@@ -1,13 +1,15 @@
 import TradingHistoryBussiness from '@src/business/TradingHistoryBussiness';
-import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import {NextFunction, Request, Response} from 'express';
 
 export default class TradingHistoryController {
-  public async getTradingHistoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async getListTradingHistories(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const id = (req.user as ITradingHistoryModel).id;
+      const params = req.query;
       const tradingHistoryBusiness = new TradingHistoryBussiness();
-      const result = await tradingHistoryBusiness.findById(id);
+      const result = await tradingHistoryBusiness.getListTradingHistories(
+        parseInt(params.page.toString()),
+        parseInt(params.size.toString()),
+      );
       res.status(200).send({data: result});
     } catch (err) {
       next(err);

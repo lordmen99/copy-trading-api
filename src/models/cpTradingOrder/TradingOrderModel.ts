@@ -47,7 +47,11 @@ export default class TradingOrderModel {
     return this._tradingOrderModel.createdAt;
   }
 
-  get updatedAt(): Date {
-    return this._tradingOrderModel.updatedAt;
+  get orderedAt(): Date {
+    return this._tradingOrderModel.orderedAt;
+  }
+
+  get timeSetup(): Date {
+    return this._tradingOrderModel.timeSetup;
   }
 }

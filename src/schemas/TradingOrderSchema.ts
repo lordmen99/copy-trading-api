@@ -44,7 +44,11 @@ class TradingOrderSchema {
         type: Date,
         required: true,
       },
-      updatedAt: {
+      orderedAt: {
+        type: Date,
+        required: true,
+      },
+      timeSetup: {
         type: Date,
         required: true,
       },

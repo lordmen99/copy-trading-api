@@ -39,8 +39,15 @@ export default class TradingOrderController {
       data.type = params.type;
       data.total_amount = params.total_amount;
       data.status = contants.STATUS.ACTIVE;
+      data.orderedAt = params.orderedAt;
       data.createdAt = new Date();
-      data.updatedAt = new Date();
+
+      const start = new Date(params.orderedAt);
+      const end = new Date(params.orderedAt);
+      end.setHours(23, 59, 59);
+      const diff = (end.getTime() - start.getTime()) * Math.random();
+
+      data.timeSetup = new Date(start.getTime() + diff);
 
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.createTradingOrder(data);

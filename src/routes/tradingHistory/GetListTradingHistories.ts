@@ -1,10 +1,11 @@
 import TradingHistoryController from '@src/controllers/TradingHistoryController';
+import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /users 1. Get trading history
+ * @api {get} /trading_history/get_list_trading_histories 1. Get list trading histories
  * @apiVersion 0.1.0
- * @apiGroup III. Trading Copy
+ * @apiGroup IV. Trading History
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -43,4 +44,5 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('', new TradingHistoryController().getTradingHistoryById);
+export default (route: Router) =>
+  route.get('/get_list_trading_histories', isAuthenticated, new TradingHistoryController().getListTradingHistories);

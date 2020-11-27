@@ -1,6 +1,5 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
-import {validate} from 'class-validator';
 
 export default class TradingHistoryBussiness {
   private _tradingHistoryRepository: TradingHistoryRepository;
@@ -9,14 +8,13 @@ export default class TradingHistoryBussiness {
     this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
-  public async findById(id: string): Promise<ITradingHistoryModel> {
+  public async getListTradingHistories(page: number, size: number): Promise<ITradingHistoryModel[]> {
     try {
-      const errors = await validate(id);
-      if (errors.length > 0) {
-        throw new Error(Object.values(errors[0].constraints)[0]);
-      } else {
-        return this._tradingHistoryRepository.findById(id);
+      const result = this._tradingHistoryRepository.findWithPaging(page, size);
+      if (result) {
+        return result;
       }
+      return [];
     } catch (err) {
       throw err;
     }

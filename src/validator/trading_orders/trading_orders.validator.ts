@@ -44,5 +44,7 @@ export class CreateTradingOrder {
 
   createdAt?: Date;
 
-  updatedAt?: Date;
+  orderedAt?: Date;
+
+  timeSetup?: Date;
 }
