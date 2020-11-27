@@ -16,13 +16,13 @@ export class CreateTradingCopy {
   @IsNotEmpty({message: 'Investment amount is required'})
   investment_amount: number;
 
-  @IsNotEmpty({message: 'Investment amount is required'})
+  @IsNotEmpty({message: 'Maximum rate is required'})
   maximum_rate: number;
 
-  @IsNotEmpty({message: 'Investment amount is required'})
+  @IsNotEmpty({message: 'Stop loss is required'})
   stop_loss: number;
 
-  @IsNotEmpty({message: 'Investment amount is required'})
+  @IsNotEmpty({message: 'Taken profit is required'})
   taken_profit: number;
 
   status: string;

@@ -41,4 +41,4 @@ class AdminSchema {
   }
 }
 
-export default mongoose.model<IAdminModel>('cp_admins', AdminSchema.schema);
+export default mongoose.model<IAdminModel>('cp_admin', AdminSchema.schema);

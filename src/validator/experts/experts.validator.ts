@@ -62,7 +62,7 @@ export class EditExpert {
 
   avatar?: string;
 
-  @IsNotEmpty({message: 'Total amount is required'})
+  // @IsNotEmpty({message: 'Total amount is required'})
   total_amount?: number;
 
   @IsNotEmpty({message: 'Status is required'})

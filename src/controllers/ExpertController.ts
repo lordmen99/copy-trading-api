@@ -93,7 +93,9 @@ export default class ExpertController {
       data.email = params.email;
       data.phone = params.phone;
       data.avatar = params.avatar;
-      data.total_amount = params.total_amount;
+      if (params.is_virtual) {
+        data.total_amount = params.total_amount;
+      }
       data.is_virtual = params.is_virtual;
       const expertBusiness = new ExpertBussiness();
       const result = await expertBusiness.editExpert(data);

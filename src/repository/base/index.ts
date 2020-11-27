@@ -36,6 +36,15 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
+  public async findOne(item: T): Promise<T> {
+    try {
+      const result = await this._model.findOne(item);
+      return result as T;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async create(item: T): Promise<T> {
     try {
       const result = await this._model.create(item);
