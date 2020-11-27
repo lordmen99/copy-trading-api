@@ -34,7 +34,7 @@ server.on('listening', () => {
       \n🚀API Document on http://localhost:${config.port}/apidoc/index.html`,
     );
   });
-  mongoose.connection.on('error',err => {
+  mongoose.connection.on('error', (err) => {
     console.error('\n🚀Unable to connect to Mongo via Mongoose', err);
   });
 });

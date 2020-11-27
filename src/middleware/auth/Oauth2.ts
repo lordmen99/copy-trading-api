@@ -3,7 +3,7 @@ import IAdminEntities from '@src/models/cpAdmin/IAdminModel';
 import ClientEntities from '@src/models/cpClient/IClientModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
-import {contants} from '@src/utils';
+import {contants, security} from '@src/utils';
 import {randomBytes} from 'crypto';
 import {createServer, exchange, ExchangeDoneFunction} from 'oauth2orize';
 import passport from 'passport';
@@ -14,9 +14,11 @@ const initToken = async (client: ClientEntities, adminModel: IAdminEntities, don
     const _accessTokenRepository = new AccessTokenRepository();
     const result = await _accessTokenRepository.findOne({
       client_id: client.client_id,
-      id_admin: adminModel._id,
+      id_admin: adminModel._id.toString(),
     } as IAccessTokenModel);
-    await _accessTokenRepository.delete(result._id);
+    if (result) {
+      await _accessTokenRepository.delete(result._id);
+    }
     const tokenValue = randomBytes(128).toString('hex');
     await _accessTokenRepository.create({
       client_id: client.client_id,
@@ -45,16 +47,16 @@ server.exchange(
         const admin = await _adminRepository.findOne({username} as IAdminEntities);
         if (!admin) return issused(new Error('UseUserxist'));
 
-        // if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
-        //   return issused(new Error('Login Fail'));
-        // else {
-        if (admin.status === contants.STATUS.ACTIVE) {
-          // await admin.clearFCMToken(body.fcm_token);
-          // await cUser.updateById(cUseUser fcm_token: body.fcm_token });
-          initToken(client, admin, issused);
-        } else if (admin.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
-        else return issused(new Error('UserT_ACTIVE'));
-        // }
+        if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
+          return issused(new Error('Login Fail'));
+        else {
+          if (admin.status === contants.STATUS.ACTIVE) {
+            // await admin.clearFCMToken(body.fcm_token);
+            // await cUser.updateById(cUseUser fcm_token: body.fcm_token });
+            initToken(client, admin, issused);
+          } else if (admin.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
+          else return issused(new Error('UserT_ACTIVE'));
+        }
       } catch (error) {
         issused(error);
       }
