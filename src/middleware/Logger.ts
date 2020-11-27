@@ -21,7 +21,9 @@ export default winston.createLogger({
   ),
   transports: [
     // info console log
-    new winston.transports.Console(),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    }),
     // info log file
     new winston.transports.File({
       filename: path.resolve(__dirname, `../logs/${moment().format('YYYY-MM-DD HH')}-00.log`),
