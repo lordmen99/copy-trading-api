@@ -23,13 +23,13 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async createTradingCopy(expert: CreateTradingCopy): Promise<ITradingCopyModel> {
+  public async createTradingCopy(tradingCopy: CreateTradingCopy): Promise<ITradingCopyModel> {
     try {
-      const errors = await validate(expert);
+      const errors = await validate(tradingCopy);
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const tradingCopyEntity = expert as ITradingCopyModel;
+        const tradingCopyEntity = tradingCopy as ITradingCopyModel;
         const result = await this._tradingCopyRepository.create(tradingCopyEntity);
         if (result) {
           return result;

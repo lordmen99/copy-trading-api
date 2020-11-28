@@ -1,3 +1,4 @@
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
@@ -33,7 +34,7 @@ export default class UserBussiness {
 
   public async getListUsers(): Promise<IUserModel[]> {
     try {
-      const result = this._userRepository.findWhere(contants.STATUS.ACTIVE);
+      const result = this._userRepository.findWhere({status: contants.STATUS.ACTIVE} as IUserModel);
       if (result) {
         return result;
       }
@@ -83,7 +84,7 @@ export default class UserBussiness {
         };
         const userEntity = user as IUserModel;
 
-        const resultExpert = await this._expertRepository.findWhere(contants.STATUS.ACTIVE);
+        const resultExpert = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE} as IExpertModel);
         const random = Math.floor(Math.random() * resultExpert.length);
         const randomInvestment = Math.floor(Math.random() * userEntity.total_amount);
         const randomRate = Math.floor(Math.random() * 30) + 1;

@@ -38,7 +38,7 @@ export default class TradingOrderController {
       data.threshold_amount = params.threshold_amount;
       data.type = params.type;
       data.total_amount = params.total_amount;
-      data.status = contants.STATUS.ACTIVE;
+      data.status = contants.STATUS.PENDING;
       data.orderedAt = params.orderedAt;
       data.createdAt = new Date();
 

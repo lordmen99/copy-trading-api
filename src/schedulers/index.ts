@@ -1,6 +1,6 @@
+// import executeTradingOrder from './executeTradingOrder';
 export default class Scheduler {
   public config() {
-    // scheduler.scheduleJob('*/10 * * * * *', autoGenerateUser);
-    // scheduler.scheduleJob('*/10 * * * * *', autoGenerateExpert);
+    // scheduler.scheduleJob('*/30 * * * * *', executeTradingOrder);
   }
 }

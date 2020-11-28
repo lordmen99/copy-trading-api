@@ -1,3 +1,4 @@
+import TradingOrderBussiness from '@src/business/TradingOrderBussiness';
 import logger from '@src/middleware/Logger';
 
 export default (io: any) => {
@@ -9,6 +10,8 @@ export default (io: any) => {
         /** lọc ra nến kết quả */
         if (data.ticking === 1 && data.data[0].is_open === false) {
           console.log(data.data[0], 'data');
+          const tradingOrderBussiness = new TradingOrderBussiness();
+          tradingOrderBussiness.executeListPendingOrders(data.data[0]);
         }
       });
     });

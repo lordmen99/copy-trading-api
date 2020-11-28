@@ -7,7 +7,6 @@ class TradingHistorySchema {
       id_user: {
         type: String,
         required: true,
-        index: true,
       },
       id_expert: {
         type: String,

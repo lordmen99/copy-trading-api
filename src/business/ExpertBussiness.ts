@@ -13,7 +13,7 @@ export default class ExpertBussiness {
 
   public async getListExperts(): Promise<IExpertModel[]> {
     try {
-      const result = this._expertRepository.findWhere(contants.STATUS.ACTIVE);
+      const result = this._expertRepository.findWhere({status: contants.STATUS.ACTIVE} as IExpertModel);
       if (result) {
         return result;
       }

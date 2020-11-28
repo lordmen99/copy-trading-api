@@ -39,9 +39,9 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findWhere(status: string): Promise<T[]> {
+  public async findWhere(item: T): Promise<T[]> {
     try {
-      const result = await this._model.find({status});
+      const result = await this._model.find(item);
       return result as T[];
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
