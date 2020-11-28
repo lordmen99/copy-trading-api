@@ -64,6 +64,65 @@ server.exchange(
   ),
 );
 
+/**
+ * @api {post} /oauth/token 1. Sign in
+ * @apiVersion 0.1.0
+ * @apiGroup VII. Authorization
+ *
+ * @apiHeader {String} Content-Type application/json.
+ * @apiHeader {String} Accept application/json.
+ *
+ * @apiHeaderExample {Header} Header-Example
+ *    "Content-Type": "application/json"
+ *    "Accept": "application/json"
+ *
+ * @apiParam {String} username
+ * @apiParam {String} password
+ * @apiParam {String} grant_type password
+ * @apiParam {String} client_id b109f3bbbc244eb82441917ed06d618b9008dd09b3bef
+ * @apiParam {String} client_secret password
+ * @apiParam {String} scope offline_access
+ *
+ * @apiSuccess {Object} data
+ *
+ * @apiSuccessExample {json} Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *      "access_token": "d8e52612c0015c818fc76b007797e342bad3a6959f4241f11642c4249be7dae31d023112e0f605f23b0b950a032408222581f6044a38bf1979160b555b103ac36234c99981bb2eae67ae3f267a6358066210ef1637ad83880d83f6b16e67365363efde7485ac837496f59d08686f777212da67fc85dbc1901d5df34cd6675a52",
+ *      "token_type": "Bearer"
+ *    }
+ *
+ * @apiError (404 Not Found) NotFound API not found
+ * @apiErrorExample {json} 404 Not Found Error
+ *    HTTP/1.1 404 Not Found
+ *
+ * @apiError (500 Internal Server Error) InternalServerError The server encountered an internal error
+ * @apiErrorExample {json} 500 Account not exist
+ *    HTTP/1.1 500 Internal Server Error
+ *    {
+ *       {
+ *          "error": "server_error",
+ *          "error_description": "Account not exist"
+ *       }
+ *    }
+ * @apiErrorExample {json} 500 Login Fail
+ *    HTTP/1.1 500 Internal Server Error
+ *    {
+ *       {
+ *          "error": "server_error",
+ *          "error_description": "Login Fail"
+ *       }
+ *    }
+ * @apiErrorExample {json} 500 Account not active
+ *    HTTP/1.1 500 Internal Server Error
+ *    {
+ *       {
+ *          "error": "server_error",
+ *          "error_description": "ACCOUNT_NOT_ACTIVE"
+ *       }
+ *    }
+ */
+
 const token = [
   passport.authenticate(['basic', 'oauth2-client-password'], {session: false}),
   server.token(),
