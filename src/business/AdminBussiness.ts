@@ -1,7 +1,7 @@
 import IAdminModel from '@src/models/cpAdmin/IAdminModel';
 import AdminRepository from '@src/repository/AdminRepository';
 import {security} from '@src/utils';
-import {AddAdmin} from '@src/validator/admins/admins.validator';
+import {AddAdmin, ChangePasswordAdmin} from '@src/validator/admins/admins.validator';
 import {validate} from 'class-validator';
 
 export default class AdminBussiness {
@@ -36,6 +36,30 @@ export default class AdminBussiness {
           } as IAdminModel;
         }
         return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async changePasswordAdmin(params: ChangePasswordAdmin): Promise<boolean> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const admin = await this._adminRepository.findById(params._id);
+        if (admin) {
+          const checked = security.checkPassword(params.current_password, admin.salt, admin.hashed_password);
+          if (checked) {
+            const securityPass = security.createHashedSalt(params.new_password);
+            const result = await this._adminRepository.update(this._adminRepository.toObjectId(params._id), {
+              hashed_password: securityPass.hashedPassword,
+              salt: securityPass.salt,
+            } as IAdminModel);
+            return result ? true : false;
+          } else throw new Error('Current password is false');
+        } else throw new Error('Account does not exist');
       }
     } catch (err) {
       throw err;

@@ -4,10 +4,6 @@ import mongoose from 'mongoose';
 class TradingOrderSchema {
   static get schema() {
     const schema = new mongoose.Schema({
-      id_user: {
-        type: String,
-        required: true,
-      },
       id_expert: {
         type: String,
         required: true,
@@ -21,18 +17,6 @@ class TradingOrderSchema {
         required: true,
       },
       threshold_percent: {
-        type: Number,
-        required: true,
-      },
-      threshold_amount: {
-        type: Number,
-        required: true,
-      },
-      type: {
-        type: String,
-        required: true,
-      },
-      total_amount: {
         type: Number,
         required: true,
       },

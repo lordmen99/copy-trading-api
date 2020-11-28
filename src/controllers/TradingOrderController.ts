@@ -30,20 +30,23 @@ export default class TradingOrderController {
     try {
       const params = req.body;
       const data = new CreateTradingOrder();
-      data.id_user = params.id_user;
       data.id_expert = params.id_expert;
       data.id_admin = params.id_admin;
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
-      data.threshold_amount = params.threshold_amount;
-      data.type = params.type;
-      data.total_amount = params.total_amount;
       data.status = contants.STATUS.PENDING;
-      data.orderedAt = params.orderedAt;
-      data.createdAt = new Date();
+      const utc = new Date(params.orderedAt).toUTCString();
+      data.orderedAt = new Date(utc);
+      data.createdAt = new Date(new Date().toUTCString());
 
       const start = new Date(params.orderedAt);
+
+      if (new Date(data.orderedAt).getDate() !== data.createdAt.getDate()) {
+        start.setHours(0, 0, 0);
+      }
+
       const end = new Date(params.orderedAt);
+
       end.setHours(23, 59, 59);
       const diff = (end.getTime() - start.getTime()) * Math.random();
 

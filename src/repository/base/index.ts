@@ -32,7 +32,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
       const result = await this._model
         .find({})
         .limit(size)
-        .skip(page * size);
+        .skip((page - 1) * size);
       return result as T[];
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

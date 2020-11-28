@@ -1,5 +1,6 @@
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
+import {contants} from '@src/utils';
 import {CreateTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {validate} from 'class-validator';
 
@@ -18,6 +19,21 @@ export default class TradingCopyBussiness {
       } else {
         return this._tradingCopyRepository.findById(id);
       }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getTradingCopies(id_expert: string): Promise<ITradingCopyModel[]> {
+    try {
+      const result = this._tradingCopyRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+        id_expert,
+      } as ITradingCopyModel);
+      if (result) {
+        return result;
+      }
+      return [];
     } catch (err) {
       throw err;
     }

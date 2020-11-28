@@ -64,3 +64,14 @@ export class EditAdmin {
 
   status: string;
 }
+
+export class ChangePasswordAdmin {
+  _id: string;
+  current_password: string;
+
+  @IsNotEmpty({message: 'Password is required'})
+  @MinLength(8, {
+    message: 'Password must be at least 8 characters!',
+  })
+  new_password: string;
+}

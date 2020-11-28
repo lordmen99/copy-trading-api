@@ -1,6 +1,6 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
-import {CreateTradingHistory} from '@src/validator/trading_histories/trading_orders.validator';
+import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {validate} from 'class-validator';
 
 export default class TradingHistoryBussiness {
