@@ -16,27 +16,15 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} password
+ * @apiParam {String} current_password
+ * @apiParam {String} new_password
  *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
  *  HTTP/1.1 200 OK
  *  {
- *      "data": [
- *            {
- *              "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c417",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": "",
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
- *              "__v": 0
- *            }
- *        ]
+ *      "data": true
  *  }
  *
  * @apiError (404 Not Found) NotFound API not found
