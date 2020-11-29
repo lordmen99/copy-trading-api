@@ -1,4 +1,5 @@
 import TradingOrderBussiness from '@src/business/TradingOrderBussiness';
+import IAdminModel from '@src/models/cpAdmin/IAdminModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import {contants} from '@src/utils';
 import {CreateTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
@@ -31,7 +32,7 @@ export default class TradingOrderController {
       const params = req.body;
       const data = new CreateTradingOrder();
       data.id_expert = params.id_expert;
-      data.id_admin = params.id_admin;
+      data.id_admin = (req.user as IAdminModel)._id.toString();
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
       data.status = contants.STATUS.PENDING;

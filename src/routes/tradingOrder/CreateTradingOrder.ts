@@ -31,7 +31,6 @@ import {Router} from 'express';
  *            {
  *              "_id": "5fbff8e935df029b281f06fe",
  *              "id_expert": "5fbf0a869fd1920a2f5de2f9",
- *              "id_admin": "5fbfdbd604a4f08d567385ec",
  *              "type_of_order": "WIN",
  *              "threshold_percent": 10,
  *              "status": "ACTIVE",
