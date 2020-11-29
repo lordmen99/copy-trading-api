@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /trading_history/get_list_trading_histories 1. Get list trading histories
+ * @api {post} /trading_history/get_list_trading_histories 1. Get list trading histories
  * @apiVersion 0.1.0
  * @apiGroup IV. Trading History
  *
@@ -74,4 +74,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.get('/get_list_trading_histories', isAuthenticated, new TradingHistoryController().getListTradingHistories);
+  route.post('/get_list_trading_histories', isAuthenticated, new TradingHistoryController().getListTradingHistories);

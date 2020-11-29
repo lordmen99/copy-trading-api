@@ -4,7 +4,7 @@ import {NextFunction, Request, Response} from 'express';
 export default class TradingHistoryController {
   public async getListTradingHistories(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const params = req.query;
+      const params = req.body;
       const tradingHistoryBusiness = new TradingHistoryBussiness();
       const result = await tradingHistoryBusiness.getListTradingHistories(
         parseInt(params.page.toString()),
