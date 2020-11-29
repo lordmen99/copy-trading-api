@@ -2,9 +2,11 @@ import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryMo
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import {contants} from '@src/utils';
+import {GetExpert} from '@src/validator/experts/experts.validator';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {CreateTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
+import ExpertBussiness from './ExpertBussiness';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
 export default class TradingOrderBussiness {
@@ -39,6 +41,20 @@ export default class TradingOrderBussiness {
     }
   }
 
+  public async getListOrdersByExpert(id_expert: string): Promise<ITradingOrderModel[]> {
+    try {
+      const result = await this._tradingOrderRepository.findWhere({
+        id_expert,
+      } as ITradingOrderModel);
+      if (result) {
+        return result;
+      }
+      return [];
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async executeListPendingOrders(dataSocket: any): Promise<ITradingOrderModel[]> {
     try {
       const result = await this._tradingOrderRepository.findWhere({
@@ -63,6 +79,51 @@ export default class TradingOrderBussiness {
             const tradingCopyBussiness = new TradingCopyBussiness();
 
             const tradingCopy = await tradingCopyBussiness.getTradingCopies(order.id_expert);
+
+            const expertBusiness = new ExpertBussiness();
+
+            const expert = await expertBusiness.findById({id_expert: order.id_expert} as GetExpert);
+            if (expert) {
+              // tạo history cho expert
+              const data = new CreateTradingHistory();
+              const tradingHistoryEntity = data as ITradingHistoryModel;
+
+              tradingHistoryEntity.id_expert = order.id_expert;
+              tradingHistoryEntity.opening_time = tempDate;
+              if (dataSocket.open > dataSocket.close) {
+                if (order.type_of_order === 'WIN') {
+                  tradingHistoryEntity.type_of_order = 'SELL';
+                } else {
+                  tradingHistoryEntity.type_of_order = 'BUY';
+                }
+              } else {
+                if (order.type_of_order === 'WIN') {
+                  tradingHistoryEntity.type_of_order = 'BUY';
+                } else {
+                  tradingHistoryEntity.type_of_order = 'SELL';
+                }
+              }
+              tradingHistoryEntity.opening_price = dataSocket.open;
+              tradingHistoryEntity.closing_time = tempDate;
+              tradingHistoryEntity.closing_price = dataSocket.close;
+              tradingHistoryEntity.investment_amount = expert.total_amount * (order.threshold_percent / 100);
+
+              if (order.type_of_order === 'WIN') {
+                tradingHistoryEntity.profit = expert.total_amount * (order.threshold_percent / 100);
+                tradingHistoryEntity.fee_to_expert = tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT;
+                tradingHistoryEntity.fee_to_trading = tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING;
+              } else {
+                tradingHistoryEntity.profit = 0;
+                tradingHistoryEntity.fee_to_expert = 0;
+                tradingHistoryEntity.fee_to_trading = 0;
+              }
+
+              tradingHistoryEntity.type_of_money = 'BTC';
+              tradingHistoryEntity.status = false;
+
+              const tradingHistoryBusiness = new TradingHistoryBussiness();
+              await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
+            }
 
             if (tradingCopy) {
               tradingCopy.map(async (copy) => {
@@ -90,9 +151,16 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.closing_time = tempDate;
                 tradingHistoryEntity.closing_price = dataSocket.close;
                 tradingHistoryEntity.investment_amount = copy.investment_amount;
-                tradingHistoryEntity.profit = copy.investment_amount * (copy.maximum_rate / 100);
-                tradingHistoryEntity.fee_to_expert = tradingHistoryEntity.profit * 0.05;
-                tradingHistoryEntity.fee_to_trading = tradingHistoryEntity.profit * 0.05;
+                if (order.type_of_order === 'WIN') {
+                  tradingHistoryEntity.profit =
+                    copy.investment_amount * (15 / 100) - 2 * (0.05 * copy.investment_amount * (15 / 100));
+                  tradingHistoryEntity.fee_to_expert = tradingHistoryEntity.profit * 0.05;
+                  tradingHistoryEntity.fee_to_trading = tradingHistoryEntity.profit * 0.05;
+                } else {
+                  tradingHistoryEntity.profit = 0;
+                  tradingHistoryEntity.fee_to_expert = 0;
+                  tradingHistoryEntity.fee_to_trading = 0;
+                }
                 tradingHistoryEntity.type_of_money = 'BTC';
                 tradingHistoryEntity.status = false;
 

@@ -39,6 +39,18 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
+  public async findWithPagingById(item: T, page: number, size: number): Promise<T[]> {
+    try {
+      const result = await this._model
+        .find(item)
+        .limit(size)
+        .skip((page - 1) * size);
+      return result as T[];
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async findWhere(item: T): Promise<T[]> {
     try {
       const result = await this._model.find(item);

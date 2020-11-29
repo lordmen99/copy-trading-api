@@ -27,6 +27,17 @@ export default class TradingOrderController {
     }
   }
 
+  public async getListTradingOrdersByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const tradingOrderBusiness = new TradingOrderBussiness();
+      const result = await tradingOrderBusiness.getListOrdersByExpert(params.id_expert);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async createTradingOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;

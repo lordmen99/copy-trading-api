@@ -5,6 +5,12 @@ enum STATUS {
   FINISH = 'FINISH',
   DELETE = 'DELETE',
 }
+
+enum RATE {
+  FEE_TO_EXPERT = 5 / 100,
+  FEE_TO_TRADING = 5 / 100,
+}
 export default {
   STATUS,
+  RATE,
 };

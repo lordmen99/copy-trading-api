@@ -22,6 +22,38 @@ export default class TradingHistoryBussiness {
     }
   }
 
+  public async getListTradingHistoriesByUser(
+    id_user: string,
+    page: number,
+    size: number,
+  ): Promise<ITradingHistoryModel[]> {
+    try {
+      const result = this._tradingHistoryRepository.findWithPagingById({id_user} as ITradingHistoryModel, page, size);
+      if (result) {
+        return result;
+      }
+      return [];
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListTradingHistoriesByExpert(
+    id_expert: string,
+    page: number,
+    size: number,
+  ): Promise<ITradingHistoryModel[]> {
+    try {
+      const result = this._tradingHistoryRepository.findWithPagingById({id_expert} as ITradingHistoryModel, page, size);
+      if (result) {
+        return result;
+      }
+      return [];
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async createTradingHistory(tradingHistory: CreateTradingHistory): Promise<ITradingHistoryModel> {
     try {
       const errors = await validate(tradingHistory);
