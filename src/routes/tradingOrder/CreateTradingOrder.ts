@@ -16,14 +16,11 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_user Id của user trong bản cp_users
  * @apiParam {String} id_expert Id của expert trong bản cp_experts
  * @apiParam {String} id_admin Id của admin thực hiện đánh trong bản cp_admins
  * @apiParam {String} type_of_order Loại đánh lệnh (WIN/LOSE)
  * @apiParam {Number} threshold_percent Ngưỡng % của total_amount
- * @apiParam {Number} threshold_amount Ngưỡng tiền của total_amount
- * @apiParam {String} type Loại ngưỡng (PERCENT/AMOUNT)
- * @apiParam {Number} total_amount Khoản tiền đánh của lệnh
+ * @apiParam {Number} orderedAt Thời gian setup lệnh chạy
  *
  * @apiSuccess {Object} data
  *
@@ -33,17 +30,14 @@ import {Router} from 'express';
  *      "data": [
  *            {
  *              "_id": "5fbff8e935df029b281f06fe",
- *               "id_user": "5fbf74c9c31dae69009936d0",
  *              "id_expert": "5fbf0a869fd1920a2f5de2f9",
  *              "id_admin": "5fbfdbd604a4f08d567385ec",
  *              "type_of_order": "WIN",
  *              "threshold_percent": 10,
- *              "threshold_amount": 0,
- *              "type": "PERCENT",
- *              "total_amount": 500,
  *              "status": "ACTIVE",
  *              "createdAt": "2020-11-26T18:50:17.262Z",
- *              "updatedAt": "2020-11-26T18:50:17.262Z",
+ *              "ordereddAt": "2020-11-26T18:50:17.262Z",
+ *              "timeSetup": "2020-11-26T18:50:17.262Z",
  *              "__v": 0
  *            }
  *        ]

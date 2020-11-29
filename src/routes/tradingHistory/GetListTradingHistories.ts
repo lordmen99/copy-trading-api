@@ -16,6 +16,9 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {Number} page
+ * @apiParam {Number} size
+ *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
@@ -23,12 +26,38 @@ import {Router} from 'express';
  *  {
  *      "data": [
  *            {
- *              "id": 1,
- *              "User_id": 26,
- *              "email_friend": "danh.nguyenminh@pgpg.com",
- *              "status": "IN_ACTIVE",
- *              "created_at": "2020-04-07T03:27:46.000Z",
- *              "updated_at": "2020-04-07T03:27:46.000Z"
+ *              "status": false,
+ *              "_id": "5fc2a71d7e0203763e368127",
+ *              "id_user": "5fbf74c9c31dae69009936d1",
+ *              "id_expert": "5fbf0a869fd1920a2f5de2fc",
+ *              "opening_time": "2020-11-28T19:38:00.175Z",
+ *              "type_of_order": "BUY",
+ *              "opening_price": 17732.71,
+ *              "closing_time": "2020-11-28T19:38:00.175Z",
+ *              "closing_price": 17736.64,
+ *              "investment_amount": 80,
+ *              "profit": 20,
+ *              "fee_to_expert": 1,
+ *              "fee_to_trading": 1,
+ *              "type_of_money": "BTC",
+ *              "__v": 0
+ *            },
+ *            {
+ *              "status": false,
+ *              "_id": "5fc2a71d7e0203763e368127",
+ *              "id_user": "5fbf74c9c31dae69009936d1",
+ *              "id_expert": "5fbf0a869fd1920a2f5de2fc",
+ *              "opening_time": "2020-11-28T19:38:00.175Z",
+ *              "type_of_order": "BUY",
+ *              "opening_price": 17732.71,
+ *              "closing_time": "2020-11-28T19:38:00.175Z",
+ *              "closing_price": 17736.64,
+ *              "investment_amount": 80,
+ *              "profit": 20,
+ *              "fee_to_expert": 1,
+ *              "fee_to_trading": 1,
+ *              "type_of_money": "BTC",
+ *              "__v": 0
  *            }
  *        ]
  *  }
