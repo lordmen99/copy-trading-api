@@ -10,7 +10,7 @@ export default class TradingHistoryBussiness {
     this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
-  public async getListTradingHistories(page: number, size: number): Promise<ITradingHistoryModel[]> {
+  public async getListTradingHistories(page: number, size: number): Promise<any> {
     try {
       const result = this._tradingHistoryRepository.findWithPaging(page, size);
       if (result) {
@@ -22,11 +22,7 @@ export default class TradingHistoryBussiness {
     }
   }
 
-  public async getListTradingHistoriesByUser(
-    id_user: string,
-    page: number,
-    size: number,
-  ): Promise<ITradingHistoryModel[]> {
+  public async getListTradingHistoriesByUser(id_user: string, page: number, size: number): Promise<any> {
     try {
       const result = this._tradingHistoryRepository.findWithPagingById({id_user} as ITradingHistoryModel, page, size);
       if (result) {
@@ -38,11 +34,7 @@ export default class TradingHistoryBussiness {
     }
   }
 
-  public async getListTradingHistoriesByExpert(
-    id_expert: string,
-    page: number,
-    size: number,
-  ): Promise<ITradingHistoryModel[]> {
+  public async getListTradingHistoriesByExpert(id_expert: string, page: number, size: number): Promise<any> {
     try {
       const result = this._tradingHistoryRepository.findWithPagingById({id_expert} as ITradingHistoryModel, page, size);
       if (result) {

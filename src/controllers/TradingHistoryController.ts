@@ -10,7 +10,7 @@ export default class TradingHistoryController {
         parseInt(params.page.toString()),
         parseInt(params.size.toString()),
       );
-      res.status(200).send({data: result});
+      res.status(200).send({data: result.result, count: result.count});
     } catch (err) {
       next(err);
     }
@@ -25,7 +25,7 @@ export default class TradingHistoryController {
         parseInt(params.page.toString()),
         parseInt(params.size.toString()),
       );
-      res.status(200).send({data: result});
+      res.status(200).send({data: result.result, count: result.count});
     } catch (err) {
       next(err);
     }
@@ -40,7 +40,7 @@ export default class TradingHistoryController {
         parseInt(params.page.toString()),
         parseInt(params.size.toString()),
       );
-      res.status(200).send({data: result});
+      res.status(200).send({data: result.result, count: result.count});
     } catch (err) {
       next(err);
     }
