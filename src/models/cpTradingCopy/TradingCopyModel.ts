@@ -23,12 +23,24 @@ export default class TradingHistoryModel {
     return this._tradingCopyModel.maximum_rate;
   }
 
+  get has_maximum_rate(): boolean {
+    return this._tradingCopyModel.has_maximum_rate;
+  }
+
   get stop_loss(): number {
     return this._tradingCopyModel.stop_loss;
   }
 
+  get has_stop_loss(): boolean {
+    return this._tradingCopyModel.has_stop_loss;
+  }
+
   get taken_profit(): number {
     return this._tradingCopyModel.taken_profit;
+  }
+
+  get has_taken_profit(): boolean {
+    return this._tradingCopyModel.has_taken_profit;
   }
 
   get status(): string {

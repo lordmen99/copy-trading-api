@@ -21,12 +21,24 @@ class TradingCopySchema {
         type: Number,
         required: true,
       },
+      has_maximum_rate: {
+        type: Boolean,
+        required: true,
+      },
       stop_loss: {
         type: Number,
         required: true,
       },
+      has_stop_loss: {
+        type: Boolean,
+        required: true,
+      },
       taken_profit: {
         type: Number,
+        required: true,
+      },
+      has_taken_profit: {
+        type: Boolean,
         required: true,
       },
       status: {

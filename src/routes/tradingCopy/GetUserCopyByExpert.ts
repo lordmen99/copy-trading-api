@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading_copy/create_trading_copy 1. Create trading copy
+ * @api {post} /trading_copy/get_user_copy_by_expert 2. Get trading copy by expert
  * @apiVersion 0.1.0
  * @apiGroup III. Trading Copy
  *
@@ -16,15 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_user Id của user trong bản cp_users
  * @apiParam {String} id_expert Id của expert trong bản cp_experts
- * @apiParam {Number} investment_amount Khoản đầu tư của user
- * @apiParam {Number} maximum_rate Phần trăm của mỗi lệnh đánh dựa trên investment_amount
- * @apiParam {Boolean} has_maximum_rate Bật/tắt giá trị maximum_rate
- * @apiParam {Number} stop_loss Mức tiền cắt lỗ (nếu đạt mức này thì dừng copy trading)
- * @apiParam {Boolean} has_stop_loss Bật/tắt giá trị stop_loss
- * @apiParam {Number} taken_profit Mức tiền lãi (nếu đạt mức này thì dừng copy trading)
- * @apiParam {Boolean} has_taken_profit Bật/tắt giá trị taken_profit
  *
  *
  * @apiSuccess {Object} data
@@ -40,11 +32,8 @@ import {Router} from 'express';
  *              "id_expert": "5fbf0a869fd1920a2f5de2ff",
  *              "investment_amount": 500,
  *              "maximum_rate": 15,
- *              "has_maximum_rate": true,
  *              "stop_loss": 50,
- *              "has_stop_loss": true,
  *              "taken_profit": 1000,
- *              "has_taken_profit": true,
  *              "__v": 0
  *            }
  *        ]
@@ -62,4 +51,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/create_trading_copy', isAuthenticated, new TradingCopyController().createTradingCopy);
+  route.post('/get_user_copy_by_expert', isAuthenticated, new TradingCopyController().getUserCopyByExpert);

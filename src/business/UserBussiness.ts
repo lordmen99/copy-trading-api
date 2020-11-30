@@ -87,9 +87,9 @@ export default class UserBussiness {
         const resultExpert = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE} as IExpertModel);
         const random = Math.floor(Math.random() * resultExpert.length);
         const randomInvestment = Math.floor(Math.random() * userEntity.total_amount);
-        const randomRate = Math.floor(Math.random() * 30) + 1;
-        const randomStopLoss = Math.floor(Math.random() * 50) + 1;
-        const randomProfit = Math.floor(Math.random() * 1000) + 100;
+        const randomRate = Math.floor(Math.random() * (100 - 1)) + 1;
+        const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
+        const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
         const resultUser = await this._userRepository.create(userEntity);
 
         if (resultUser) {
@@ -97,9 +97,24 @@ export default class UserBussiness {
           tradingCopyEntity.id_user = resultUser._id.toHexString();
           tradingCopyEntity.id_expert = resultExpert[random]._id;
           tradingCopyEntity.investment_amount = randomInvestment;
-          tradingCopyEntity.maximum_rate = randomRate;
-          tradingCopyEntity.stop_loss = randomStopLoss;
-          tradingCopyEntity.taken_profit = randomProfit;
+          tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
+          if (tradingCopyEntity.has_maximum_rate) {
+            tradingCopyEntity.maximum_rate = randomRate;
+          } else {
+            tradingCopyEntity.maximum_rate = 0;
+          }
+          tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
+          if (tradingCopyEntity.has_stop_loss) {
+            tradingCopyEntity.stop_loss = randomStopLoss;
+          } else {
+            tradingCopyEntity.stop_loss = 0;
+          }
+          tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
+          if (tradingCopyEntity.has_taken_profit) {
+            tradingCopyEntity.taken_profit = randomProfit;
+          } else {
+            tradingCopyEntity.taken_profit = 0;
+          }
           tradingCopyEntity.createdAt = new Date();
           tradingCopyEntity.updatedAt = new Date();
 

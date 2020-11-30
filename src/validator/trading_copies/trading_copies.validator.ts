@@ -19,13 +19,22 @@ export class CreateTradingCopy {
   @IsNotEmpty({message: 'Maximum rate is required'})
   maximum_rate: number;
 
+  @IsNotEmpty({message: 'Has maximum rate is required'})
+  has_maximum_rate: boolean;
+
   @IsNotEmpty({message: 'Stop loss is required'})
   stop_loss: number;
+
+  @IsNotEmpty({message: 'Has stop loss is required'})
+  has_stop_loss: boolean;
 
   @IsNotEmpty({message: 'Taken profit is required'})
   taken_profit: number;
 
-  status: string;
+  @IsNotEmpty({message: 'Has taken profit is required'})
+  has_taken_profit: boolean;
+
+  status?: string;
 
   createdAt?: Date;
 
