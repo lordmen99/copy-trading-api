@@ -27,6 +27,19 @@ export default class TradingCopyBussiness {
     }
   }
 
+  public async updateById(id: string): Promise<ITradingCopyModel> {
+    try {
+      const errors = await validate(id);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        return this._tradingCopyRepository.findById(id);
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async findUserCopyByExpert(id_expert: string): Promise<ITradingCopyModel[]> {
     // const listUsers = [];
 

@@ -39,13 +39,17 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findWithPagingById(item: T, page: number, size: number): Promise<T[]> {
+  public async findWithPagingById(item: T, page: number, size: number): Promise<any> {
     try {
       const result = await this._model
         .find(item)
         .limit(size)
         .skip((page - 1) * size);
-      return result as T[];
+      const count = await this._model.count(item);
+      return {
+        result,
+        count,
+      };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
     }
@@ -63,7 +67,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
   public async findWhereSortByField(item: T, field: string): Promise<T[]> {
     try {
       const result = await this._model.find(item).sort({
-        [field]: -1,
+        [field]: 1,
       });
       return result as T[];
     } catch (err) {
