@@ -1,10 +1,6 @@
 import {IsNotEmpty, IsString} from 'class-validator';
 
 export class CreateTradingHistory {
-  @IsNotEmpty({message: 'Id user is required'})
-  @IsString({
-    message: 'Id user is string',
-  })
   id_user: string;
 
   @IsNotEmpty({message: 'Id expert is required'})

@@ -6,7 +6,6 @@ class TradingHistorySchema {
     const schema = new mongoose.Schema({
       id_user: {
         type: String,
-        required: true,
       },
       id_expert: {
         type: String,

@@ -57,9 +57,12 @@ export default class TradingOrderBussiness {
 
   public async executeListPendingOrders(dataSocket: any): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findWhere({
-        status: contants.STATUS.PENDING,
-      } as ITradingOrderModel);
+      const result = await this._tradingOrderRepository.findWhereSortByField(
+        {
+          status: contants.STATUS.PENDING,
+        } as ITradingOrderModel,
+        'timeSetup',
+      );
 
       if (result) {
         result.map(async (order) => {
@@ -82,12 +85,15 @@ export default class TradingOrderBussiness {
 
             const expertBusiness = new ExpertBussiness();
 
-            const expert = await expertBusiness.findById({id_expert: order.id_expert} as GetExpert);
+            const data = new GetExpert();
+            data._id = order.id_expert;
+
+            const expert = await expertBusiness.findById(data);
             if (expert) {
               // tạo history cho expert
               const data = new CreateTradingHistory();
               const tradingHistoryEntity = data as ITradingHistoryModel;
-
+              tradingHistoryEntity.id_user = '';
               tradingHistoryEntity.id_expert = order.id_expert;
               tradingHistoryEntity.opening_time = tempDate;
               if (dataSocket.open > dataSocket.close) {
@@ -106,12 +112,20 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.opening_price = dataSocket.open;
               tradingHistoryEntity.closing_time = tempDate;
               tradingHistoryEntity.closing_price = dataSocket.close;
-              tradingHistoryEntity.investment_amount = expert.total_amount * (order.threshold_percent / 100);
+              tradingHistoryEntity.investment_amount = parseFloat(
+                (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
+              );
 
               if (order.type_of_order === 'WIN') {
-                tradingHistoryEntity.profit = expert.total_amount * (order.threshold_percent / 100);
-                tradingHistoryEntity.fee_to_expert = tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT;
-                tradingHistoryEntity.fee_to_trading = tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING;
+                tradingHistoryEntity.profit = parseFloat(
+                  (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
+                );
+                tradingHistoryEntity.fee_to_expert = parseFloat(
+                  (tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT).toFixed(2),
+                );
+                tradingHistoryEntity.fee_to_trading = parseFloat(
+                  (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
+                );
               } else {
                 tradingHistoryEntity.profit = 0;
                 tradingHistoryEntity.fee_to_expert = 0;
@@ -152,10 +166,17 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.closing_price = dataSocket.close;
                 tradingHistoryEntity.investment_amount = copy.investment_amount;
                 if (order.type_of_order === 'WIN') {
-                  tradingHistoryEntity.profit =
-                    copy.investment_amount * (15 / 100) - 2 * (0.05 * copy.investment_amount * (15 / 100));
-                  tradingHistoryEntity.fee_to_expert = tradingHistoryEntity.profit * 0.05;
-                  tradingHistoryEntity.fee_to_trading = tradingHistoryEntity.profit * 0.05;
+                  if (copy.has_maximum_rate) {
+                    tradingHistoryEntity.profit = parseFloat(
+                      (copy.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                    );
+                    tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                    tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                  } else {
+                    tradingHistoryEntity.profit = parseFloat(copy.investment_amount.toFixed(2));
+                    tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                    tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                  }
                 } else {
                   tradingHistoryEntity.profit = 0;
                   tradingHistoryEntity.fee_to_expert = 0;

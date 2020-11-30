@@ -60,6 +60,17 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
+  public async findWhereSortByField(item: T, field: string): Promise<T[]> {
+    try {
+      const result = await this._model.find(item).sort({
+        [field]: -1,
+      });
+      return result as T[];
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async findOne(item: T): Promise<T> {
     try {
       const result = await this._model.findOne(item);
