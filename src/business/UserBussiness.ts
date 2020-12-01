@@ -155,4 +155,28 @@ export default class UserBussiness {
       throw err;
     }
   }
+
+  public async executeUnblockUser(): Promise<void> {
+    try {
+      const result = await this._userRepository.findWhere({status: contants.STATUS.BLOCK} as IUserModel);
+      if (result) {
+        const tempDate = new Date();
+        result.map(async (user) => {
+          if (
+            user.blockedAt.getDate() === tempDate.getDate() &&
+            user.blockedAt.getMonth() === tempDate.getMonth() &&
+            user.blockedAt.getFullYear() === tempDate.getFullYear() &&
+            user.blockedAt.getHours() === tempDate.getHours() &&
+            user.blockedAt.getMinutes() === tempDate.getMinutes()
+          ) {
+            await this._userRepository.update(user._id, {
+              status_trading_copy: contants.STATUS.ACTIVE,
+            } as IUserModel);
+          }
+        });
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
 }

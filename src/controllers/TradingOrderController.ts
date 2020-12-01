@@ -53,7 +53,11 @@ export default class TradingOrderController {
 
       const start = new Date(params.orderedAt);
 
-      if (new Date(data.orderedAt).getDate() !== data.createdAt.getDate()) {
+      if (
+        new Date(data.orderedAt).getDate() !== data.createdAt.getDate() ||
+        new Date(data.orderedAt).getMonth() !== data.createdAt.getMonth() ||
+        new Date(data.orderedAt).getFullYear() !== data.createdAt.getFullYear()
+      ) {
         start.setHours(0, 0, 0);
       }
 

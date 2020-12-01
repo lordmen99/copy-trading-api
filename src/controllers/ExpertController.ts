@@ -61,7 +61,7 @@ export default class ExpertController {
         const username = faker.internet.userName();
         const email = faker.internet.email();
         const phone = faker.phone.phoneNumber();
-        const total_amount = parseFloat((Math.random() * (20000 - 1000) + 1000).toFixed(2));
+        const total_amount = parseFloat((Math.random() * (30000 - 10000) + 10000).toFixed(2));
 
         const data = new AddExpert();
 

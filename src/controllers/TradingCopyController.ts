@@ -77,6 +77,20 @@ export default class TradingCopyController {
     }
   }
 
+  public async resumeTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new GetTradingCopy();
+      data.id_copy = params.id_copy;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.resumeTradingCopy(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getTradingCopyById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;

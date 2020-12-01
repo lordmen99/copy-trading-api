@@ -132,7 +132,7 @@ export default class TradingCopyBussiness {
         } as ITradingCopyModel);
         if (copy) {
           const resultUser = await this._userRepository.update(this._userRepository.toObjectId(copy.id_user), {
-            blockedAt: new Date(),
+            blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
           } as IUserModel);
           const resultCopy = await this._tradingCopyRepository.update(copy._id, {
@@ -171,6 +171,36 @@ export default class TradingCopyBussiness {
             return false;
           } else {
             throw new Error('Trading copy is not active!');
+          }
+        } else {
+          throw new Error('Trading copy is not exist!');
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async resumeTradingCopy(tradingCopy: GetTradingCopy): Promise<boolean> {
+    try {
+      const errors = await validate(tradingCopy);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const copy = await this._tradingCopyRepository.findOne({
+          _id: tradingCopy.id_copy,
+        } as ITradingCopyModel);
+        if (copy) {
+          if (copy.status === contants.STATUS.PAUSE) {
+            const resultCopy = await this._tradingCopyRepository.update(copy._id, {
+              status: contants.STATUS.ACTIVE,
+            } as ITradingCopyModel);
+            if (resultCopy) {
+              return true;
+            }
+            return false;
+          } else {
+            throw new Error('Trading copy is not pause!');
           }
         } else {
           throw new Error('Trading copy is not exist!');
