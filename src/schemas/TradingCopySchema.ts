@@ -17,6 +17,9 @@ class TradingCopySchema {
         type: Number,
         required: true,
       },
+      base_amount: {
+        type: Number,
+      },
       maximum_rate: {
         type: Number,
         required: true,

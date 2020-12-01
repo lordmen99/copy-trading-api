@@ -97,6 +97,7 @@ export default class UserBussiness {
           tradingCopyEntity.id_user = resultUser._id.toHexString();
           tradingCopyEntity.id_expert = resultExpert[random]._id;
           tradingCopyEntity.investment_amount = randomInvestment;
+          tradingCopyEntity.base_amount = randomInvestment;
           tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
           if (tradingCopyEntity.has_maximum_rate) {
             tradingCopyEntity.maximum_rate = randomRate;

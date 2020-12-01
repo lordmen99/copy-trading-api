@@ -1,5 +1,7 @@
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
+import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
@@ -14,10 +16,12 @@ import {GetTradingCopyOfUser} from './../validator/trading_copies/trading_copies
 export default class TradingCopyBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
+  private _expertRepository: ExpertRepository;
 
   constructor() {
     this._tradingCopyRepository = new TradingCopyRepository();
     this._userRepository = new UserRepository();
+    this._expertRepository = new ExpertRepository();
   }
 
   public async findById(id: string): Promise<ITradingCopyModel> {
@@ -102,13 +106,25 @@ export default class TradingCopyBussiness {
         if (!duplicateResult) {
           const userBlock = await this._userRepository.findOne({
             _id: tradingCopyEntity.id_user,
+            status_trading_copy: contants.STATUS.BLOCK,
           } as IUserModel);
           if (!userBlock) {
             const result = await this._tradingCopyRepository.create(tradingCopyEntity);
             if (result) {
-              return result;
+              const user = await this._userRepository.findOne({
+                _id: tradingCopyEntity.id_user,
+              } as IUserModel);
+              const updateUser = await this._userRepository.update(
+                this._userRepository.toObjectId(tradingCopyEntity.id_user),
+                {
+                  total_amount: user.total_amount - tradingCopyEntity.base_amount,
+                } as IUserModel,
+              );
+              if (updateUser) {
+                return result;
+              }
+              return null;
             }
-            return null;
           } else {
             throw new Error('You are blocked in 24 hours!');
           }
@@ -245,6 +261,28 @@ export default class TradingCopyBussiness {
         return copy;
       } else {
         return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async calculateMoney(id: string, type: string, money: number): Promise<void> {
+    try {
+      if (type === 'user') {
+        const userCopy = await this._tradingCopyRepository.findOne({
+          id_user: id,
+        } as ITradingCopyModel);
+        const result = await this._tradingCopyRepository.update(userCopy._id, {
+          investment_amount: userCopy.investment_amount + money,
+        } as ITradingCopyModel);
+      } else {
+        const expert = await this._expertRepository.findOne({
+          _id: id,
+        } as IExpertModel);
+        await this._expertRepository.update(this._expertRepository.toObjectId(id), {
+          total_amount: expert.total_amount + money,
+        } as IExpertModel);
       }
     } catch (err) {
       throw err;

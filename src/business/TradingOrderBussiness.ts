@@ -3,6 +3,7 @@ import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import {contants} from '@src/utils';
 import {GetExpert} from '@src/validator/experts/experts.validator';
+import {GetTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {CreateTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
@@ -127,16 +128,27 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.fee_to_trading = parseFloat(
                   (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
                 );
+                await tradingCopyBussiness.calculateMoney(
+                  tradingHistoryEntity.id_expert,
+                  'expert',
+                  tradingHistoryEntity.profit,
+                );
               } else {
                 tradingHistoryEntity.profit = 0;
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
+                await tradingCopyBussiness.calculateMoney(
+                  tradingHistoryEntity.id_expert,
+                  'expert',
+                  tradingHistoryEntity.investment_amount * -1,
+                );
               }
 
               tradingHistoryEntity.type_of_money = 'BTC';
               tradingHistoryEntity.status = false;
 
               const tradingHistoryBusiness = new TradingHistoryBussiness();
+
               await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
             }
 
@@ -165,27 +177,72 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.opening_price = dataSocket.open;
                 tradingHistoryEntity.closing_time = tempDate;
                 tradingHistoryEntity.closing_price = dataSocket.close;
-                tradingHistoryEntity.investment_amount = copy.investment_amount;
+                if (copy.investment_amount > copy.base_amount || copy.investment_amount === copy.base_amount) {
+                  tradingHistoryEntity.investment_amount = copy.base_amount;
+                } else {
+                  tradingHistoryEntity.investment_amount = copy.investment_amount;
+                }
                 if (order.type_of_order === 'WIN') {
                   if (copy.has_maximum_rate) {
                     tradingHistoryEntity.profit = parseFloat(
-                      (copy.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                      (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
                     );
                     tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                    await tradingCopyBussiness.calculateMoney(
+                      tradingHistoryEntity.id_user,
+                      'user',
+                      tradingHistoryEntity.profit,
+                    );
                   } else {
-                    tradingHistoryEntity.profit = parseFloat(copy.investment_amount.toFixed(2));
+                    tradingHistoryEntity.profit = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                    );
                     tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                    await tradingCopyBussiness.calculateMoney(
+                      tradingHistoryEntity.id_user,
+                      'user',
+                      tradingHistoryEntity.profit,
+                    );
                   }
                 } else {
                   tradingHistoryEntity.profit = 0;
                   tradingHistoryEntity.fee_to_expert = 0;
                   tradingHistoryEntity.fee_to_trading = 0;
+                  if (copy.has_maximum_rate) {
+                    await tradingCopyBussiness.calculateMoney(
+                      tradingHistoryEntity.id_user,
+                      'user',
+                      parseFloat((tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2)) * -1,
+                    );
+                  } else {
+                    await tradingCopyBussiness.calculateMoney(
+                      tradingHistoryEntity.id_user,
+                      'user',
+                      parseFloat(
+                        (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                      ) * -1,
+                    );
+                  }
                 }
                 tradingHistoryEntity.type_of_money = 'BTC';
                 tradingHistoryEntity.status = false;
 
+                if (
+                  copy.investment_amount < ((100 - copy.stop_loss) / 100) * copy.base_amount &&
+                  copy.has_stop_loss === true
+                ) {
+                  const data = new GetTradingCopy();
+                  data.id_copy = copy._id.toString();
+                  await tradingCopyBussiness.pauseTradingCopy(data);
+                }
+
+                if (copy.investment_amount > copy.taken_profit && copy.has_taken_profit === true) {
+                  const data = new GetTradingCopy();
+                  data.id_copy = copy._id.toString();
+                  await tradingCopyBussiness.pauseTradingCopy(data);
+                }
                 const tradingHistoryBusiness = new TradingHistoryBussiness();
                 await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
               });
@@ -293,10 +350,20 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.fee_to_trading = parseFloat(
                 (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
               );
+              await tradingCopyBussiness.calculateMoney(
+                tradingHistoryEntity.id_expert,
+                'expert',
+                tradingHistoryEntity.profit,
+              );
             } else {
               tradingHistoryEntity.profit = 0;
               tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = 0;
+              await tradingCopyBussiness.calculateMoney(
+                tradingHistoryEntity.id_expert,
+                'expert',
+                tradingHistoryEntity.investment_amount * -1,
+              );
             }
 
             tradingHistoryEntity.type_of_money = 'BTC';
@@ -331,26 +398,72 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.opening_price = dataSocket.open;
               tradingHistoryEntity.closing_time = tempDate;
               tradingHistoryEntity.closing_price = dataSocket.close;
-              tradingHistoryEntity.investment_amount = copy.investment_amount;
+              if (copy.investment_amount > copy.base_amount || copy.investment_amount === copy.base_amount) {
+                tradingHistoryEntity.investment_amount = copy.base_amount;
+              } else {
+                tradingHistoryEntity.investment_amount = copy.investment_amount;
+              }
               if (flagOrder.type_of_order === 'WIN') {
                 if (copy.has_maximum_rate) {
                   tradingHistoryEntity.profit = parseFloat(
-                    (copy.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                    (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
                   );
                   tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                  await tradingCopyBussiness.calculateMoney(
+                    tradingHistoryEntity.id_user,
+                    'user',
+                    tradingHistoryEntity.profit,
+                  );
                 } else {
-                  tradingHistoryEntity.profit = parseFloat(copy.investment_amount.toFixed(2));
+                  tradingHistoryEntity.profit = parseFloat(
+                    (copy.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                  );
                   tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
+                  await tradingCopyBussiness.calculateMoney(
+                    tradingHistoryEntity.id_user,
+                    'user',
+                    tradingHistoryEntity.profit,
+                  );
                 }
               } else {
                 tradingHistoryEntity.profit = 0;
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
+                if (copy.has_maximum_rate) {
+                  await tradingCopyBussiness.calculateMoney(
+                    tradingHistoryEntity.id_user,
+                    'user',
+                    parseFloat((tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2)) * -1,
+                  );
+                } else {
+                  await tradingCopyBussiness.calculateMoney(
+                    tradingHistoryEntity.id_user,
+                    'user',
+                    parseFloat(
+                      (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                    ) * -1,
+                  );
+                }
               }
               tradingHistoryEntity.type_of_money = 'BTC';
               tradingHistoryEntity.status = false;
+
+              if (
+                copy.investment_amount < ((100 - copy.stop_loss) / 100) * copy.base_amount &&
+                copy.has_stop_loss === true
+              ) {
+                const data = new GetTradingCopy();
+                data.id_copy = copy._id.toString();
+                await tradingCopyBussiness.pauseTradingCopy(data);
+              }
+
+              if (copy.investment_amount > copy.taken_profit && copy.has_taken_profit === true) {
+                const data = new GetTradingCopy();
+                data.id_copy = copy._id.toString();
+                await tradingCopyBussiness.pauseTradingCopy(data);
+              }
 
               const tradingHistoryBusiness = new TradingHistoryBussiness();
               await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);

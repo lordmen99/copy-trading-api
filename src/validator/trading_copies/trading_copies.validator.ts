@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsString} from 'class-validator';
+import {IsNotEmpty, IsString, Min} from 'class-validator';
 
 export class CreateTradingCopy {
   @IsNotEmpty({message: 'Id user is required'})
@@ -13,8 +13,11 @@ export class CreateTradingCopy {
   })
   id_expert: string;
 
-  @IsNotEmpty({message: 'Investment amount is required'})
+  @IsNotEmpty({message: 'Investment amount is required and higher than 500'})
+  @Min(500)
   investment_amount: number;
+
+  base_amount: number;
 
   @IsNotEmpty({message: 'Maximum rate is required'})
   maximum_rate: number;

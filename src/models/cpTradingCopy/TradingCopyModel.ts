@@ -19,6 +19,10 @@ export default class TradingHistoryModel {
     return this._tradingCopyModel.investment_amount;
   }
 
+  get base_amount(): number {
+    return this._tradingCopyModel.base_amount;
+  }
+
   get maximum_rate(): number {
     return this._tradingCopyModel.maximum_rate;
   }

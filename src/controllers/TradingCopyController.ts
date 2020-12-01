@@ -29,7 +29,7 @@ export default class TradingCopyController {
       const data = new CreateTradingCopy();
       data.id_user = params.id_user; // change token
       data.id_expert = params.id_expert;
-      data.investment_amount = params.investment_amount;
+      data.investment_amount = parseFloat(params.investment_amount.toString());
       data.maximum_rate = params.maximum_rate;
       data.has_maximum_rate = params.has_maximum_rate;
       data.has_stop_loss = params.has_stop_loss;
@@ -39,6 +39,7 @@ export default class TradingCopyController {
       data.status = contants.STATUS.ACTIVE;
       data.createdAt = new Date();
       data.updatedAt = new Date();
+      data.base_amount = params.investment_amount;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.createTradingCopy(data);
 
