@@ -201,7 +201,7 @@ export default class TradingOrderBussiness {
         'timeSetup',
       );
 
-      if (resultPending) {
+      if (resultPending && resultPending.length > 0) {
         const flagOrder = {
           _id: null,
           id_expert: '',
