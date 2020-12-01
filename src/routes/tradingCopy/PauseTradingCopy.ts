@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading_copy/stop_trading_copy 2. Stop trading copy
+ * @api {post} /trading_copy/pause_trading_copy 3. Pause trading copy
  * @apiVersion 0.1.0
  * @apiGroup III. Trading Copy
  *
@@ -16,7 +16,6 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_user Id của user trong bản cp_users
  * @apiParam {String} id_copy Id của copy trong bản cp_trading_copies
  *
  *
@@ -40,4 +39,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/stop_trading_copy', isAuthenticated, new TradingCopyController().stopTradingCopy);
+  route.post('/pause_trading_copy', isAuthenticated, new TradingCopyController().pauseTradingCopy);

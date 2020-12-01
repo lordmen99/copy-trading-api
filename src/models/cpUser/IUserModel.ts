@@ -12,4 +12,6 @@ export default interface IUserModel extends mongoose.Document {
   total_amount: number;
   is_virtual: boolean;
   status?: string;
+  status_trading_copy?: string;
+  blockedAt?: Date;
 }

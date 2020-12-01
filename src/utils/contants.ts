@@ -4,6 +4,8 @@ enum STATUS {
   PENDING = 'PENDING',
   FINISH = 'FINISH',
   DELETE = 'DELETE',
+  STOP = 'STOP',
+  PAUSE = 'PAUSE',
 }
 
 enum RATE {

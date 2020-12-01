@@ -37,4 +37,12 @@ export default class UserModel {
   get status(): string {
     return this._UserModel.status;
   }
+
+  get status_trading_copy(): string {
+    return this._UserModel.status_trading_copy;
+  }
+
+  get blockedAt(): Date {
+    return this._UserModel.blockedAt;
+  }
 }

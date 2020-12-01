@@ -33,7 +33,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         .find({})
         .limit(size)
         .skip((page - 1) * size);
-      const count = await this._model.count({});
+      const count = await this._model.countDocuments({});
       return {
         result,
         count,
@@ -49,7 +49,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
         .find(item)
         .limit(size)
         .skip((page - 1) * size);
-      const count = await this._model.count(item);
+      const count = await this._model.countDocuments(item);
       return {
         result,
         count,
@@ -99,7 +99,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
 
   public async update(id: mongoose.Types.ObjectId, item: T): Promise<T> {
     try {
-      const result = await this._model.update({_id: id}, item);
+      const result = await this._model.updateOne({_id: id}, item);
       return result as T;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
@@ -108,7 +108,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
 
   public async delete(id: mongoose.Types.ObjectId): Promise<boolean> {
     try {
-      await this._model.remove({_id: id});
+      await this._model.deleteOne({_id: id});
       return true;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

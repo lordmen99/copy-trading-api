@@ -36,6 +36,8 @@ export class AddUser {
   is_virtual: boolean;
 
   status?: string;
+
+  status_trading_copy?: string;
 }
 
 export class EditUser {

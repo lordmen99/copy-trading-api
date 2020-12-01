@@ -41,6 +41,7 @@ export default class UserController {
       data.total_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
       data.status = contants.STATUS.ACTIVE;
+      data.status_trading_copy = contants.STATUS.ACTIVE;
       const userBusiness = new UserBussiness();
       const result = await userBusiness.addUser(data);
 
@@ -73,6 +74,7 @@ export default class UserController {
         data.total_amount = total_amount;
         data.is_virtual = true;
         data.status = contants.STATUS.ACTIVE;
+        data.status_trading_copy = contants.STATUS.ACTIVE;
         const userEntity = data as IUserModel;
         userBusiness.addUserAndFollowExpert(userEntity);
       }

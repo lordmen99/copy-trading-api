@@ -1,7 +1,12 @@
 import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
 import UserBussiness from '@src/business/UserBussiness';
 import {contants} from '@src/utils';
-import {CreateTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
+import {
+  CreateTradingCopy,
+  GetTradingCopy,
+  GetTradingCopyOfUser,
+  StopTradingCopy,
+} from '@src/validator/trading_copies/trading_copies.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class TradingCopyController {
@@ -22,7 +27,7 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const data = new CreateTradingCopy();
-      data.id_user = params.id_user;
+      data.id_user = params.id_user; // change token
       data.id_expert = params.id_expert;
       data.investment_amount = params.investment_amount;
       data.maximum_rate = params.maximum_rate;
@@ -46,18 +51,55 @@ export default class TradingCopyController {
   public async stopTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
-      const data = new CreateTradingCopy();
+      const data = new StopTradingCopy();
       data.id_user = params.id_user;
-      data.id_expert = params.id_expert;
-      data.investment_amount = params.investment_amount;
-      data.maximum_rate = params.maximum_rate;
-      data.stop_loss = params.stop_loss;
-      data.taken_profit = params.taken_profit;
-      data.status = contants.STATUS.ACTIVE;
+      data.id_copy = params.id_copy;
       const tradingCopyBusiness = new TradingCopyBussiness();
-      const result = await tradingCopyBusiness.createTradingCopy(data);
+      const result = await tradingCopyBusiness.stopTradingCopy(data);
 
       res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async pauseTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new GetTradingCopy();
+      data.id_copy = params.id_copy;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.pauseTradingCopy(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getTradingCopyById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new GetTradingCopy();
+      data.id_copy = params.id_copy;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.getTradingCopyById(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getListTradingCopies(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new GetTradingCopyOfUser();
+      data.id_user = params.id_user;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.getListTradingCopies(data, params.page, params.size);
+
+      res.status(200).send({data: result.result, count: result.count});
     } catch (err) {
       next(err);
     }

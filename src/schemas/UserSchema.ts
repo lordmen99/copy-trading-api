@@ -45,6 +45,14 @@ class UserSchema {
         required: true,
         default: contants.STATUS.ACTIVE,
       },
+      status_trading_copy: {
+        type: String,
+        required: true,
+        default: contants.STATUS.ACTIVE,
+      },
+      blockedAt: {
+        type: Date,
+      },
     });
     return schema;
   }

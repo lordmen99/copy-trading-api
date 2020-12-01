@@ -40,3 +40,33 @@ export class CreateTradingCopy {
 
   updatedAt?: Date;
 }
+
+export class StopTradingCopy {
+  @IsNotEmpty({message: 'Id user is required'})
+  @IsString({
+    message: 'Id user is string',
+  })
+  id_user: string;
+
+  @IsNotEmpty({message: 'Id copy is required'})
+  @IsString({
+    message: 'Id copy is string',
+  })
+  id_copy: string;
+}
+
+export class GetTradingCopy {
+  @IsNotEmpty({message: 'Id copy is required'})
+  @IsString({
+    message: 'Id copy is string',
+  })
+  id_copy: string;
+}
+
+export class GetTradingCopyOfUser {
+  @IsNotEmpty({message: 'Id user is required'})
+  @IsString({
+    message: 'Id user is string',
+  })
+  id_user: string;
+}
