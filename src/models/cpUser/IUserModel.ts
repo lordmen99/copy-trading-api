@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 export default interface IUserModel extends mongoose.Document {
+  _id: string;
   fullname: string;
   username: string;
   password?: string;

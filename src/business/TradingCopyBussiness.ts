@@ -54,31 +54,26 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async findUserCopyByExpert(id_expert: string): Promise<ITradingCopyModel[]> {
-    // const listUsers = [];
+  public async findUserCopyByExpert(id_expert: string): Promise<any> {
+    const listUsers = [];
 
-    // try {
-    //   // const result = await this._tradingCopyRepository.findWhereInner({
-    //   //   status: contants.STATUS.ACTIVE,
-    //   //   id_expert,
-    //   // } as ITradingCopyModel);
-    //   // if (result) {
-    //   //   await result.map(async (item) => {
-    //   //     this._userRepository.findUserById(item.id_user).then((user) => {
-    //   //       listUsers.push(user.toObject());
-    //   //       return listUsers;
-    //   //     });
-    //   //   });
-    //   // } else {
-    //   //   return [];
-    //   // }
-    //   if (result) {
-    //     return result;
-    //   }
-    return [];
-    // } catch (err) {
-    //   throw err;
-    // }
+    try {
+      const result = await this._tradingCopyRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+        id_expert,
+      } as ITradingCopyModel);
+      if (result) {
+        for (const item of result) {
+          const user = await this._userRepository.findOne({
+            _id: item.id_user,
+          } as IUserModel);
+          listUsers.push(user);
+        }
+      }
+      return listUsers;
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async getTradingCopies(id_expert: string): Promise<ITradingCopyModel[]> {

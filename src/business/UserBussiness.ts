@@ -94,7 +94,7 @@ export default class UserBussiness {
 
         if (resultUser) {
           const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-          tradingCopyEntity.id_user = resultUser._id.toHexString();
+          tradingCopyEntity.id_user = resultUser._id;
           tradingCopyEntity.id_expert = resultExpert[random]._id;
           tradingCopyEntity.investment_amount = randomInvestment;
           tradingCopyEntity.base_amount = randomInvestment;
@@ -170,7 +170,7 @@ export default class UserBussiness {
             user.blockedAt.getHours() === tempDate.getHours() &&
             user.blockedAt.getMinutes() === tempDate.getMinutes()
           ) {
-            await this._userRepository.update(user._id, {
+            await this._userRepository.update(this._userRepository.toObjectId(user._id), {
               status_trading_copy: contants.STATUS.ACTIVE,
             } as IUserModel);
           }
