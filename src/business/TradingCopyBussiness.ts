@@ -157,8 +157,8 @@ export default class TradingCopyBussiness {
           } as IUserModel);
           const resultCopy = await this._tradingCopyRepository.update(copy._id, {
             status: contants.STATUS.STOP,
-            investment_amount: 0,
-            base_amount: 0,
+            // investment_amount: 0,
+            // base_amount: 0,
           } as ITradingCopyModel);
           if (resultUser && resultCopy) {
             return true;
