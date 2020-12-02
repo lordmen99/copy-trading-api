@@ -54,31 +54,26 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async findUserCopyByExpert(id_expert: string): Promise<ITradingCopyModel[]> {
-    // const listUsers = [];
+  public async findUserCopyByExpert(id_expert: string): Promise<any> {
+    const listUsers = [];
 
-    // try {
-    //   // const result = await this._tradingCopyRepository.findWhereInner({
-    //   //   status: contants.STATUS.ACTIVE,
-    //   //   id_expert,
-    //   // } as ITradingCopyModel);
-    //   // if (result) {
-    //   //   await result.map(async (item) => {
-    //   //     this._userRepository.findUserById(item.id_user).then((user) => {
-    //   //       listUsers.push(user.toObject());
-    //   //       return listUsers;
-    //   //     });
-    //   //   });
-    //   // } else {
-    //   //   return [];
-    //   // }
-    //   if (result) {
-    //     return result;
-    //   }
-    return [];
-    // } catch (err) {
-    //   throw err;
-    // }
+    try {
+      const result = await this._tradingCopyRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+        id_expert,
+      } as ITradingCopyModel);
+      if (result) {
+        for (const item of result) {
+          const user = await this._userRepository.findOne({
+            _id: item.id_user,
+          } as IUserModel);
+          listUsers.push(user);
+        }
+      }
+      return listUsers;
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async getTradingCopies(id_expert: string): Promise<ITradingCopyModel[]> {
@@ -151,13 +146,19 @@ export default class TradingCopyBussiness {
           _id: tradingCopy.id_copy,
         } as ITradingCopyModel);
         if (copy) {
+          const user = await this._userRepository.findOne({_id: copy.id_user} as IUserModel);
           const resultUser = await this._userRepository.update(this._userRepository.toObjectId(copy.id_user), {
             blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
-            total_amount: copy.investment_amount > copy.base_amount ? copy.base_amount : copy.investment_amount,
+            total_amount:
+              copy.investment_amount > copy.base_amount
+                ? user.total_amount + copy.base_amount
+                : user.total_amount + copy.investment_amount,
           } as IUserModel);
           const resultCopy = await this._tradingCopyRepository.update(copy._id, {
             status: contants.STATUS.STOP,
+            // investment_amount: 0,
+            // base_amount: 0,
           } as ITradingCopyModel);
           if (resultUser && resultCopy) {
             return true;

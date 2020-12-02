@@ -54,29 +54,33 @@ export default class UserController {
   public async autoGenerateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
-      const userBusiness = new UserBussiness();
-      const faker = require('faker');
+      if (!params.number) {
+        throw new Error('Number is required');
+      } else {
+        const userBusiness = new UserBussiness();
+        const faker = require('faker');
 
-      for (let i = 0; i < params.number; i++) {
-        const fullname = faker.name.findName();
-        const username = faker.internet.userName();
-        const email = faker.internet.email();
-        const phone = faker.phone.phoneNumber();
-        const total_amount = faker.finance.amount();
+        for (let i = 0; i < params.number; i++) {
+          const fullname = faker.name.findName();
+          const username = faker.internet.userName();
+          const email = faker.internet.email();
+          const phone = faker.phone.phoneNumber();
+          const total_amount = faker.finance.amount();
 
-        const data = new AddUser();
+          const data = new AddUser();
 
-        data.fullname = fullname;
-        data.username = username;
-        data.email = email;
-        data.phone = phone;
-        data.avatar = '';
-        data.total_amount = total_amount;
-        data.is_virtual = true;
-        data.status = contants.STATUS.ACTIVE;
-        data.status_trading_copy = contants.STATUS.ACTIVE;
-        const userEntity = data as IUserModel;
-        userBusiness.addUserAndFollowExpert(userEntity);
+          data.fullname = fullname;
+          data.username = username;
+          data.email = email;
+          data.phone = phone;
+          data.avatar = '';
+          data.total_amount = total_amount;
+          data.is_virtual = true;
+          data.status = contants.STATUS.ACTIVE;
+          data.status_trading_copy = contants.STATUS.ACTIVE;
+          const userEntity = data as IUserModel;
+          userBusiness.addUser(userEntity);
+        }
       }
 
       res.status(200).send({data: true});
