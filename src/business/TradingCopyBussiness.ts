@@ -169,6 +169,7 @@ export default class TradingCopyBussiness {
             await tradingWithdrawBussiness.createTradingWithdraw({
               id_user: copy.id_user,
               id_expert: '',
+              id_copy: copy._id,
               amount: copy.investment_amount - copy.base_amount,
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
@@ -294,14 +295,14 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async calculateMoney(id: string, type: string, money: number): Promise<void> {
+  public async calculateMoney(id_copy: string, id: string, type: string, money: number): Promise<void> {
     try {
       if (type === 'user') {
-        const userCopy = await this._tradingCopyRepository.findOne({
-          id_user: id,
+        const copy = await this._tradingCopyRepository.findOne({
+          _id: id_copy,
         } as ITradingCopyModel);
-        const result = await this._tradingCopyRepository.update(userCopy._id, {
-          investment_amount: userCopy.investment_amount + money,
+        const result = await this._tradingCopyRepository.update(copy._id, {
+          investment_amount: copy.investment_amount + money,
         } as ITradingCopyModel);
       } else {
         const expert = await this._expertRepository.findOne({
@@ -318,11 +319,11 @@ export default class TradingCopyBussiness {
 
   public async transferMoneyToExpert(withdraw: ITradingWithdrawModel): Promise<void> {
     try {
-      const userCopy = await this._tradingCopyRepository.findOne({
-        id_user: withdraw.id_user,
+      const copy = await this._tradingCopyRepository.findOne({
+        _id: withdraw.id_copy,
       } as ITradingCopyModel);
-      await this._tradingCopyRepository.update(userCopy._id, {
-        investment_amount: userCopy.investment_amount - withdraw.amount,
+      await this._tradingCopyRepository.update(copy._id, {
+        investment_amount: copy.investment_amount - withdraw.amount,
       } as ITradingCopyModel);
       const expert = await this._expertRepository.findOne({
         _id: withdraw.id_expert,

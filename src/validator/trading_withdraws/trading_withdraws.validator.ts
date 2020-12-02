@@ -5,6 +5,8 @@ export class CreateTradingWithdraw {
 
   id_expert: string;
 
+  id_copy: string;
+
   @IsNotEmpty({message: 'Amount is required'})
   amount: number;
 
