@@ -1,5 +1,6 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
+import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import {contants} from '@src/utils';
 import {GetExpert} from '@src/validator/experts/experts.validator';
@@ -11,6 +12,7 @@ import moment from 'moment';
 import ExpertBussiness from './ExpertBussiness';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
+import TradingWithdrawBussiness from './TradingWithdrawBussiness';
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
 
@@ -82,6 +84,7 @@ export default class TradingOrderBussiness {
             } as ITradingOrderModel);
 
             const tradingCopyBussiness = new TradingCopyBussiness();
+            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
             const tradingCopy = await tradingCopyBussiness.getTradingCopies(order.id_expert);
 
@@ -119,6 +122,9 @@ export default class TradingOrderBussiness {
               );
 
               if (order.type_of_order === 'WIN') {
+                tradingHistoryEntity.order_amount = parseFloat(
+                  (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
+                );
                 tradingHistoryEntity.profit = parseFloat(
                   (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
                 );
@@ -131,9 +137,12 @@ export default class TradingOrderBussiness {
                 await tradingCopyBussiness.calculateMoney(
                   tradingHistoryEntity.id_expert,
                   'expert',
-                  tradingHistoryEntity.profit,
+                  tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
                 );
               } else {
+                tradingHistoryEntity.order_amount = parseFloat(
+                  (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
+                );
                 tradingHistoryEntity.profit = 0;
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
@@ -184,17 +193,42 @@ export default class TradingOrderBussiness {
                 }
                 if (order.type_of_order === 'WIN') {
                   if (copy.has_maximum_rate) {
-                    tradingHistoryEntity.profit = parseFloat(
-                      (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
-                    );
+                    if (copy.maximum_rate > order.threshold_percent) {
+                      tradingHistoryEntity.order_amount = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                      );
+                      tradingHistoryEntity.profit = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                      );
+                    } else {
+                      tradingHistoryEntity.order_amount = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                      );
+                      tradingHistoryEntity.profit = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                      );
+                    }
+
                     tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     await tradingCopyBussiness.calculateMoney(
                       tradingHistoryEntity.id_user,
                       'user',
-                      tradingHistoryEntity.profit,
+                      tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
                     );
+                    await tradingWithdrawBussiness.createTradingWithdraw({
+                      id_user: tradingHistoryEntity.id_user,
+                      id_expert: copy.id_expert,
+                      amount: tradingHistoryEntity.fee_to_expert,
+                      type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
+                      status: contants.STATUS.PENDING,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    } as ITradingWithdrawModel);
                   } else {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                    );
                     tradingHistoryEntity.profit = parseFloat(
                       (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
                     );
@@ -203,10 +237,34 @@ export default class TradingOrderBussiness {
                     await tradingCopyBussiness.calculateMoney(
                       tradingHistoryEntity.id_user,
                       'user',
-                      tradingHistoryEntity.profit,
+                      tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
                     );
+                    await tradingWithdrawBussiness.createTradingWithdraw({
+                      id_user: tradingHistoryEntity.id_user,
+                      id_expert: copy.id_expert,
+                      amount: tradingHistoryEntity.fee_to_expert,
+                      status: contants.STATUS.PENDING,
+                      type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    } as ITradingWithdrawModel);
                   }
                 } else {
+                  if (copy.has_maximum_rate) {
+                    if (copy.maximum_rate > order.threshold_percent) {
+                      tradingHistoryEntity.order_amount = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                      );
+                    } else {
+                      tradingHistoryEntity.order_amount = parseFloat(
+                        (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                      );
+                    }
+                  } else {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+                    );
+                  }
                   tradingHistoryEntity.profit = 0;
                   tradingHistoryEntity.fee_to_expert = 0;
                   tradingHistoryEntity.fee_to_trading = 0;
@@ -214,15 +272,13 @@ export default class TradingOrderBussiness {
                     await tradingCopyBussiness.calculateMoney(
                       tradingHistoryEntity.id_user,
                       'user',
-                      parseFloat((tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2)) * -1,
+                      tradingHistoryEntity.order_amount * -1,
                     );
                   } else {
                     await tradingCopyBussiness.calculateMoney(
                       tradingHistoryEntity.id_user,
                       'user',
-                      parseFloat(
-                        (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-                      ) * -1,
+                      tradingHistoryEntity.order_amount * -1,
                     );
                   }
                 }
@@ -341,6 +397,9 @@ export default class TradingOrderBussiness {
             );
 
             if (flagOrder.type_of_order === 'WIN') {
+              tradingHistoryEntity.order_amount = parseFloat(
+                (expert.total_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+              );
               tradingHistoryEntity.profit = parseFloat(
                 (expert.total_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
               );
@@ -353,9 +412,12 @@ export default class TradingOrderBussiness {
               await tradingCopyBussiness.calculateMoney(
                 tradingHistoryEntity.id_expert,
                 'expert',
-                tradingHistoryEntity.profit,
+                tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
               );
             } else {
+              tradingHistoryEntity.order_amount = parseFloat(
+                (expert.total_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+              );
               tradingHistoryEntity.profit = 0;
               tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = 0;
@@ -372,6 +434,8 @@ export default class TradingOrderBussiness {
             const tradingHistoryBusiness = new TradingHistoryBussiness();
             await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
           }
+
+          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
           if (tradingCopy) {
             tradingCopy.map(async (copy) => {
@@ -405,16 +469,37 @@ export default class TradingOrderBussiness {
               }
               if (flagOrder.type_of_order === 'WIN') {
                 if (copy.has_maximum_rate) {
-                  tradingHistoryEntity.profit = parseFloat(
-                    (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
-                  );
+                  if (copy.maximum_rate > flagOrder.threshold_percent) {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                    );
+                    tradingHistoryEntity.profit = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                    );
+                  } else {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                    );
+                    tradingHistoryEntity.profit = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                    );
+                  }
                   tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   await tradingCopyBussiness.calculateMoney(
                     tradingHistoryEntity.id_user,
                     'user',
-                    tradingHistoryEntity.profit,
+                    tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
                   );
+                  await tradingWithdrawBussiness.createTradingWithdraw({
+                    id_user: tradingHistoryEntity.id_user,
+                    id_expert: copy.id_expert,
+                    amount: tradingHistoryEntity.fee_to_expert,
+                    status: contants.STATUS.PENDING,
+                    type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  } as ITradingWithdrawModel);
                 } else {
                   tradingHistoryEntity.profit = parseFloat(
                     (copy.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
@@ -424,10 +509,34 @@ export default class TradingOrderBussiness {
                   await tradingCopyBussiness.calculateMoney(
                     tradingHistoryEntity.id_user,
                     'user',
-                    tradingHistoryEntity.profit,
+                    tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
                   );
+                  await tradingWithdrawBussiness.createTradingWithdraw({
+                    id_user: tradingHistoryEntity.id_user,
+                    id_expert: copy.id_expert,
+                    amount: tradingHistoryEntity.fee_to_expert,
+                    type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
+                    status: contants.STATUS.PENDING,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  } as ITradingWithdrawModel);
                 }
               } else {
+                if (copy.has_maximum_rate) {
+                  if (copy.maximum_rate > flagOrder.threshold_percent) {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                    );
+                  } else {
+                    tradingHistoryEntity.order_amount = parseFloat(
+                      (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
+                    );
+                  }
+                } else {
+                  tradingHistoryEntity.order_amount = parseFloat(
+                    (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                  );
+                }
                 tradingHistoryEntity.profit = 0;
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
@@ -435,15 +544,13 @@ export default class TradingOrderBussiness {
                   await tradingCopyBussiness.calculateMoney(
                     tradingHistoryEntity.id_user,
                     'user',
-                    parseFloat((tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2)) * -1,
+                    tradingHistoryEntity.order_amount * -1,
                   );
                 } else {
                   await tradingCopyBussiness.calculateMoney(
                     tradingHistoryEntity.id_user,
                     'user',
-                    parseFloat(
-                      (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
-                    ) * -1,
+                    tradingHistoryEntity.order_amount * -1,
                   );
                 }
               }

@@ -8,6 +8,7 @@ export default interface ITradingHistoryModel extends mongoose.Document {
   closing_time: Date; // Thời gian đóng lệnh
   closing_price: number; // Giá đóng lệnh
   investment_amount: number; // Số tiền vào lệnh
+  order_amount: number; // Số tiền đánh lệnh
   profit: number; // Lợi nhuân/Thua lỗ
   fee_to_expert: number; // Số tiền từ 5% lợi nhuận trả cho chuyên gia - Nếu thua thì giá trị sẽ là 0
   fee_to_trading: number; // Số tiền từ 5% lợi nhuận trả cho sàn - Nếu thua thì giá trị sẽ là 0

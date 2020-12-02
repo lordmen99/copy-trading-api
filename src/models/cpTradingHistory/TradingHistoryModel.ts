@@ -35,6 +35,10 @@ export default class TradingHistoryModel {
     return this._tradingHistoryModel.investment_amount;
   }
 
+  get order_amount(): number {
+    return this._tradingHistoryModel.order_amount;
+  }
+
   get profit(): number {
     return this._tradingHistoryModel.profit;
   }

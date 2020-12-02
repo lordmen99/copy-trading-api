@@ -1,7 +1,7 @@
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
 
-export default (fireDate: Date) => {
+export default () => {
   try {
     const userBussiness = new UserBussiness();
     userBussiness.executeUnblockUser();

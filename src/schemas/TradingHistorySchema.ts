@@ -31,6 +31,10 @@ class TradingHistorySchema {
         type: Number,
         required: true,
       },
+      order_amount: {
+        type: Number,
+        required: true,
+      },
       profit: {
         type: Number,
         required: true,

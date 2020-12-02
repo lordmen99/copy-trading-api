@@ -8,6 +8,11 @@ enum STATUS {
   PAUSE = 'PAUSE',
 }
 
+enum TYPE_OF_WITHDRAW {
+  TRANSFER = 'TRANSFER',
+  WITHDRAW = 'WITHDRAW',
+}
+
 enum RATE {
   FEE_TO_EXPERT = 5 / 100,
   FEE_TO_TRADING = 5 / 100,
@@ -15,4 +20,5 @@ enum RATE {
 export default {
   STATUS,
   RATE,
+  TYPE_OF_WITHDRAW,
 };

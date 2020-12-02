@@ -1,7 +1,7 @@
-import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
+import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import mongoose from 'mongoose';
 
-class TradingHistorySchema {
+class TradingWithdrawSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
@@ -23,9 +23,16 @@ class TradingHistorySchema {
         type: String,
         required: true,
       },
+      createdAt: {
+        type: Date,
+        required: true,
+      },
+      updatedAt: {
+        type: Date,
+      },
     });
     return schema;
   }
 }
 
-export default mongoose.model<ITradingHistoryModel>('cp_trading_history', TradingHistorySchema.schema);
+export default mongoose.model<ITradingWithdrawModel>('cp_trading_withdraw', TradingWithdrawSchema.schema);
