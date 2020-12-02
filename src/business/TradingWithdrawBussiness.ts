@@ -71,6 +71,7 @@ export default class TradingWithdrawBussiness {
     try {
       const result = this._tradingWithdrawRepository.findWhere({
         status: contants.STATUS.PENDING,
+        type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
       } as ITradingWithdrawModel);
       if (result) {
         return result;

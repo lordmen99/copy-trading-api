@@ -11,9 +11,11 @@ import {
   CreateTradingCopy,
   GetTradingCopy,
   StopTradingCopy,
+  TransferMoneyTradingCopy,
 } from '@src/validator/trading_copies/trading_copies.validator';
 import {validate} from 'class-validator';
 import {GetTradingCopyOfUser} from './../validator/trading_copies/trading_copies.validator';
+import TradingWithdrawBussiness from './TradingWithdrawBussiness';
 
 export default class TradingCopyBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
@@ -160,6 +162,20 @@ export default class TradingCopyBussiness {
             // investment_amount: 0,
             // base_amount: 0,
           } as ITradingCopyModel);
+
+          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+
+          if (copy.investment_amount > copy.base_amount) {
+            await tradingWithdrawBussiness.createTradingWithdraw({
+              id_user: copy.id_user,
+              id_expert: '',
+              amount: copy.investment_amount - copy.base_amount,
+              type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+              status: contants.STATUS.PENDING,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            } as ITradingWithdrawModel);
+          }
           if (resultUser && resultCopy) {
             return true;
           }
@@ -214,13 +230,18 @@ export default class TradingCopyBussiness {
         } as ITradingCopyModel);
         if (copy) {
           if (copy.status === contants.STATUS.PAUSE) {
-            const resultCopy = await this._tradingCopyRepository.update(copy._id, {
-              status: contants.STATUS.ACTIVE,
-            } as ITradingCopyModel);
-            if (resultCopy) {
-              return true;
+            if (copy.investment_amount >= 500) {
+              const resultCopy = await this._tradingCopyRepository.update(copy._id, {
+                status: contants.STATUS.ACTIVE,
+                base_amount: copy.investment_amount,
+              } as ITradingCopyModel);
+              if (resultCopy) {
+                return true;
+              }
+              return false;
+            } else {
+              throw new Error('Investment amount is less than 500');
             }
-            return false;
           } else {
             throw new Error('Trading copy is not pause!');
           }
@@ -313,6 +334,39 @@ export default class TradingCopyBussiness {
         status: contants.STATUS.FINISH,
         updatedAt: new Date(),
       } as ITradingWithdrawModel);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async transferMoneyToTradingCopy(transfer: TransferMoneyTradingCopy): Promise<boolean> {
+    try {
+      const userCopy = await this._userRepository.findOne({
+        _id: transfer.id_user,
+      } as IUserModel);
+      const copy = await this._tradingCopyRepository.findOne({
+        _id: transfer.id_copy,
+      } as IUserModel);
+
+      if (userCopy && copy) {
+        const resultUser = await this._userRepository.update(this._userRepository.toObjectId(userCopy._id), {
+          total_amount: userCopy.total_amount - transfer.amount,
+        } as IUserModel);
+
+        const resultCopy = await this._tradingCopyRepository.update(
+          this._tradingCopyRepository.toObjectId(userCopy._id),
+          {
+            investment_amount: copy.investment_amount + transfer.amount,
+            base_amount: copy.investment_amount + transfer.amount,
+          } as ITradingCopyModel,
+        );
+
+        if (resultUser && resultCopy) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     } catch (err) {
       throw err;
     }

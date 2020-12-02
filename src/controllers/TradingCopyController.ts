@@ -6,6 +6,7 @@ import {
   GetTradingCopy,
   GetTradingCopyOfUser,
   StopTradingCopy,
+  TransferMoneyTradingCopy,
 } from '@src/validator/trading_copies/trading_copies.validator';
 import {NextFunction, Request, Response} from 'express';
 
@@ -115,6 +116,23 @@ export default class TradingCopyController {
       const result = await tradingCopyBusiness.getListTradingCopies(data, params.page, params.size);
 
       res.status(200).send({data: result.result, count: result.count});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async transferMoneyToTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new TransferMoneyTradingCopy();
+      data.id_copy = params.id_copy;
+      data.id_user = params.id_user;
+      data.amount = params.amount;
+
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.transferMoneyToTradingCopy(data);
+
+      res.status(200).send({data: result});
     } catch (err) {
       next(err);
     }

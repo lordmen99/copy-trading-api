@@ -153,7 +153,7 @@ export default class TradingOrderBussiness {
                 );
               }
 
-              tradingHistoryEntity.type_of_money = 'BTC';
+              tradingHistoryEntity.type_of_money = 'BTC/USDT';
               tradingHistoryEntity.status = false;
 
               const tradingHistoryBusiness = new TradingHistoryBussiness();
@@ -282,7 +282,7 @@ export default class TradingOrderBussiness {
                     );
                   }
                 }
-                tradingHistoryEntity.type_of_money = 'BTC';
+                tradingHistoryEntity.type_of_money = 'BTC/USDT';
                 tradingHistoryEntity.status = false;
 
                 if (
@@ -428,7 +428,7 @@ export default class TradingOrderBussiness {
               );
             }
 
-            tradingHistoryEntity.type_of_money = 'BTC';
+            tradingHistoryEntity.type_of_money = 'BTC/USDT';
             tradingHistoryEntity.status = false;
 
             const tradingHistoryBusiness = new TradingHistoryBussiness();
@@ -554,7 +554,7 @@ export default class TradingOrderBussiness {
                   );
                 }
               }
-              tradingHistoryEntity.type_of_money = 'BTC';
+              tradingHistoryEntity.type_of_money = 'BTC/USDT';
               tradingHistoryEntity.status = false;
 
               if (

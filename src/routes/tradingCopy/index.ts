@@ -6,6 +6,7 @@ import getUserCopyByExpert from './GetUserCopyByExpert';
 import pauseTradingCopy from './PauseTradingCopy';
 import resumeTradingCopy from './ResumeTradingCopy';
 import stopTradingCopy from './StopTradingCopy';
+import transferMoneyToTradingCopy from './TransferMoneyToTradingCopy';
 
 export default class TradingCopyRouter {
   public router: Router = Router();
@@ -18,5 +19,6 @@ export default class TradingCopyRouter {
     getTradingCopyById(this.router);
     getListTradingCopies(this.router);
     resumeTradingCopy(this.router);
+    transferMoneyToTradingCopy(this.router);
   }
 }
