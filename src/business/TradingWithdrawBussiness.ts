@@ -81,4 +81,19 @@ export default class TradingWithdrawBussiness {
       throw err;
     }
   }
+
+  public async getListPendingWithdraw(): Promise<any> {
+    try {
+      const result = this._tradingWithdrawRepository.findWhere({
+        status: contants.STATUS.PENDING,
+        type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+      } as ITradingWithdrawModel);
+      if (result) {
+        return result;
+      }
+      return [];
+    } catch (err) {
+      throw err;
+    }
+  }
 }

@@ -372,4 +372,27 @@ export default class TradingCopyBussiness {
       throw err;
     }
   }
+
+  public async transferMoneyAfterStopCopy(withdraw: ITradingWithdrawModel): Promise<void> {
+    try {
+      const copy = await this._tradingCopyRepository.findOne({
+        _id: withdraw.id_copy,
+      } as ITradingCopyModel);
+      await this._tradingCopyRepository.update(copy._id, {
+        investment_amount: copy.investment_amount - withdraw.amount,
+      } as ITradingCopyModel);
+      const user = await this._userRepository.findOne({
+        _id: withdraw.id_user,
+      } as IUserModel);
+      await this._userRepository.update(this._userRepository.toObjectId(user._id.toString()), {
+        total_amount: user.total_amount + withdraw.amount,
+      } as IUserModel);
+      await this._tradingWithdrawRepository.update(withdraw._id, {
+        status: contants.STATUS.FINISH,
+        updatedAt: new Date(),
+      } as ITradingWithdrawModel);
+    } catch (err) {
+      throw err;
+    }
+  }
 }
