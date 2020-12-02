@@ -16,8 +16,7 @@ export default winston.createLogger({
     winston.format.colorize(),
     winston.format.timestamp(),
     winston.format.align(),
-    winston.format.printf(
-      (info) => `[${moment(info.timestamp).format('YYYY-MM-DD HH:mm:ss')}] ${info.level}: ${info.message}`,
+    winston.format.printf(info => `[${moment(info.timestamp).format('YYYY-MM-DD HH:mm:ss')}] ${info.level}: ${info.message}`,
     ),
   ),
   transports: [
