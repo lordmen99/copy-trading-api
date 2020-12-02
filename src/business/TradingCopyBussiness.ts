@@ -173,7 +173,7 @@ export default class TradingCopyBussiness {
               amount: copy.investment_amount - copy.base_amount,
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
-              createdAt: new Date(),
+              createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
               updatedAt: new Date(),
             } as ITradingWithdrawModel);
           }
