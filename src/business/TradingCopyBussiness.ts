@@ -277,13 +277,13 @@ export default class TradingCopyBussiness {
 
   public async getListTradingCopies(params: GetTradingCopyOfUser, page: number, size: number): Promise<any> {
     try {
-      const copy = await this._tradingCopyRepository.findWithPagingById(
+      const copy = await this._tradingCopyRepository.findWithPagingByIdWithOr(
         {
-          status: contants.STATUS.ACTIVE || contants.STATUS.PAUSE,
           id_user: params.id_user,
         } as ITradingCopyModel,
         parseFloat(page.toString()),
         parseFloat(size.toString()),
+        [{status: contants.STATUS.ACTIVE}, {status: contants.STATUS.PAUSE}],
       );
       if (copy) {
         return copy;
