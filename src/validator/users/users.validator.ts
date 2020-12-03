@@ -1,4 +1,4 @@
-import {IsEmail, IsNotEmpty, IsString, MaxLength} from 'class-validator';
+import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from 'class-validator';
 
 export class AddUser {
   @IsNotEmpty({message: 'Full name is required'})
@@ -13,11 +13,11 @@ export class AddUser {
   })
   username: string;
 
-  // @IsNotEmpty({message: 'Password is required'})
-  // @MinLength(8, {
-  //   message: 'Password must be at least 8 characters!',
-  // })
-  // password: string;
+  @IsNotEmpty({message: 'Password is required'})
+  @MinLength(8, {
+    message: 'Password must be at least 8 characters!',
+  })
+  password: string;
 
   @IsEmail({}, {message: 'Email invalidate'})
   @MaxLength(200, {

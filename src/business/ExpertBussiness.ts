@@ -4,7 +4,7 @@ import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants} from '@src/utils';
+import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 
@@ -37,11 +37,11 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        // const securityPass = security.createHashedSalt(expert.password);
+        const securityPass = security.createHashedSalt(expert.password);
 
         const expertEntity = expert as IExpertModel;
-        // expertEntity.hashed_password = securityPass.hashedPassword;
-        // expertEntity.salt = securityPass.salt;
+        expertEntity.hashed_password = securityPass.hashedPassword;
+        expertEntity.salt = securityPass.salt;
 
         const result = await this._expertRepository.create(expertEntity);
         if (result) {

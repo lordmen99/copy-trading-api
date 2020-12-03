@@ -14,8 +14,12 @@ export default class AccessTokenModel {
     return this._AccessTokenModel.token;
   }
 
-  get id_admin(): string {
-    return this._AccessTokenModel.id_admin;
+  get id_client(): string {
+    return this._AccessTokenModel.id_client;
+  }
+
+  get type(): string {
+    return this._AccessTokenModel.type;
   }
 
   get createdAt(): Date {

@@ -36,6 +36,7 @@ export default class ExpertController {
       const data = new AddExpert();
       data.fullname = params.fullname;
       data.username = params.username;
+      data.password = params.password;
       data.email = params.email;
       data.phone = params.phone;
       data.avatar = params.avatar;

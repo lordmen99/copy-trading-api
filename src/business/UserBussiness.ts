@@ -2,7 +2,7 @@ import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants} from '@src/utils';
+import {contants, security} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {validate} from 'class-validator';
 
@@ -48,11 +48,11 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        // const securityPass = security.createHashedSalt(user.password);
+        const securityPass = security.createHashedSalt(user.password);
 
         const userEntity = user as IUserModel;
-        // userEntity.hashed_password = securityPass.hashedPassword;
-        // userEntity.salt = securityPass.salt;
+        userEntity.hashed_password = securityPass.hashedPassword;
+        userEntity.salt = securityPass.salt;
 
         const result = await this._userRepository.create(userEntity);
         if (result) {
