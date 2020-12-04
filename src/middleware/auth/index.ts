@@ -5,6 +5,7 @@ import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
 import ClientRepository from '@src/repository/ClientRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {createHash} from 'crypto';
@@ -56,9 +57,15 @@ export default () => {
         }
         if (accessToken.type === contants.TYPE_OF_CLIENT.USER) {
           const userRepository = new UserRepository();
-          const user = await userRepository.findById(accessToken.id_client);
-          if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
-          done(null, user);
+          const realUserRepository = new RealUserRepository();
+          const realUser = await realUserRepository.findById(accessToken.id_client);
+          if (realUser) {
+            done(null, realUser);
+          } else {
+            const user = await userRepository.findById(accessToken.id_client);
+            if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
+            else done(null, user);
+          }
         }
         if (accessToken.type === contants.TYPE_OF_CLIENT.EXPERT) {
           const expertRepository = new ExpertRepository();
