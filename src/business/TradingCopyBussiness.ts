@@ -101,35 +101,35 @@ export default class TradingCopyBussiness {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
         const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-        const duplicateResult = await this._tradingCopyRepository.findOne({
-          id_expert: tradingCopyEntity.id_expert,
-          id_user: tradingCopyEntity.id_user,
-        } as ITradingCopyModel);
-        if (!duplicateResult) {
-          const userBlock = await this._userRepository.findOne({
-            _id: tradingCopyEntity.id_user,
-            status_trading_copy: contants.STATUS.BLOCK,
-          } as IUserModel);
-          if (!userBlock) {
-            const result = await this._tradingCopyRepository.create(tradingCopyEntity);
-            if (result) {
-              const user = await this._userRepository.findOne({
-                _id: tradingCopyEntity.id_user,
-              } as IUserModel);
-              const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
-                total_amount: user.total_amount - tradingCopyEntity.base_amount,
-              } as IUserModel);
-              if (updateUser) {
-                return result;
-              }
-              return null;
+        // const duplicateResult = await this._tradingCopyRepository.findOne({
+        //   id_expert: tradingCopyEntity.id_expert,
+        //   id_user: tradingCopyEntity.id_user,
+        // } as ITradingCopyModel);
+        // if (!duplicateResult) {
+        const userBlock = await this._userRepository.findOne({
+          _id: tradingCopyEntity.id_user,
+          status_trading_copy: contants.STATUS.BLOCK,
+        } as IUserModel);
+        if (!userBlock) {
+          const result = await this._tradingCopyRepository.create(tradingCopyEntity);
+          if (result) {
+            const user = await this._userRepository.findOne({
+              _id: tradingCopyEntity.id_user,
+            } as IUserModel);
+            const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
+              total_amount: user.total_amount - tradingCopyEntity.base_amount,
+            } as IUserModel);
+            if (updateUser) {
+              return result;
             }
-          } else {
-            throw new Error('You are blocked in 24 hours!');
+            return null;
           }
         } else {
-          throw new Error('Trading copy is exist!');
+          throw new Error('You are blocked in 24 hours!');
         }
+        // } else {
+        //   throw new Error('Trading copy is exist!');
+        // }
       }
     } catch (err) {
       throw err;
