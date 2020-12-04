@@ -2,12 +2,15 @@ import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
 import IAdminEntities from '@src/models/cpAdmin/IAdminModel';
 import ClientEntities from '@src/models/cpClient/IClientModel';
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
+import bcrypt from 'bcryptjs';
 import {randomBytes} from 'crypto';
 import {createServer, exchange, ExchangeDoneFunction} from 'oauth2orize';
 import passport from 'passport';
@@ -105,16 +108,26 @@ server.exchange(
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.USER) {
           const _userRepository = new UserRepository();
-          const user = await _userRepository.findOne({username} as IUserModel);
-          if (!user) return issused(new Error('UseUserxist'));
-
-          if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
-            return issused(new Error('Login Fail'));
-          else {
-            if (user.status === contants.STATUS.ACTIVE) {
-              initToken(client, user, body.type, issused);
-            } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
-            else return issused(new Error('UserT_ACTIVE'));
+          const _realUserRepository = new RealUserRepository();
+          const real = await _realUserRepository.findOne({username} as IRealUserModel);
+          if (real) {
+            const isValid = bcrypt.compareSync(password, real.password);
+            if (!isValid) {
+              return issused(new Error('Login Fail'));
+            } else {
+              initToken(client, real, body.type, issused);
+            }
+          } else {
+            const user = await _userRepository.findOne({username} as IUserModel);
+            if (!user) return issused(new Error('UseUserxist'));
+            if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
+              return issused(new Error('Login Fail'));
+            else {
+              if (user.status === contants.STATUS.ACTIVE) {
+                initToken(client, user, body.type, issused);
+              } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
+              else return issused(new Error('UserT_ACTIVE'));
+            }
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.EXPERT) {
           const _expertRepository = new ExpertRepository();
@@ -153,7 +166,7 @@ server.exchange(
  *
  * @apiParam {String} username
  * @apiParam {String} password
- * @apiParam {String} type
+ * @apiParam {String} type (ADMIN/USER/EXPERT)
  * @apiParam {String} grant_type password
  * @apiParam {String} client_id b109f3bbbc244eb82441917ed06d618b9008dd09b3bef
  * @apiParam {String} client_secret password
