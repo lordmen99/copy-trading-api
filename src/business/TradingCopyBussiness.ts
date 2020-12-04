@@ -116,13 +116,21 @@ export default class TradingCopyBussiness {
             const user = await this._userRepository.findOne({
               _id: tradingCopyEntity.id_user,
             } as IUserModel);
-            const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
-              total_amount: user.total_amount - tradingCopyEntity.base_amount,
-            } as IUserModel);
-            if (updateUser) {
-              return result;
+            if (user) {
+              if (user.total_amount >= tradingCopyEntity.base_amount) {
+                const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
+                  total_amount: user.total_amount - tradingCopyEntity.base_amount,
+                } as IUserModel);
+                if (updateUser) {
+                  return result;
+                }
+                return null;
+              } else {
+                throw new Error('Account does not have enough money!');
+              }
+            } else {
+              throw new Error('User is not exist');
             }
-            return null;
           }
         } else {
           throw new Error('You are blocked in 24 hours!');
