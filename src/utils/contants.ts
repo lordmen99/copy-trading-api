@@ -17,8 +17,16 @@ enum RATE {
   FEE_TO_EXPERT = 5 / 100,
   FEE_TO_TRADING = 5 / 100,
 }
+
+enum TYPE_OF_CLIENT {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  EXPERT = 'EXPERT',
+}
+
 export default {
   STATUS,
   RATE,
   TYPE_OF_WITHDRAW,
+  TYPE_OF_CLIENT,
 };

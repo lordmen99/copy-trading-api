@@ -15,6 +15,10 @@ export default class TradingWithdrawModel {
     return this._tradingWithdrawModel.id_expert;
   }
 
+  get id_copy(): string {
+    return this._tradingWithdrawModel.id_copy;
+  }
+
   get amount(): number {
     return this._tradingWithdrawModel.amount;
   }

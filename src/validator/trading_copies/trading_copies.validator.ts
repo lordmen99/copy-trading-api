@@ -73,3 +73,20 @@ export class GetTradingCopyOfUser {
   })
   id_user: string;
 }
+
+export class TransferMoneyTradingCopy {
+  @IsNotEmpty({message: 'Id user is required'})
+  @IsString({
+    message: 'Id user is string',
+  })
+  id_user: string;
+
+  @IsNotEmpty({message: 'Id copy is required'})
+  @IsString({
+    message: 'Id copy is string',
+  })
+  id_copy: string;
+
+  @IsNotEmpty({message: 'Amount is required'})
+  amount: number;
+}

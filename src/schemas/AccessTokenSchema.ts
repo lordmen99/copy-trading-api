@@ -8,7 +8,11 @@ class AccessTokenSchema {
         type: String,
         required: true,
       },
-      id_admin: {
+      id_client: {
+        type: String,
+        required: true,
+      },
+      type: {
         type: String,
         required: true,
       },

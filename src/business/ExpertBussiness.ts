@@ -4,7 +4,7 @@ import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants} from '@src/utils';
+import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 
@@ -37,11 +37,11 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        // const securityPass = security.createHashedSalt(expert.password);
+        const securityPass = security.createHashedSalt(expert.password);
 
         const expertEntity = expert as IExpertModel;
-        // expertEntity.hashed_password = securityPass.hashedPassword;
-        // expertEntity.salt = securityPass.salt;
+        expertEntity.hashed_password = securityPass.hashedPassword;
+        expertEntity.salt = securityPass.salt;
 
         const result = await this._expertRepository.create(expertEntity);
         if (result) {
@@ -71,43 +71,50 @@ export default class ExpertBussiness {
         };
 
         const expertEntity = expert as IExpertModel;
-        const resultUser = await this._userRepository.findWhere({status: contants.STATUS.ACTIVE} as IUserModel);
-        const random = Math.floor(Math.random() * resultUser.length);
-        const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
-        const randomRate = Math.floor(Math.random() * (100 - 1)) + 1;
-        const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
-        const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
+        const resultUser = await this._userRepository.findWhere({
+          status: contants.STATUS.ACTIVE,
+          is_virtual: true,
+        } as IUserModel);
+        if (resultUser) {
+          const random = Math.floor(Math.random() * resultUser.length);
+          const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
+          const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
+          const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
+          const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
 
-        const resultExpert = await this._expertRepository.create(expertEntity);
+          const resultExpert = await this._expertRepository.create(expertEntity);
 
-        if (resultExpert) {
-          const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-          tradingCopyEntity.id_user = resultUser[random]._id;
-          tradingCopyEntity.id_expert = resultExpert._id;
-          tradingCopyEntity.investment_amount = randomInvestment;
-          tradingCopyEntity.base_amount = randomInvestment;
-          tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
-          if (tradingCopyEntity.has_maximum_rate) {
-            tradingCopyEntity.maximum_rate = randomRate;
-          } else {
-            tradingCopyEntity.maximum_rate = 0;
-          }
-          tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
-          if (tradingCopyEntity.has_stop_loss) {
-            tradingCopyEntity.stop_loss = randomStopLoss;
-          } else {
-            tradingCopyEntity.stop_loss = 0;
-          }
-          tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
-          if (tradingCopyEntity.has_taken_profit) {
-            tradingCopyEntity.taken_profit = randomProfit;
-          } else {
-            tradingCopyEntity.taken_profit = 0;
-          }
-          tradingCopyEntity.createdAt = new Date();
-          tradingCopyEntity.updatedAt = new Date();
+          if (resultExpert) {
+            const tradingCopyEntity = tradingCopy as ITradingCopyModel;
+            tradingCopyEntity.id_user = resultUser[random]._id;
+            tradingCopyEntity.id_expert = resultExpert._id;
+            tradingCopyEntity.investment_amount = randomInvestment;
+            tradingCopyEntity.base_amount = randomInvestment;
+            tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
+            if (tradingCopyEntity.has_maximum_rate) {
+              tradingCopyEntity.maximum_rate = randomRate;
+            } else {
+              tradingCopyEntity.maximum_rate = 0;
+            }
+            tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
+            if (tradingCopyEntity.has_stop_loss) {
+              tradingCopyEntity.stop_loss = randomStopLoss;
+            } else {
+              tradingCopyEntity.stop_loss = 0;
+            }
+            tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
+            if (tradingCopyEntity.has_taken_profit) {
+              tradingCopyEntity.taken_profit = randomProfit;
+            } else {
+              tradingCopyEntity.taken_profit = 0;
+            }
+            tradingCopyEntity.createdAt = new Date();
+            tradingCopyEntity.updatedAt = new Date();
 
-          await this._tradingCopyRepository.create(tradingCopyEntity);
+            await this._tradingCopyRepository.create(tradingCopyEntity);
+          }
+        } else {
+          throw new Error('System does not have any users');
         }
       }
     } catch (err) {

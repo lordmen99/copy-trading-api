@@ -11,6 +11,9 @@ class TradingWithdrawSchema {
       id_expert: {
         type: String,
       },
+      id_copy: {
+        type: String,
+      },
       amount: {
         type: Number,
         required: true,

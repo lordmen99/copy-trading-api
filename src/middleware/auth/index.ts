@@ -4,7 +4,10 @@ import IClientModel from '@src/models/cpClient/IClientModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
 import ClientRepository from '@src/repository/ClientRepository';
-import {security} from '@src/utils';
+import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
+import UserRepository from '@src/repository/UserRepository';
+import {contants, security} from '@src/utils';
 import {createHash} from 'crypto';
 import passport from 'passport';
 import {BasicStrategy} from 'passport-http';
@@ -46,10 +49,30 @@ export default () => {
         const accessTokenRes = new AccessTokenRepository();
         const accessToken = await accessTokenRes.findOne({token} as IAccessTokenModel);
         if (!accessToken) return done({code: 403, type: 'invalidToken', message: 'Token invalid'});
-        const adminRepository = new AdminRepository();
-        const admin = await adminRepository.findById(accessToken.id_admin);
-        if (!admin) return done(null, false, {message: 'Unknown User', scope: '*'});
-        done(null, admin);
+        if (accessToken.type === contants.TYPE_OF_CLIENT.ADMIN) {
+          const adminRepository = new AdminRepository();
+          const admin = await adminRepository.findById(accessToken.id_client);
+          if (!admin) return done(null, false, {message: 'Unknown Admin', scope: '*'});
+          done(null, admin);
+        }
+        if (accessToken.type === contants.TYPE_OF_CLIENT.USER) {
+          const userRepository = new UserRepository();
+          const realUserRepository = new RealUserRepository();
+          const realUser = await realUserRepository.findById(accessToken.id_client);
+          if (realUser) {
+            done(null, realUser);
+          } else {
+            const user = await userRepository.findById(accessToken.id_client);
+            if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
+            else done(null, user);
+          }
+        }
+        if (accessToken.type === contants.TYPE_OF_CLIENT.EXPERT) {
+          const expertRepository = new ExpertRepository();
+          const expert = await expertRepository.findById(accessToken.id_client);
+          if (!expert) return done(null, false, {message: 'Unknown Expert', scope: '*'});
+          done(null, expert);
+        }
       } catch (error) {
         done({code: 403, type: 'invalidToken', message: 'Token invalid'});
       }

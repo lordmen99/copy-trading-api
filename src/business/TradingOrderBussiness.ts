@@ -135,6 +135,7 @@ export default class TradingOrderBussiness {
                   (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
                 );
                 await tradingCopyBussiness.calculateMoney(
+                  '',
                   tradingHistoryEntity.id_expert,
                   'expert',
                   tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -147,13 +148,14 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
                 await tradingCopyBussiness.calculateMoney(
+                  '',
                   tradingHistoryEntity.id_expert,
                   'expert',
                   tradingHistoryEntity.investment_amount * -1,
                 );
               }
 
-              tradingHistoryEntity.type_of_money = 'BTC';
+              tradingHistoryEntity.type_of_money = 'BTC/USDT';
               tradingHistoryEntity.status = false;
 
               const tradingHistoryBusiness = new TradingHistoryBussiness();
@@ -212,6 +214,7 @@ export default class TradingOrderBussiness {
                     tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     await tradingCopyBussiness.calculateMoney(
+                      copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
                       tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -219,6 +222,7 @@ export default class TradingOrderBussiness {
                     await tradingWithdrawBussiness.createTradingWithdraw({
                       id_user: tradingHistoryEntity.id_user,
                       id_expert: copy.id_expert,
+                      id_copy: copy._id,
                       amount: tradingHistoryEntity.fee_to_expert,
                       type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                       status: contants.STATUS.PENDING,
@@ -235,6 +239,7 @@ export default class TradingOrderBussiness {
                     tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                     await tradingCopyBussiness.calculateMoney(
+                      copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
                       tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -242,6 +247,7 @@ export default class TradingOrderBussiness {
                     await tradingWithdrawBussiness.createTradingWithdraw({
                       id_user: tradingHistoryEntity.id_user,
                       id_expert: copy.id_expert,
+                      id_copy: copy._id,
                       amount: tradingHistoryEntity.fee_to_expert,
                       status: contants.STATUS.PENDING,
                       type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
@@ -270,19 +276,21 @@ export default class TradingOrderBussiness {
                   tradingHistoryEntity.fee_to_trading = 0;
                   if (copy.has_maximum_rate) {
                     await tradingCopyBussiness.calculateMoney(
+                      copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
                       tradingHistoryEntity.order_amount * -1,
                     );
                   } else {
                     await tradingCopyBussiness.calculateMoney(
+                      copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
                       tradingHistoryEntity.order_amount * -1,
                     );
                   }
                 }
-                tradingHistoryEntity.type_of_money = 'BTC';
+                tradingHistoryEntity.type_of_money = 'BTC/USDT';
                 tradingHistoryEntity.status = false;
 
                 if (
@@ -410,6 +418,7 @@ export default class TradingOrderBussiness {
                 (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
               );
               await tradingCopyBussiness.calculateMoney(
+                '',
                 tradingHistoryEntity.id_expert,
                 'expert',
                 tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -422,13 +431,14 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = 0;
               await tradingCopyBussiness.calculateMoney(
+                '',
                 tradingHistoryEntity.id_expert,
                 'expert',
                 tradingHistoryEntity.investment_amount * -1,
               );
             }
 
-            tradingHistoryEntity.type_of_money = 'BTC';
+            tradingHistoryEntity.type_of_money = 'BTC/USDT';
             tradingHistoryEntity.status = false;
 
             const tradingHistoryBusiness = new TradingHistoryBussiness();
@@ -487,6 +497,7 @@ export default class TradingOrderBussiness {
                   tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   await tradingCopyBussiness.calculateMoney(
+                    copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
                     tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -494,6 +505,7 @@ export default class TradingOrderBussiness {
                   await tradingWithdrawBussiness.createTradingWithdraw({
                     id_user: tradingHistoryEntity.id_user,
                     id_expert: copy.id_expert,
+                    id_copy: copy._id,
                     amount: tradingHistoryEntity.fee_to_expert,
                     status: contants.STATUS.PENDING,
                     type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
@@ -507,6 +519,7 @@ export default class TradingOrderBussiness {
                   tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
                   await tradingCopyBussiness.calculateMoney(
+                    copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
                     tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -514,6 +527,7 @@ export default class TradingOrderBussiness {
                   await tradingWithdrawBussiness.createTradingWithdraw({
                     id_user: tradingHistoryEntity.id_user,
                     id_expert: copy.id_expert,
+                    id_copy: copy._id,
                     amount: tradingHistoryEntity.fee_to_expert,
                     type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                     status: contants.STATUS.PENDING,
@@ -542,19 +556,21 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.fee_to_trading = 0;
                 if (copy.has_maximum_rate) {
                   await tradingCopyBussiness.calculateMoney(
+                    copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
                     tradingHistoryEntity.order_amount * -1,
                   );
                 } else {
                   await tradingCopyBussiness.calculateMoney(
+                    copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
                     tradingHistoryEntity.order_amount * -1,
                   );
                 }
               }
-              tradingHistoryEntity.type_of_money = 'BTC';
+              tradingHistoryEntity.type_of_money = 'BTC/USDT';
               tradingHistoryEntity.status = false;
 
               if (

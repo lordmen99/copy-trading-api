@@ -1,5 +1,4 @@
 import UserBussiness from '@src/business/UserBussiness';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
@@ -35,6 +34,7 @@ export default class UserController {
       const data = new AddUser();
       data.fullname = params.fullname;
       data.username = params.username;
+      data.password = params.password;
       data.email = params.email;
       data.phone = params.phone;
       data.avatar = params.avatar;
@@ -71,6 +71,7 @@ export default class UserController {
 
           data.fullname = fullname;
           data.username = username;
+          data.password = username;
           data.email = email;
           data.phone = phone;
           data.avatar = '';
@@ -78,8 +79,7 @@ export default class UserController {
           data.is_virtual = true;
           data.status = contants.STATUS.ACTIVE;
           data.status_trading_copy = contants.STATUS.ACTIVE;
-          const userEntity = data as IUserModel;
-          userBusiness.addUser(userEntity);
+          userBusiness.addUser(data);
         }
       }
 
