@@ -9,7 +9,6 @@ export default (io: any) => {
       io.on('commit', (data: any) => {
         /** lọc ra nến kết quả */
         if (data.ticking === 1 && data.data[0].is_open === false) {
-          console.log(data.data[0], 'data');
           const tradingOrderBussiness = new TradingOrderBussiness();
           tradingOrderBussiness.executeListPendingOrders(data.data[0]);
         }
