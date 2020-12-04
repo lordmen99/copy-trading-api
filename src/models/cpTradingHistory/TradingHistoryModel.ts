@@ -1,5 +1,5 @@
+import {Schema} from 'mongoose';
 import ITradingHistoryModel from './ITradingHistoryModel';
-
 export default class TradingHistoryModel {
   private _tradingHistoryModel: ITradingHistoryModel;
 
@@ -7,11 +7,11 @@ export default class TradingHistoryModel {
     this._tradingHistoryModel = TradingHistoryModel;
   }
 
-  get id_user(): string {
+  get id_user(): Schema.Types.ObjectId {
     return this._tradingHistoryModel.id_user;
   }
 
-  get id_expert(): string {
+  get id_expert(): Schema.Types.ObjectId {
     return this._tradingHistoryModel.id_expert;
   }
 

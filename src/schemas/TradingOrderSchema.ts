@@ -1,15 +1,15 @@
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 class TradingOrderSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_expert: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       id_admin: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       type_of_order: {

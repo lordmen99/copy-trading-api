@@ -1,9 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import IRead from '../interfaces/IRead';
 import IWrite from '../interfaces/IWrite';
 
 export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
   private _model: mongoose.Model<mongoose.Document>;
+  private _aggregate: mongoose.Aggregate<any>;
+  private _query: mongoose.Query<any>;
 
   constructor(schemaModel: mongoose.Model<mongoose.Document>) {
     this._model = schemaModel;
@@ -58,15 +60,61 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
       throw err.errors ? err.errors.shift() : err;
     }
   }
-
-  public async findWithPagingByIdWithOr(item: T, page: number, size: number, orArray: any): Promise<any> {
+  public async findWithPagingByIdWithAggregate(item: any, page: number, size: number): Promise<any> {
     try {
       const result = await this._model
-        .find(item)
-        .or(orArray)
+        .aggregate([
+          {
+            $lookup: {
+              from: 'cp_experts',
+              localField: 'id_expert',
+              foreignField: '_id',
+              as: 'expert',
+            },
+          },
+          {
+            $match: {
+              id_user: this.toObjectId(item.id_user),
+            },
+          },
+        ])
         .limit(size)
         .skip((page - 1) * size);
-      const count = await this._model.countDocuments(item).or(orArray);
+
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingByIdWithOr(item: any, page: number, size: number, orArray): Promise<any> {
+    try {
+      const result = await this._model
+        .aggregate([
+          {
+            $lookup: {
+              from: 'cp_experts',
+              localField: 'id_expert',
+              foreignField: '_id',
+              as: 'expert',
+            },
+          },
+          {
+            $match: {
+              status: {$in: orArray},
+              id_user: this.toObjectId(item.id_user),
+            },
+          },
+        ])
+        .limit(size)
+        .skip((page - 1) * size);
+
+      const count = await this._model.countDocuments(item).or([{status: {$in: orArray}}]);
       return {
         result,
         count,
@@ -123,7 +171,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async update(id: mongoose.Types.ObjectId, item: T): Promise<T> {
+  public async update(id: Schema.Types.ObjectId, item: T): Promise<T> {
     try {
       const result = await this._model.updateOne({_id: id}, item);
       return result as T;
@@ -132,7 +180,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async delete(id: mongoose.Types.ObjectId): Promise<boolean> {
+  public async delete(id: Schema.Types.ObjectId): Promise<boolean> {
     try {
       await this._model.deleteOne({_id: id});
       return true;

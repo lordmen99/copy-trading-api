@@ -19,9 +19,11 @@ export default class TradingHistoryController {
   public async getListTradingHistoriesByUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
+      // const id_user = (req.user as IUserModel).id;
+      const id_user = params.id_user;
       const tradingHistoryBusiness = new TradingHistoryBussiness();
       const result = await tradingHistoryBusiness.getListTradingHistoriesByUser(
-        params.id_user.toString(),
+        id_user,
         parseInt(params.page.toString()),
         parseInt(params.size.toString()),
       );

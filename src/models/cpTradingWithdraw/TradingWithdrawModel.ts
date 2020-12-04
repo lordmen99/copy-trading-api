@@ -1,3 +1,4 @@
+import {Schema} from 'mongoose';
 import ITradingWithdrawModel from './ITradingWithdrawModel';
 
 export default class TradingWithdrawModel {
@@ -7,15 +8,15 @@ export default class TradingWithdrawModel {
     this._tradingWithdrawModel = ITradingWithdrawModel;
   }
 
-  get id_user(): string {
+  get id_user(): Schema.Types.ObjectId {
     return this._tradingWithdrawModel.id_user;
   }
 
-  get id_expert(): string {
+  get id_expert(): Schema.Types.ObjectId {
     return this._tradingWithdrawModel.id_expert;
   }
 
-  get id_copy(): string {
+  get id_copy(): Schema.Types.ObjectId {
     return this._tradingWithdrawModel.id_copy;
   }
 

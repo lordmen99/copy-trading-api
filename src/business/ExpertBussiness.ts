@@ -7,6 +7,7 @@ import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
+import {Schema} from 'mongoose';
 
 export default class ExpertBussiness {
   private _expertRepository: ExpertRepository;
@@ -61,8 +62,8 @@ export default class ExpertBussiness {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
         const tradingCopy = {
-          id_user: '',
-          id_expert: '',
+          id_user: null,
+          id_expert: null,
           investment_amount: 0,
           maximum_rate: 0,
           stop_loss: 0,
@@ -128,7 +129,7 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const expert = await this._expertRepository.findById(params._id);
+        const expert = await this._expertRepository.findById(params._id.toString());
         if (expert) {
           const expertEntity = expert as IExpertModel;
           expertEntity.fullname = params.fullname;
@@ -139,10 +140,7 @@ export default class ExpertBussiness {
           expertEntity.total_amount = params.total_amount;
           expertEntity.is_virtual = params.is_virtual;
 
-          const result = await this._expertRepository.update(
-            this._expertRepository.toObjectId(params._id),
-            expertEntity,
-          );
+          const result = await this._expertRepository.update(params._id, expertEntity);
 
           if (result) {
             return result ? true : false;
@@ -154,14 +152,14 @@ export default class ExpertBussiness {
     }
   }
 
-  public async deleteExpert(_id: string): Promise<boolean> {
+  public async deleteExpert(_id: Schema.Types.ObjectId): Promise<boolean> {
     try {
-      const expert = await this._expertRepository.findById(_id);
+      const expert = await this._expertRepository.findById(_id.toString());
       if (expert) {
         const expertEntity = expert as IExpertModel;
         expertEntity.status = 'DELETE';
 
-        const result = await this._expertRepository.update(this._expertRepository.toObjectId(_id), expertEntity);
+        const result = await this._expertRepository.update(_id, expertEntity);
 
         if (result) {
           return result ? true : false;
@@ -178,7 +176,7 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._expertRepository.findById(params._id);
+        return this._expertRepository.findById(params._id.toString());
       }
     } catch (err) {
       throw err;

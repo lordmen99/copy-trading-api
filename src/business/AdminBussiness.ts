@@ -48,12 +48,12 @@ export default class AdminBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const admin = await this._adminRepository.findById(params._id);
+        const admin = await this._adminRepository.findById(params._id.toString());
         if (admin) {
           const checked = security.checkPassword(params.current_password, admin.salt, admin.hashed_password);
           if (checked) {
             const securityPass = security.createHashedSalt(params.new_password);
-            const result = await this._adminRepository.update(this._adminRepository.toObjectId(params._id), {
+            const result = await this._adminRepository.update(params._id, {
               hashed_password: securityPass.hashedPassword,
               salt: securityPass.salt,
             } as IAdminModel);

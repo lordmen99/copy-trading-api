@@ -65,7 +65,7 @@ export default class UserController {
           const username = faker.internet.userName();
           const email = faker.internet.email();
           const phone = faker.phone.phoneNumber();
-          const total_amount = faker.finance.amount();
+          const total_amount = Math.floor(Math.random() * (3000 - 500)) + 500;
 
           const data = new AddUser();
 

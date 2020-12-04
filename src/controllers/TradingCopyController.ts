@@ -1,5 +1,5 @@
 import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
-import UserBussiness from '@src/business/UserBussiness';
+import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import {
   CreateTradingCopy,
@@ -15,7 +15,6 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const tradingCopyBusiness = new TradingCopyBussiness();
-      const userBussiness = new UserBussiness();
       const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert);
 
       res.status(200).send({data: result});
@@ -28,7 +27,8 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const data = new CreateTradingCopy();
-      data.id_user = params.id_user; // change token
+      // data.id_user = params.id_user; // change token
+      data.id_user = (req.user as IUserModel).id;
       data.id_expert = params.id_expert;
       data.investment_amount = parseFloat(params.investment_amount.toString());
       data.maximum_rate = params.maximum_rate;
@@ -54,7 +54,8 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const data = new StopTradingCopy();
-      data.id_user = params.id_user;
+      // data.id_user = params.id_user;
+      data.id_user = (req.user as IUserModel).id;
       data.id_copy = params.id_copy;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.stopTradingCopy(data);
@@ -111,7 +112,8 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const data = new GetTradingCopyOfUser();
-      data.id_user = params.id_user;
+      // data.id_user = params.id_user;
+      data.id_user = (req.user as IUserModel).id;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.getListTradingCopies(data, params.page, params.size);
 
@@ -126,7 +128,8 @@ export default class TradingCopyController {
       const params = req.body;
       const data = new TransferMoneyTradingCopy();
       data.id_copy = params.id_copy;
-      data.id_user = params.id_user;
+      // data.id_user = params.id_user;
+      data.id_user = (req.user as IUserModel).id;
       data.amount = params.amount;
 
       const tradingCopyBusiness = new TradingCopyBussiness();

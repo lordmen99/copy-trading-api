@@ -1,17 +1,12 @@
 import {IsNotEmpty, IsString, Min} from 'class-validator';
+import {Schema} from 'mongoose';
 
 export class CreateTradingCopy {
   @IsNotEmpty({message: 'Id user is required'})
-  @IsString({
-    message: 'Id user is string',
-  })
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Id expert is required'})
-  @IsString({
-    message: 'Id expert is string',
-  })
-  id_expert: string;
+  id_expert: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Investment amount is required and higher than 500'})
   @Min(500)
@@ -49,13 +44,13 @@ export class StopTradingCopy {
   @IsString({
     message: 'Id user is string',
   })
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Id copy is required'})
   @IsString({
     message: 'Id copy is string',
   })
-  id_copy: string;
+  id_copy: Schema.Types.ObjectId;
 }
 
 export class GetTradingCopy {
@@ -63,7 +58,7 @@ export class GetTradingCopy {
   @IsString({
     message: 'Id copy is string',
   })
-  id_copy: string;
+  id_copy: Schema.Types.ObjectId;
 }
 
 export class GetTradingCopyOfUser {
@@ -71,7 +66,7 @@ export class GetTradingCopyOfUser {
   @IsString({
     message: 'Id user is string',
   })
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 }
 
 export class TransferMoneyTradingCopy {
@@ -79,13 +74,13 @@ export class TransferMoneyTradingCopy {
   @IsString({
     message: 'Id user is string',
   })
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Id copy is required'})
   @IsString({
     message: 'Id copy is string',
   })
-  id_copy: string;
+  id_copy: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Amount is required'})
   amount: number;
