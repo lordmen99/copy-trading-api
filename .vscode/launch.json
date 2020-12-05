@@ -22,7 +22,7 @@
       "env": {
         "NODE_ENV": "development",
         "PORT": "5000",
-        "MONGODB_URI": "mongodb+srv://danhnm:danhnm@cluster0.cqx5m.mongodb.net/bo_trading",
+        "MONGODB_URI": "mongodb+srv://ninhpm:ninhpm123@cluster0.ofmu5.mongodb.net/bo_trading",
         "SERVER_TRADING_URI": "http://localhost:6789",
         "SOCKET_TRADING_URI": "/kline"
       }

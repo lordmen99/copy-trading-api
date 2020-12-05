@@ -1,4 +1,4 @@
-export interface Socket<OnData, EmitData> {
+export interface SocketHandler<OnData, EmitData> {
   on: (event: string, callback: (data: OnData) => void) => void;
   emit: (event: string, data: EmitData) => void;
 }
@@ -8,5 +8,5 @@ export type Handler = {
 };
 
 export type AppData = {
-  allSockets: Socket<any, any>[];
+  allSockets: SocketHandler<any, any>[];
 };

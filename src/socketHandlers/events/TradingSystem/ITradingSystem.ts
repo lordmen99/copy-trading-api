@@ -1,7 +1,7 @@
-import {AppData, Socket} from '../../EventTypes';
+import {AppData, SocketHandler} from '../../EventTypes';
 
 type TradingCandlesData = {};
 export type TradingCandles = (
   app: AppData,
-  socket: Socket<TradingCandlesData, {}>,
+  socket: SocketHandler<TradingCandlesData, {}>,
 ) => (data: TradingCandlesData) => void;
