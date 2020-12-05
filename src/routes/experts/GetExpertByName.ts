@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /experts/get_expert_by_name 6. Get Expert infor
+ * @api {get} /experts/get_expert_by_name 8. Get Expert infor
  * @apiVersion 0.1.0
  * @apiGroup II. Experts
  *
@@ -16,7 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} _id
+ * @apiParam {String} fullname
  *
  * @apiSuccess {Object} data
  *
