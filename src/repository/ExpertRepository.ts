@@ -117,7 +117,37 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
 
   public async executeListExpertPage(page: number, size: number): Promise<any> {
     try {
-      const result = await this.findWithPagingWithAggregate(parseFloat(page.toString()), parseFloat(size.toString()));
+      const result = await CPExpertSchema.aggregate([
+        {
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+            ],
+          },
+        },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await CPExpertSchema.countDocuments({});
 
       const list = [];
       if (result) {
@@ -127,7 +157,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           copier: 0,
           removed_copier: 0,
         };
-        for (const expert of result.result[0].data) {
+        for (const expert of result[0].data) {
           if (expert.trading_copies) {
             let copier = 0;
             const listCheckUsers = [];
@@ -197,7 +227,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
 
       const res = {
         result: list,
-        count: result.count,
+        count,
       };
       return res;
     } catch (err) {
