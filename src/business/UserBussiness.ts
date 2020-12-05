@@ -17,13 +17,24 @@ export default class UserBussiness {
     this._tradingCopyRepository = new TradingCopyRepository();
   }
 
-  public async findById(params: GetUser): Promise<IUserModel> {
+  public async findById(params: GetUser): Promise<any> {
     try {
       const errors = await validate(params);
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._userRepository.findById(params._id.toString());
+        const result = await this._userRepository.findById(params._id.toString());
+        return {
+          _id: result._id,
+          fullname: result.fullname,
+          username: result.username,
+          email: result.email,
+          phone: result.phone,
+          total_amount: result.total_amount,
+          status: result.status,
+          status_trading_copy: result.status_trading_copy,
+          is_virtual: result.is_virtual,
+        };
       }
     } catch (err) {
       throw err;

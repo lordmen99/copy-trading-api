@@ -146,9 +146,10 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findWithPagingWithAggregate(
-    page: number,
-    size: number,
+  public async findWithPagingUserCopyWithAggregate(
+    item: any,
+    // page: number,
+    // size: number,
     localField: string,
     foreignField: string,
     as: string,
@@ -157,27 +158,75 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     try {
       const result = await this._model.aggregate([
         {
-          $limit: size,
-        },
-        {
-          $skip: (page - 1) * size,
-        },
-        {
-          $lookup: {
-            from,
-            localField,
-            foreignField,
-            as,
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: 0},
+              {$limit: 10},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+            ],
           },
         },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingWithAggregate(page: number, size: number): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
         {
-          $lookup: {
-            from: 'cp_trading_copies',
-            localField: '_id',
-            foreignField: 'id_expert',
-            as: 'users',
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: (page - 1) * size},
+              {$limit: size},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+            ],
           },
         },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
       ]);
 
       const count = await this._model.countDocuments({});

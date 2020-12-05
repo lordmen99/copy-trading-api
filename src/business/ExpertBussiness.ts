@@ -208,8 +208,8 @@ export default class ExpertBussiness {
 
   public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
     try {
-      const result = await this._expertRepository.findWithPagingByExpertWithAggregate(
-        {_id: id_expert as any} as IExpertModel,
+      const result = await this._expertRepository.findWithPagingUserCopyWithAggregate(
+        {_id: id_expert} as IExpertModel,
         '_id',
         'id_expert',
         'copies',

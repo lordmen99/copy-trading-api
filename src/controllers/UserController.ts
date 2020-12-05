@@ -1,4 +1,5 @@
 import UserBussiness from '@src/business/UserBussiness';
+import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
@@ -6,11 +7,11 @@ import {NextFunction, Request, Response} from 'express';
 export default class UserController {
   public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // const id = (req.user as IUserModel).id;
-      const params = req.query;
+      const id = (req.user as IUserModel)._id;
+      // const params = req.query;
       const userBusiness = new UserBussiness();
       const data = new GetUser();
-      data._id = params._id.toString();
+      data._id = id.toString();
       const result = await userBusiness.findById(data);
       res.status(200).send({data: result});
     } catch (err) {

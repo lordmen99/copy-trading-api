@@ -21,7 +21,7 @@ export class CreateTradingHistory {
   @IsNotEmpty({message: 'Investment amount is required'})
   investment_amount: number;
 
-  @IsNotEmpty({message: 'Order amount is required'})
+  // @IsNotEmpty({message: 'Order amount is required'})
   order_amount: number;
 
   @IsNotEmpty({message: 'Profit is required'})
