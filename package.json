@@ -1,7 +1,7 @@
 {
   "name": "crypto-currency-site",
   "version": "1.0.0",
-  "description": "",
+  "description": "UNLICENSED",
   "repository": {
     "url": "https://manhninh91@bitbucket.org/smap_projects/smap_datacollection.git"
   },
@@ -12,8 +12,7 @@
     "build:prod": "rimraf ./dist && tsc --build tsconfig.json",
     "prestart": "npm run build",
     "start": "node ./dist/index.js",
-    "tslint": "tslint --project tsconfig.json --format stylish",
-    "tslint:fix": "npm run tslint -- --fix"
+    "lint": "tslint -c tslint.json 'src/**/*.ts' --fix --format verbose"
   },
   "husky": {
     "hooks": {
@@ -22,7 +21,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "tslint --project tsconfig.json --format stylish --fix",
+      "tslint -c tslint.json 'src/**/*.ts' --fix --format verbose",
       "prettier --write --config ./.prettierrc"
     ]
   },
