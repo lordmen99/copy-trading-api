@@ -1,15 +1,28 @@
 import ExpertBussiness from '@src/business/ExpertBussiness';
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import {contants} from '@src/utils';
-import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
+import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
 import {Error} from 'mongoose';
 
 export default class ExpertController {
   public async getListExperts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const params = req.body;
       const expertBusiness = new ExpertBussiness();
-      const result = await expertBusiness.getListExperts();
+      const result = await expertBusiness.getListExpertsPaging(params.page, params.size);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getUserCopyByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBussiness = new ExpertBussiness();
+      const result = await expertBussiness.findUserCopyByExpert(params.id_expert);
+
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -24,6 +37,20 @@ export default class ExpertController {
       const data = new GetExpert();
       data._id = params._id.toString();
       const result = await expertBusiness.findById(data);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getExpertByName(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel).id;
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const data = new GetExpertByName();
+      data.fullname = params.fullname;
+      const result = await expertBusiness.findByName(data);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);

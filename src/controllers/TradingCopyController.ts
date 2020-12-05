@@ -11,17 +11,17 @@ import {
 import {NextFunction, Request, Response} from 'express';
 
 export default class TradingCopyController {
-  public async getUserCopyByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const params = req.body;
-      const tradingCopyBusiness = new TradingCopyBussiness();
-      const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert);
+  // public async getUserCopyByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   try {
+  //     const params = req.body;
+  //     const tradingCopyBusiness = new TradingCopyBussiness();
+  //     const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert);
 
-      res.status(200).send({data: result});
-    } catch (err) {
-      next(err);
-    }
-  }
+  //     res.status(200).send({data: result});
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 
   public async createTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /experts/get_list_experts 4. Get List Experts
+ * @api {get} /experts/get_expert_by_name 8. Get Expert infor
  * @apiVersion 0.1.0
  * @apiGroup II. Experts
  *
@@ -16,6 +16,8 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {String} fullname
+ *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
@@ -23,25 +25,13 @@ import {Router} from 'express';
  *  {
  *      "data": [
  *            {
- *              "is_virtual": true,
+ *             "is_virtual": true,
  *              "_id": "5fbe0f803252b8487841c417",
  *              "fullname": "DanhNguyen",
  *              "username": "coldblooda9",
  *              "email": "coldblooda9@gmail.com",
  *              "phone": "313113131",
- *              "avatar": '',
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
- *              "__v": 0
- *            },
- *            {
- *              "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c4f7",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": '',
+ *              "avatar": "",
  *              "total_amount": 10000,
  *              "status": 'ACTIVE',
  *              "__v": 0
@@ -61,4 +51,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/get_list_experts', isAuthenticated, new ExpertController().getListExperts);
+  route.post('/get_expert_by_name', isAuthenticated, new ExpertController().getExpertByName);

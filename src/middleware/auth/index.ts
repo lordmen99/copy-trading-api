@@ -58,20 +58,20 @@ export default () => {
         if (accessToken.type === contants.TYPE_OF_CLIENT.USER) {
           const userRepository = new UserRepository();
           const realUserRepository = new RealUserRepository();
-          const realUser = await realUserRepository.findById(accessToken.id_client);
-          if (realUser) {
-            done(null, realUser);
-          } else {
-            const user = await userRepository.findById(accessToken.id_client);
-            if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
-            else done(null, user);
-          }
-        }
-        if (accessToken.type === contants.TYPE_OF_CLIENT.EXPERT) {
           const expertRepository = new ExpertRepository();
           const expert = await expertRepository.findById(accessToken.id_client);
-          if (!expert) return done(null, false, {message: 'Unknown Expert', scope: '*'});
-          done(null, expert);
+          if (!expert) {
+            const realUser = await realUserRepository.findById(accessToken.id_client);
+            if (realUser) {
+              done(null, realUser);
+            } else {
+              const user = await userRepository.findById(accessToken.id_client);
+              if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
+              else done(null, user);
+            }
+          } else {
+            done(null, expert);
+          }
         }
       } catch (error) {
         done({code: 403, type: 'invalidToken', message: 'Token invalid'});

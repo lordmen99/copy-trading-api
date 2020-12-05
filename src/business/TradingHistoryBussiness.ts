@@ -29,10 +29,14 @@ export default class TradingHistoryBussiness {
 
   public async getListTradingHistoriesByUser(id_user: Schema.Types.ObjectId, page: number, size: number): Promise<any> {
     try {
-      const result = this._tradingHistoryRepository.findWithPagingByIdWithAggregate(
+      const result = this._tradingHistoryRepository.findWithPagingByUserWithAggregate(
         {id_user} as ITradingHistoryModel,
         page,
         size,
+        'id_expert',
+        '_id',
+        'expert',
+        'cp_experts',
       );
       if (result) {
         return result;

@@ -5,7 +5,7 @@ import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
-import {AddExpert, EditExpert, GetExpert} from '@src/validator/experts/experts.validator';
+import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 import {Schema} from 'mongoose';
 
@@ -177,6 +177,46 @@ export default class ExpertBussiness {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
         return this._expertRepository.findById(params._id.toString());
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async findByName(params: GetExpertByName): Promise<IExpertModel[]> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        return this._expertRepository.findWhere({fullname: {$regex: '.*' + params.fullname + '.*'}} as any);
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListExpertsPaging(page, size): Promise<any> {
+    try {
+      const result = await this._expertRepository.executeListExpertPage(page, size);
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
+    try {
+      const result = await this._expertRepository.findWithPagingByExpertWithAggregate(
+        {_id: id_expert as any} as IExpertModel,
+        '_id',
+        'id_expert',
+        'copies',
+        'cp_trading_copies',
+      );
+      if (result) {
+        return result.user;
       }
     } catch (err) {
       throw err;

@@ -129,9 +129,7 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.profit = parseFloat(
                   (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
                 );
-                tradingHistoryEntity.fee_to_expert = parseFloat(
-                  (tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT).toFixed(2),
-                );
+                tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = parseFloat(
                   (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
                 );
@@ -412,9 +410,7 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.profit = parseFloat(
                 (expert.total_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
               );
-              tradingHistoryEntity.fee_to_expert = parseFloat(
-                (tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT).toFixed(2),
-              );
+              tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = parseFloat(
                 (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
               );

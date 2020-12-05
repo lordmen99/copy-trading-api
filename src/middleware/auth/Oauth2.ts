@@ -41,44 +41,33 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
     }
 
     if (type === contants.TYPE_OF_CLIENT.USER) {
-      const result = await _accessTokenRepository.findOne({
+      const expertResult = await _accessTokenRepository.findOne({
         client_id: client.client_id,
         id_client: clientModel._id.toString(),
       } as IAccessTokenModel);
-      if (result) {
-        await _accessTokenRepository.delete(result._id);
+      if (expertResult) {
+        const result = await _accessTokenRepository.findOne({
+          client_id: client.client_id,
+          id_client: clientModel._id.toString(),
+        } as IAccessTokenModel);
+        if (result) {
+          await _accessTokenRepository.delete(result._id);
+        }
+        const tokenValue = randomBytes(128).toString('hex');
+        await _accessTokenRepository.create({
+          client_id: client.client_id,
+          id_client: clientModel._id.toString(),
+          type: contants.TYPE_OF_CLIENT.USER,
+          token: tokenValue,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as IAccessTokenModel);
+        done(null, tokenValue);
       }
-      const tokenValue = randomBytes(128).toString('hex');
-      await _accessTokenRepository.create({
-        client_id: client.client_id,
-        id_client: clientModel._id.toString(),
-        type: contants.TYPE_OF_CLIENT.USER,
-        token: tokenValue,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as IAccessTokenModel);
-      done(null, tokenValue);
     }
 
-    if (type === contants.TYPE_OF_CLIENT.EXPERT) {
-      const result = await _accessTokenRepository.findOne({
-        client_id: client.client_id,
-        id_client: clientModel._id.toString(),
-      } as IAccessTokenModel);
-      if (result) {
-        await _accessTokenRepository.delete(result._id);
-      }
-      const tokenValue = randomBytes(128).toString('hex');
-      await _accessTokenRepository.create({
-        client_id: client.client_id,
-        id_client: clientModel._id.toString(),
-        type: contants.TYPE_OF_CLIENT.EXPERT,
-        token: tokenValue,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as IAccessTokenModel);
-      done(null, tokenValue);
-    }
+    // if (type === contants.TYPE_OF_CLIENT.EXPERT) {
+    // }
   } catch (error) {
     done(error);
   }
@@ -107,40 +96,40 @@ server.exchange(
             else return issused(new Error('AdminT_ACTIVE'));
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.USER) {
-          const _userRepository = new UserRepository();
-          const _realUserRepository = new RealUserRepository();
-          const real = await _realUserRepository.findOne({username} as IRealUserModel);
-          if (real) {
-            const isValid = bcrypt.compareSync(password, real.password);
-            if (!isValid) {
-              return issused(new Error('Login Fail'));
-            } else {
-              initToken(client, real, body.type, issused);
-            }
-          } else {
-            const user = await _userRepository.findOne({username} as IUserModel);
-            if (!user) return issused(new Error('UseUserxist'));
-            if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
-              return issused(new Error('Login Fail'));
-            else {
-              if (user.status === contants.STATUS.ACTIVE) {
-                initToken(client, user, body.type, issused);
-              } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
-              else return issused(new Error('UserT_ACTIVE'));
-            }
-          }
-        } else if (body.type === contants.TYPE_OF_CLIENT.EXPERT) {
           const _expertRepository = new ExpertRepository();
           const expert = await _expertRepository.findOne({username} as IExpertModel);
-          if (!expert) return issused(new Error('UseExpertexist'));
-
-          if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
-            return issused(new Error('Login Fail'));
-          else {
-            if (expert.status === contants.STATUS.ACTIVE) {
-              initToken(client, expert, body.type, issused);
-            } else if (expert.status === contants.STATUS.DELETE) return issused(new Error('UseExpertEEN_DELETED'));
-            else return issused(new Error('ExpertT_ACTIVE'));
+          if (expert) {
+            if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
+              return issused(new Error('Login Fail'));
+            else {
+              if (expert.status === contants.STATUS.ACTIVE) {
+                initToken(client, expert, body.type, issused);
+              } else if (expert.status === contants.STATUS.DELETE) return issused(new Error('UseExpertEEN_DELETED'));
+              else return issused(new Error('ExpertT_ACTIVE'));
+            }
+          } else {
+            const _userRepository = new UserRepository();
+            const _realUserRepository = new RealUserRepository();
+            const real = await _realUserRepository.findOne({username} as IRealUserModel);
+            if (real) {
+              const isValid = bcrypt.compareSync(password, real.password);
+              if (!isValid) {
+                return issused(new Error('Login Fail'));
+              } else {
+                initToken(client, real, body.type, issused);
+              }
+            } else {
+              const user = await _userRepository.findOne({username} as IUserModel);
+              if (!user) return issused(new Error('UseUserxist'));
+              if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
+                return issused(new Error('Login Fail'));
+              else {
+                if (user.status === contants.STATUS.ACTIVE) {
+                  initToken(client, user, body.type, issused);
+                } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
+                else return issused(new Error('UserT_ACTIVE'));
+              }
+            }
           }
         } else {
           return issused(new Error('ACCOUNT_NOT_EXIST'));

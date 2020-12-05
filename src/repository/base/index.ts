@@ -60,28 +60,127 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
       throw err.errors ? err.errors.shift() : err;
     }
   }
-  public async findWithPagingByIdWithAggregate(item: any, page: number, size: number): Promise<any> {
+  public async findWithPagingByUserWithAggregate(
+    item: any,
+    page: number,
+    size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
     try {
-      const result = await this._model
-        .aggregate([
-          {
-            $lookup: {
-              from: 'cp_experts',
-              localField: 'id_expert',
-              foreignField: '_id',
-              as: 'expert',
-            },
+      const result = await this._model.aggregate([
+        {
+          $match: {
+            id_user: this.toObjectId(item.id_user),
           },
-          {
-            $match: {
-              id_user: this.toObjectId(item.id_user),
-            },
+        },
+        {
+          $lookup: {
+            from,
+            localField,
+            foreignField,
+            as,
           },
-        ])
-        .limit(size)
-        .skip((page - 1) * size);
+        },
+        {
+          $limit: size,
+        },
+        {
+          $skip: (page - 1) * size,
+        },
+      ]);
 
       const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingByExpertWithAggregate(
+    item: any,
+    // page: number,
+    // size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $lookup: {
+            from,
+            localField,
+            foreignField,
+            as,
+          },
+        },
+        {
+          $match: {
+            id_expert: this.toObjectId(item.id_expert),
+          },
+        },
+        // {
+        //   $limit: size,
+        // },
+        // {
+        //   $skip: (page - 1) * size,
+        // },
+      ]);
+
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingWithAggregate(
+    page: number,
+    size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $limit: size,
+        },
+        {
+          $skip: (page - 1) * size,
+        },
+        {
+          $lookup: {
+            from,
+            localField,
+            foreignField,
+            as,
+          },
+        },
+        {
+          $lookup: {
+            from: 'cp_trading_copies',
+            localField: '_id',
+            foreignField: 'id_expert',
+            as: 'users',
+          },
+        },
+      ]);
+
+      const count = await this._model.countDocuments({});
 
       return {
         result,
