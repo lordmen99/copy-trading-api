@@ -1,3 +1,4 @@
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import mongoose, {Schema} from 'mongoose';
 import IRead from '../interfaces/IRead';
 import IWrite from '../interfaces/IWrite';
@@ -234,6 +235,32 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
       return {
         result,
         count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async getExpertDetails(item: IExpertModel) {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $lookup: {
+            from: 'cp_trading_histories',
+            localField: '_id',
+            foreignField: 'id_expert',
+            as: 'trading_histories',
+          },
+        },
+        {
+          $match: {
+            _id: this.toObjectId(item._id),
+          },
+        },
+      ]);
+
+      return {
+        result,
       };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

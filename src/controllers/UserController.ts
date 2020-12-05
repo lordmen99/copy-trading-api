@@ -19,6 +19,19 @@ export default class UserController {
     }
   }
 
+  public async getUserByIdAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel)._id;
+      const params = req.query;
+      const userBusiness = new UserBussiness();
+      const data = new GetUser();
+      data._id = params._id.toString();
+      const result = await userBusiness.findByIdAdmin(data);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
   public async getListUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userBusiness = new UserBussiness();

@@ -183,6 +183,20 @@ export default class ExpertBussiness {
     }
   }
 
+  public async getExpertDetails(params: GetExpert): Promise<any> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        return this._expertRepository.getExpertDetails({_id: params._id} as any);
+      }
+      return null;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async findByName(params: GetExpertByName): Promise<IExpertModel[]> {
     try {
       const errors = await validate(params);

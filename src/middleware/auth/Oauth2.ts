@@ -23,7 +23,7 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
     if (type === contants.TYPE_OF_CLIENT.ADMIN) {
       const result = await _accessTokenRepository.findOne({
         client_id: client.client_id,
-        id_client: clientModel._id.toString(),
+        id_client: clientModel._id,
       } as IAccessTokenModel);
       if (result) {
         await _accessTokenRepository.delete(result._id);
@@ -31,7 +31,7 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
       const tokenValue = randomBytes(128).toString('hex');
       await _accessTokenRepository.create({
         client_id: client.client_id,
-        id_client: clientModel._id.toString(),
+        id_client: clientModel._id,
         type: contants.TYPE_OF_CLIENT.ADMIN,
         token: tokenValue,
         createdAt: new Date(),
@@ -43,12 +43,12 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
     if (type === contants.TYPE_OF_CLIENT.USER) {
       const expertResult = await _accessTokenRepository.findOne({
         client_id: client.client_id,
-        id_client: clientModel._id.toString(),
+        id_client: clientModel._id,
       } as IAccessTokenModel);
       if (expertResult) {
         const result = await _accessTokenRepository.findOne({
           client_id: client.client_id,
-          id_client: clientModel._id.toString(),
+          id_client: clientModel._id,
         } as IAccessTokenModel);
         if (result) {
           await _accessTokenRepository.delete(result._id);
@@ -56,7 +56,19 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
         const tokenValue = randomBytes(128).toString('hex');
         await _accessTokenRepository.create({
           client_id: client.client_id,
-          id_client: clientModel._id.toString(),
+          id_client: clientModel._id,
+          type: contants.TYPE_OF_CLIENT.USER,
+          token: tokenValue,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as IAccessTokenModel);
+        done(null, tokenValue);
+      } else {
+        const tokenValue = randomBytes(128).toString('hex');
+
+        await _accessTokenRepository.create({
+          client_id: client.client_id,
+          id_client: clientModel._id,
           type: contants.TYPE_OF_CLIENT.USER,
           token: tokenValue,
           createdAt: new Date(),

@@ -43,6 +43,20 @@ export default class ExpertController {
     }
   }
 
+  public async getExpertDetail(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel).id;
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const data = new GetExpert();
+      data._id = params._id.toString();
+      const result = await expertBusiness.getExpertDetails(data);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getExpertByName(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // const id = (req.user as IUserModel).id;

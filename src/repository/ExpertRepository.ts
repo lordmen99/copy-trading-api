@@ -8,17 +8,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
     super(ExpertSchema);
   }
 
-  // public async findRegex(item): Promise<T[]> {
-  //   try {
-  //     const result = await this.fin({
-
-  //     });
-  //     return result as T[];
-  //   } catch (err) {
-  //     throw err.errors ? err.errors.shift() : err;
-  //   }
-  // }
-
   public async executeListExpertPage(page: number, size: number): Promise<any> {
     try {
       const result = await this.findWithPagingWithAggregate(parseFloat(page.toString()), parseFloat(size.toString()));
