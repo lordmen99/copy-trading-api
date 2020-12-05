@@ -189,9 +189,9 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._expertRepository.getExpertDetails({_id: params._id} as any);
+        const result = await this._expertRepository.getExpertDetails({_id: params._id} as any);
+        return result;
       }
-      return null;
     } catch (err) {
       throw err;
     }
