@@ -119,7 +119,7 @@ server.exchange(
             }
           } else {
             const user = await _userRepository.findOne({username} as IUserModel);
-            if (!user) return issused(new Error('UseUserxist'));
+            if (!user) return issused(new Error('The account or password is incorrect!'));
             if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
               return issused(new Error('Login Fail'));
             else {
@@ -132,7 +132,7 @@ server.exchange(
         } else if (body.type === contants.TYPE_OF_CLIENT.EXPERT) {
           const _expertRepository = new ExpertRepository();
           const expert = await _expertRepository.findOne({username} as IExpertModel);
-          if (!expert) return issused(new Error('UseExpertexist'));
+          if (!expert) return issused(new Error('The account or password is incorrect!'));
 
           if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
             return issused(new Error('Login Fail'));
@@ -177,7 +177,7 @@ server.exchange(
  * @apiSuccessExample {json} Success
  *    HTTP/1.1 200 OK
  *    {
- *      "access_token": "d8e52612c0015c818fc76b007797e342bad3a6959f4241f11642c4249be7dae31d023112e0f605f23b0b950a032408222581f6044a38bf1979160b555b103ac36234c99981bb2eae67ae3f267a6358066210ef1637ad83880d83f6b16e67365363efde7485ac837496f59d08686f777212da67fc85dbc1901d5df34cd6675a52",
+ *      "access_token": "d8e52612c0015c818fc76b007797e342bad3a6959f4241f11642c4249be7dae31d023112e0",
  *      "token_type": "Bearer"
  *    }
  *

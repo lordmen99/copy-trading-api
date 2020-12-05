@@ -1,4 +1,4 @@
-import {AppData, Socket} from '../../EventTypes';
+import {AppData, SocketHandler} from '../../EventTypes';
 import {TradingCandles} from './ITradingSystem';
 
 const commit: TradingCandles = (app, socket) => (data) => {
@@ -6,6 +6,6 @@ const commit: TradingCandles = (app, socket) => (data) => {
   // socket.emit('transaction', data);
 };
 
-export default (app: AppData, socket: Socket<any, any>) => ({
+export default (app: AppData, socket: SocketHandler<any, any>) => ({
   commit: commit(app, socket),
 });
