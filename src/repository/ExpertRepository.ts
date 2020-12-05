@@ -1,11 +1,11 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
-import ExpertSchema from '@src/schemas/ExpertSchema';
+import CPExpertSchema from '@src/schemas/CPExpertSchema';
 import {contants} from '@src/utils';
 import {RepositoryBase} from './base';
 
 export default class ExpertRepository extends RepositoryBase<IExpertModel> {
   constructor() {
-    super(ExpertSchema);
+    super(CPExpertSchema);
   }
 
   public async executeListExpertPage(page: number, size: number): Promise<any> {

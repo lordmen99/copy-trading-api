@@ -1,9 +1,9 @@
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
-import TradingCopySchema from '@src/schemas/TradingCopySchema';
+import CPTradingCopySchema from '@src/schemas/CPTradingCopySchema';
 import {RepositoryBase} from './base';
 
 export default class TradingCopyRepository extends RepositoryBase<ITradingCopyModel> {
   constructor() {
-    super(TradingCopySchema);
+    super(CPTradingCopySchema);
   }
 }

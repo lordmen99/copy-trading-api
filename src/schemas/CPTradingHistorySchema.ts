@@ -1,7 +1,7 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import mongoose, {Schema} from 'mongoose';
 
-class TradingHistorySchema {
+class CPTradingHistorySchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
@@ -65,4 +65,4 @@ class TradingHistorySchema {
   }
 }
 
-export default mongoose.model<ITradingHistoryModel>('cp_trading_history', TradingHistorySchema.schema);
+export default mongoose.model<ITradingHistoryModel>('cp_trading_history', CPTradingHistorySchema.schema);

@@ -2,7 +2,7 @@ import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import {contants} from '@src/utils';
 import mongoose, {Schema} from 'mongoose';
 
-class TradingCopySchema {
+class CPTradingCopySchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
@@ -62,4 +62,4 @@ class TradingCopySchema {
   }
 }
 
-export default mongoose.model<ITradingCopyModel>('cp_trading_copy', TradingCopySchema.schema);
+export default mongoose.model<ITradingCopyModel>('cp_trading_copy', CPTradingCopySchema.schema);

@@ -1,13 +1,11 @@
-import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import mongoose from 'mongoose';
-
-class ExpertSchema {
+class CPUserSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       fullname: {
         type: String,
-        index: true,
       },
       username: {
         type: String,
@@ -24,8 +22,6 @@ class ExpertSchema {
       },
       email: {
         type: String,
-        required: true,
-        unique: true,
       },
       phone: {
         type: String,
@@ -47,9 +43,17 @@ class ExpertSchema {
         required: true,
         default: contants.STATUS.ACTIVE,
       },
+      status_trading_copy: {
+        type: String,
+        required: true,
+        default: contants.STATUS.ACTIVE,
+      },
+      blockedAt: {
+        type: Date,
+      },
     });
     return schema;
   }
 }
 
-export default mongoose.model<IExpertModel>('cp_expert', ExpertSchema.schema);
+export default mongoose.model<IUserModel>('cp_users', CPUserSchema.schema);

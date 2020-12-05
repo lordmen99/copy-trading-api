@@ -1,7 +1,7 @@
 import IAdminModel from '@src/models/cpAdmin/IAdminModel';
 import {contants} from '@src/utils';
 import mongoose from 'mongoose';
-class AdminSchema {
+class CPAdminSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       fullname: {
@@ -41,4 +41,4 @@ class AdminSchema {
   }
 }
 
-export default mongoose.model<IAdminModel>('cp_admin', AdminSchema.schema);
+export default mongoose.model<IAdminModel>('cp_admin', CPAdminSchema.schema);
