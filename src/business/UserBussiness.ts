@@ -1,5 +1,6 @@
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
@@ -8,11 +9,13 @@ import {validate} from 'class-validator';
 
 export default class UserBussiness {
   private _userRepository: UserRepository;
+  private _realUserRepository: RealUserRepository;
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
 
   constructor() {
     this._userRepository = new UserRepository();
+    this._realUserRepository = new RealUserRepository();
     this._expertRepository = new ExpertRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
   }
@@ -24,6 +27,10 @@ export default class UserBussiness {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
         const result = await this._userRepository.findById(params._id.toString());
+        if (!result) {
+          const user = await this._realUserRepository.findById(params._id.toString());
+          return user;
+        }
         return {
           _id: result._id,
           fullname: result.fullname,
