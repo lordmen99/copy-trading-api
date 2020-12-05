@@ -1,16 +1,16 @@
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import {contants} from '@src/utils';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 class TradingCopySchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       id_expert: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       investment_amount: {

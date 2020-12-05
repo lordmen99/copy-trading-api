@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /users/get_user_by_id 5. Get User infor
+ * @api {get} /users/get_user_by_id_admin 9. Get User infor
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -50,4 +50,5 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.get('/get_user_by_id', isAuthenticated, new UserController().getUserById);
+export default (route: Router) =>
+  route.get('/get_user_by_id_admin', isAuthenticated, new UserController().getUserByIdAdmin);

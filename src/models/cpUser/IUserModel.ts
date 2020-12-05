@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 export default interface IUserModel extends mongoose.Document {
-  _id: string;
+  _id: Schema.Types.ObjectId;
+  id_user_trading: Schema.Types.ObjectId;
   fullname: string;
   username: string;
   password?: string;

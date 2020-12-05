@@ -1,18 +1,18 @@
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 class TradingWithdrawSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       id_expert: {
-        type: String,
+        type: Schema.Types.ObjectId,
       },
       id_copy: {
-        type: String,
+        type: Schema.Types.ObjectId,
       },
       amount: {
         type: Number,

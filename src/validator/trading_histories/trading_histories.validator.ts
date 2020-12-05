@@ -1,13 +1,10 @@
 import {IsNotEmpty, IsString} from 'class-validator';
-
+import {Schema} from 'mongoose';
 export class CreateTradingHistory {
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Id expert is required'})
-  @IsString({
-    message: 'Id expert is string',
-  })
-  id_expert: string;
+  id_expert: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Opening time is required'})
   opening_time: Date;
@@ -24,7 +21,7 @@ export class CreateTradingHistory {
   @IsNotEmpty({message: 'Investment amount is required'})
   investment_amount: number;
 
-  @IsNotEmpty({message: 'Order amount is required'})
+  // @IsNotEmpty({message: 'Order amount is required'})
   order_amount: number;
 
   @IsNotEmpty({message: 'Profit is required'})

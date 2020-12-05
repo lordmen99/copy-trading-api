@@ -9,6 +9,7 @@ import {CreateTradingHistory} from '@src/validator/trading_histories/trading_his
 import {CreateTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
 import moment from 'moment';
+import {Schema} from 'mongoose';
 import ExpertBussiness from './ExpertBussiness';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
@@ -45,7 +46,7 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async getListOrdersByExpert(id_expert: string): Promise<ITradingOrderModel[]> {
+  public async getListOrdersByExpert(id_expert: Schema.Types.ObjectId): Promise<ITradingOrderModel[]> {
     try {
       const result = await this._tradingOrderRepository.findWhere({
         id_expert,
@@ -91,14 +92,14 @@ export default class TradingOrderBussiness {
             const expertBusiness = new ExpertBussiness();
 
             const data = new GetExpert();
-            data._id = order.id_expert;
+            data._id = order.id_expert.toString();
 
             const expert = await expertBusiness.findById(data);
             if (expert) {
               // tạo history cho expert
               const data = new CreateTradingHistory();
               const tradingHistoryEntity = data as ITradingHistoryModel;
-              tradingHistoryEntity.id_user = '';
+              tradingHistoryEntity.id_user = null;
               tradingHistoryEntity.id_expert = order.id_expert;
               tradingHistoryEntity.opening_time = tempDate;
               if (dataSocket.open > dataSocket.close) {
@@ -128,14 +129,12 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.profit = parseFloat(
                   (expert.total_amount * (order.threshold_percent / 100)).toFixed(2),
                 );
-                tradingHistoryEntity.fee_to_expert = parseFloat(
-                  (tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT).toFixed(2),
-                );
+                tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = parseFloat(
                   (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
                 );
                 await tradingCopyBussiness.calculateMoney(
-                  '',
+                  null,
                   tradingHistoryEntity.id_expert,
                   'expert',
                   tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -148,7 +147,7 @@ export default class TradingOrderBussiness {
                 tradingHistoryEntity.fee_to_expert = 0;
                 tradingHistoryEntity.fee_to_trading = 0;
                 await tradingCopyBussiness.calculateMoney(
-                  '',
+                  null,
                   tradingHistoryEntity.id_expert,
                   'expert',
                   tradingHistoryEntity.investment_amount * -1,
@@ -325,8 +324,8 @@ export default class TradingOrderBussiness {
       if (resultPending && resultPending.length > 0) {
         const flagOrder = {
           _id: null,
-          id_expert: '',
-          id_admin: '',
+          id_expert: null,
+          id_admin: null,
           type_of_order: '',
           threshold_percent: 0,
           status: '',
@@ -381,7 +380,7 @@ export default class TradingOrderBussiness {
             // tạo history cho expert
             const data = new CreateTradingHistory();
             const tradingHistoryEntity = data as ITradingHistoryModel;
-            tradingHistoryEntity.id_user = '';
+            tradingHistoryEntity.id_user = null;
             tradingHistoryEntity.id_expert = flagOrder.id_expert;
             tradingHistoryEntity.opening_time = tempDate;
             if (dataSocket.open > dataSocket.close) {
@@ -411,14 +410,12 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.profit = parseFloat(
                 (expert.total_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
               );
-              tradingHistoryEntity.fee_to_expert = parseFloat(
-                (tradingHistoryEntity.profit * contants.RATE.FEE_TO_EXPERT).toFixed(2),
-              );
+              tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = parseFloat(
                 (tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2),
               );
               await tradingCopyBussiness.calculateMoney(
-                '',
+                null,
                 tradingHistoryEntity.id_expert,
                 'expert',
                 tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
@@ -431,7 +428,7 @@ export default class TradingOrderBussiness {
               tradingHistoryEntity.fee_to_expert = 0;
               tradingHistoryEntity.fee_to_trading = 0;
               await tradingCopyBussiness.calculateMoney(
-                '',
+                null,
                 tradingHistoryEntity.id_expert,
                 'expert',
                 tradingHistoryEntity.investment_amount * -1,

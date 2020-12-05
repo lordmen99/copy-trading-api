@@ -1,14 +1,14 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 class TradingHistorySchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_user: {
-        type: String,
+        type: Schema.Types.ObjectId,
       },
       id_expert: {
-        type: String,
+        type: Schema.Types.ObjectId,
         required: true,
       },
       opening_time: {

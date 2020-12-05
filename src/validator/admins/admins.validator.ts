@@ -1,4 +1,5 @@
 import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from 'class-validator';
+import {Schema} from 'mongoose';
 
 export class AddAdmin {
   @IsNotEmpty({message: 'Full name is required'})
@@ -66,7 +67,7 @@ export class EditAdmin {
 }
 
 export class ChangePasswordAdmin {
-  _id: string;
+  _id: Schema.Types.ObjectId;
   current_password: string;
 
   @IsNotEmpty({message: 'Password is required'})

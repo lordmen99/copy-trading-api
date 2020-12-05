@@ -1,3 +1,4 @@
+import {Schema} from 'mongoose';
 import ITradingOrderModel from './ITradingOrderModel';
 
 export default class TradingOrderModel {
@@ -7,11 +8,11 @@ export default class TradingOrderModel {
     this._tradingOrderModel = TradingOrderModel;
   }
 
-  get id_expert(): string {
+  get id_expert(): Schema.Types.ObjectId {
     return this._tradingOrderModel.id_expert;
   }
 
-  get id_admin(): string {
+  get id_admin(): Schema.Types.ObjectId {
     return this._tradingOrderModel.id_admin;
   }
 

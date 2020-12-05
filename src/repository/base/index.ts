@@ -1,9 +1,12 @@
-import mongoose from 'mongoose';
+import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import mongoose, {Schema} from 'mongoose';
 import IRead from '../interfaces/IRead';
 import IWrite from '../interfaces/IWrite';
 
 export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
   private _model: mongoose.Model<mongoose.Document>;
+  private _aggregate: mongoose.Aggregate<any>;
+  private _query: mongoose.Query<any>;
 
   constructor(schemaModel: mongoose.Model<mongoose.Document>) {
     this._model = schemaModel;
@@ -58,15 +61,235 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
       throw err.errors ? err.errors.shift() : err;
     }
   }
+  public async findWithPagingByUserWithAggregate(
+    item: any,
+    page: number,
+    size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $match: {
+            id_user: this.toObjectId(item.id_user),
+          },
+        },
+        {
+          $lookup: {
+            from,
+            localField,
+            foreignField,
+            as,
+          },
+        },
+        {
+          $limit: size,
+        },
+        {
+          $skip: (page - 1) * size,
+        },
+      ]);
 
-  public async findWithPagingByIdWithOr(item: T, page: number, size: number, orArray: any): Promise<any> {
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingByExpertWithAggregate(
+    item: any,
+    // page: number,
+    // size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $lookup: {
+            from,
+            localField,
+            foreignField,
+            as,
+          },
+        },
+        {
+          $match: {
+            id_expert: this.toObjectId(item.id_expert),
+          },
+        },
+        // {
+        //   $limit: size,
+        // },
+        // {
+        //   $skip: (page - 1) * size,
+        // },
+      ]);
+
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingUserCopyWithAggregate(
+    item: any,
+    // page: number,
+    // size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: 0},
+              {$limit: 10},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+            ],
+          },
+        },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await this._model.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingWithAggregate(page: number, size: number): Promise<any> {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: (page - 1) * size},
+              {$limit: size},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+            ],
+          },
+        },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await this._model.countDocuments({});
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async getExpertDetails(item: IExpertModel) {
+    try {
+      const result = await this._model.aggregate([
+        {
+          $lookup: {
+            from: 'cp_trading_histories',
+            localField: '_id',
+            foreignField: 'id_expert',
+            as: 'trading_histories',
+          },
+        },
+        {
+          $match: {
+            _id: this.toObjectId(item._id),
+          },
+        },
+      ]);
+
+      return {
+        result,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findWithPagingByIdWithOr(item: any, page: number, size: number, orArray): Promise<any> {
     try {
       const result = await this._model
-        .find(item)
-        .or(orArray)
+        .aggregate([
+          {
+            $lookup: {
+              from: 'cp_experts',
+              localField: 'id_expert',
+              foreignField: '_id',
+              as: 'expert',
+            },
+          },
+          {
+            $match: {
+              status: {$in: orArray},
+              id_user: this.toObjectId(item.id_user),
+            },
+          },
+        ])
         .limit(size)
         .skip((page - 1) * size);
-      const count = await this._model.countDocuments(item).or(orArray);
+
+      const count = await this._model.countDocuments(item).or([{status: {$in: orArray}}]);
       return {
         result,
         count,
@@ -123,7 +346,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async update(id: mongoose.Types.ObjectId, item: T): Promise<T> {
+  public async update(id: Schema.Types.ObjectId, item: T): Promise<T> {
     try {
       const result = await this._model.updateOne({_id: id}, item);
       return result as T;
@@ -132,7 +355,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async delete(id: mongoose.Types.ObjectId): Promise<boolean> {
+  public async delete(id: Schema.Types.ObjectId): Promise<boolean> {
     try {
       await this._model.deleteOne({_id: id});
       return true;
