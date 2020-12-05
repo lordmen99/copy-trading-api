@@ -74,3 +74,8 @@ export class GetExpert {
   @IsNotEmpty({message: 'Id is required'})
   _id?: string;
 }
+
+export class GetExpertByName {
+  @IsNotEmpty({message: 'Name is required'})
+  fullname: string;
+}
