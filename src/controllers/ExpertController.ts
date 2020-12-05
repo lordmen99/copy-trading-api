@@ -21,7 +21,7 @@ export default class ExpertController {
     try {
       const params = req.body;
       const expertBussiness = new ExpertBussiness();
-      const result = await expertBussiness.findUserCopyByExpert(params.id_expert);
+      const result = await expertBussiness.findUserCopyByExpert(params.id_expert, params.page, params.size);
 
       res.status(200).send({data: result});
     } catch (err) {

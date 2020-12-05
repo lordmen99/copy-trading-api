@@ -28,7 +28,7 @@ export default class TradingHistoryController {
         parseInt(params.page.toString()),
         parseInt(params.size.toString()),
       );
-      res.status(200).send({data: result.result, count: result.count});
+      res.status(200).send({data: result.result[0].data, count: result.count});
     } catch (err) {
       next(err);
     }

@@ -58,19 +58,22 @@ export default class TradingCopyBussiness {
   }
 
   public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
-    const listUsers = [];
-
     try {
-      const result = await this._tradingCopyRepository.findWhere({
-        status: contants.STATUS.ACTIVE,
-        id_expert,
-      } as ITradingCopyModel);
+      const result = await this._tradingCopyRepository.getUserCopyByExpert({_id: id_expert} as IExpertModel);
+      const listUsers = [];
+      const listId = [];
       if (result) {
-        for (const item of result) {
-          const user = await this._userRepository.findOne({
-            _id: item.id_user,
-          } as IUserModel);
-          listUsers.push({...user});
+        if (result.result[0]) {
+          for (const item of result.result[0].data) {
+            if (item.users) {
+              for (const user of item.users) {
+                if (listId.indexOf(user._id.toString()) === -1) {
+                  listId.push(user._id.toString());
+                  listUsers.push(user);
+                }
+              }
+            }
+          }
         }
       }
       return listUsers;
@@ -283,14 +286,20 @@ export default class TradingCopyBussiness {
 
   public async getListTradingCopies(params: GetTradingCopyOfUser, page: number, size: number): Promise<any> {
     try {
-      const copy = await this._tradingCopyRepository.findWithPagingByIdWithOr(
+      const copy = await this._tradingCopyRepository.getListCopies(
         {id_user: params.id_user} as ITradingCopyModel,
         parseInt(page.toString()),
         parseInt(size.toString()),
         [contants.STATUS.ACTIVE, contants.STATUS.PAUSE],
       );
+      const temp = {
+        result: null,
+        count: 0,
+      };
+      temp.count = copy.count;
+      temp.result = {...copy.result[0]};
       if (copy) {
-        return copy;
+        return temp;
       } else {
         return null;
       }
@@ -328,12 +337,12 @@ export default class TradingCopyBussiness {
 
   public async transferMoneyToExpert(withdraw: ITradingWithdrawModel): Promise<void> {
     try {
-      const copy = await this._tradingCopyRepository.findOne({
-        _id: withdraw.id_copy,
-      } as ITradingCopyModel);
-      await this._tradingCopyRepository.update(copy._id, {
-        investment_amount: copy.investment_amount - withdraw.amount,
-      } as ITradingCopyModel);
+      // const copy = await this._tradingCopyRepository.findOne({
+      //   _id: withdraw.id_copy,
+      // } as ITradingCopyModel);
+      // await this._tradingCopyRepository.update(copy._id, {
+      //   investment_amount: copy.investment_amount - withdraw.amount,
+      // } as ITradingCopyModel);
       const expert = await this._expertRepository.findOne({
         _id: withdraw.id_expert,
       } as IExpertModel);

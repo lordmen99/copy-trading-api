@@ -137,7 +137,9 @@ export default class TradingOrderBussiness {
                   null,
                   tradingHistoryEntity.id_expert,
                   'expert',
-                  tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
+                  tradingHistoryEntity.profit -
+                    tradingHistoryEntity.fee_to_trading -
+                    tradingHistoryEntity.fee_to_expert,
                 );
               } else {
                 tradingHistoryEntity.order_amount = parseFloat(
@@ -216,7 +218,9 @@ export default class TradingOrderBussiness {
                       copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
-                      tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
+                      tradingHistoryEntity.profit -
+                        tradingHistoryEntity.fee_to_trading -
+                        tradingHistoryEntity.fee_to_expert,
                     );
                     await tradingWithdrawBussiness.createTradingWithdraw({
                       id_user: tradingHistoryEntity.id_user,
@@ -241,7 +245,9 @@ export default class TradingOrderBussiness {
                       copy._id,
                       tradingHistoryEntity.id_user,
                       'user',
-                      tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
+                      tradingHistoryEntity.profit -
+                        tradingHistoryEntity.fee_to_trading -
+                        tradingHistoryEntity.fee_to_expert,
                     );
                     await tradingWithdrawBussiness.createTradingWithdraw({
                       id_user: tradingHistoryEntity.id_user,
@@ -497,7 +503,9 @@ export default class TradingOrderBussiness {
                     copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
-                    tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
+                    tradingHistoryEntity.profit -
+                      tradingHistoryEntity.fee_to_trading -
+                      tradingHistoryEntity.fee_to_expert,
                   );
                   await tradingWithdrawBussiness.createTradingWithdraw({
                     id_user: tradingHistoryEntity.id_user,
@@ -519,7 +527,9 @@ export default class TradingOrderBussiness {
                     copy._id,
                     tradingHistoryEntity.id_user,
                     'user',
-                    tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading,
+                    tradingHistoryEntity.profit -
+                      tradingHistoryEntity.fee_to_trading -
+                      tradingHistoryEntity.fee_to_expert,
                   );
                   await tradingWithdrawBussiness.createTradingWithdraw({
                     id_user: tradingHistoryEntity.id_user,

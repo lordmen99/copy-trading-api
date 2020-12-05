@@ -1,6 +1,7 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import CPExpertSchema from '@src/schemas/CPExpertSchema';
 import {contants} from '@src/utils';
+import mongoose from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class ExpertRepository extends RepositoryBase<IExpertModel> {
@@ -110,6 +111,73 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         return temp;
       }
       return null;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async getUserCopyByExpert(item: any, page: number, size: number): Promise<any> {
+    try {
+      const result = await CPExpertSchema.aggregate([
+        {
+          $match: {
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+          },
+        },
+        {
+          $facet: {
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_users',
+                  localField: 'trading_copies.id_user',
+                  foreignField: '_id',
+                  as: 'users',
+                },
+              },
+              // {
+              //   $project: {
+              //     _id: 1,
+              //     status: 1,
+              //     id_user: 1,
+              //     id_expert: 1,
+              //     investment_amount: 1,
+              //     maximum_rate: 1,
+              //     has_maximum_rate: 1,
+              //     has_stop_loss: 1,
+              //     has_taken_profit: 1,
+              //     stop_loss: 1,
+              //     taken_profit: 1,
+              //     createdAt: 1,
+              //     updatedAt: 1,
+              //     base_amount: 1,
+              //     trading_copies: {
+              //       user: 1,
+              //     },
+              //   },
+              // },
+            ],
+          },
+        },
+        {$project: {data: '$data'}},
+      ]);
+
+      const count = await CPExpertSchema.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
     }

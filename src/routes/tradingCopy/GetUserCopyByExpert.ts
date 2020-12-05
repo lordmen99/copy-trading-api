@@ -1,11 +1,11 @@
-import ExpertController from '@src/controllers/ExpertController';
+import TradingCopyController from '@src/controllers/TradingCopyController';
 import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /expert/get_user_copy_by_expert 2. Get trading copy by expert
+ * @api {post} /trading-copy/get_user_copy_by_expert 2. Get user copy by expert
  * @apiVersion 0.1.0
- * @apiGroup II. Expert
+ * @apiGroup III. Trading Copy
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -51,4 +51,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/get_user_copy_by_expert', isAuthenticated, new ExpertController().getUserCopyByExpert);
+  route.post('/get_user_copy_by_expert', isAuthenticated, new TradingCopyController().getUserCopyByExpert);
