@@ -1,4 +1,9 @@
 import logger from '@src/middleware/Logger';
+import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
+import AccessTokenRepository from '@src/repository/AccessTokenRepository';
+import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
+import UserRepository from '@src/repository/UserRepository';
 import {Server, Socket} from 'socket.io';
 import {ExtendedError} from 'socket.io/dist/namespace';
 import TradingSystem from './events/TradingSystem';
@@ -12,31 +17,24 @@ export default (io: Server) => {
   try {
     io.use(async (socket: Socket, next: (err?: ExtendedError) => void) => {
       try {
+        logger.info('Socket connect token');
         const token = socket.handshake.query['token'];
-        // if (token) {
-        //   const accessTokenRes = new AccessTokenRepository();
-        //   const accessToken = await accessTokenRes.findOne({token} as IAccessTokenModel);
-        //   if (!accessToken) return done({code: 403, type: 'invalidToken', message: 'Token invalid'});
-
-        //   if (accessToken.type === contants.TYPE_OF_CLIENT.USER) {
-        //     const userRepository = new UserRepository();
-        //     const realUserRepository = new RealUserRepository();
-        //     const realUser = await realUserRepository.findById(accessToken.id_client);
-        //     if (realUser) {
-        //       done(null, realUser);
-        //     } else {
-        //       const user = await userRepository.findById(accessToken.id_client);
-        //       if (!user) return done(null, false, {message: 'Unknown User', scope: '*'});
-        //       else done(null, user);
-        //     }
-        //   }
-        //   if (accessToken.type === contants.TYPE_OF_CLIENT.EXPERT) {
-        //     const expertRepository = new ExpertRepository();
-        //     const expert = await expertRepository.findById(accessToken.id_client);
-        //     if (!expert) return done(null, false, {message: 'Unknown Expert', scope: '*'});
-        //     done(null, expert);
-        //   }
-        // }
+        if (token) {
+          const accessTokenRes = new AccessTokenRepository();
+          const accessToken = await accessTokenRes.findOne({token} as IAccessTokenModel);
+          const userRepository = new UserRepository();
+          const realUserRepository = new RealUserRepository();
+          const expertRepository = new ExpertRepository();
+          const expert = await expertRepository.findById(accessToken.id_client);
+          if (!expert) {
+            const realUser = await realUserRepository.findById(accessToken.id_client);
+            if (realUser) socket['userId'] = realUser.id;
+            else {
+              const user = await userRepository.findById(accessToken.id_client);
+              if (user) socket['userId'] = user.id_user_trading;
+            }
+          } else socket['userId'] = expert.id;
+        }
         next();
       } catch (error) {
         logger.error(`SOCKET AUTHORIZE ERROR: ${error.message}`);
@@ -44,7 +42,7 @@ export default (io: Server) => {
     });
 
     io.on('connection', (socket: SocketHandler<any, any>) => {
-      console.log('Connection Successfull');
+      logger.info('Socket Connection Success');
       const eventHandlers = [TradingSystem(app, socket)];
       eventHandlers.forEach((handler) => {
         for (const eventName in handler) {
@@ -55,15 +53,15 @@ export default (io: Server) => {
     });
 
     io.on('connect_error', (error) => {
-      console.log(`Socket Connect Error: ${error}`);
+      logger.error(`Socket Connect Error: ${error}`);
     });
 
     io.on('error', (error) => {
-      console.log(`Socket Error: ${error}`);
+      logger.error(`Socket Error: ${error}`);
     });
 
     io.on('disconnect', (reason) => {
-      console.log(`Socket Disconnected: ${reason}`);
+      logger.error(`Socket Disconnected: ${reason}`);
     });
   } catch (error) {
     logger.error(`SOCKET CONNECT ERROR: ${error.message}`);
