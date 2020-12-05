@@ -17,13 +17,48 @@ export default class UserBussiness {
     this._tradingCopyRepository = new TradingCopyRepository();
   }
 
-  public async findById(params: GetUser): Promise<IUserModel> {
+  public async findById(params: GetUser): Promise<any> {
     try {
       const errors = await validate(params);
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._userRepository.findById(params._id);
+        const result = await this._userRepository.findById(params._id.toString());
+        return {
+          _id: result._id,
+          fullname: result.fullname,
+          username: result.username,
+          email: result.email,
+          phone: result.phone,
+          total_amount: result.total_amount,
+          status: result.status,
+          status_trading_copy: result.status_trading_copy,
+          is_virtual: result.is_virtual,
+        };
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async findByIdAdmin(params: GetUser): Promise<any> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const result = await this._userRepository.findById(params._id.toString());
+        return {
+          _id: result._id,
+          fullname: result.fullname,
+          username: result.username,
+          email: result.email,
+          phone: result.phone,
+          total_amount: result.total_amount,
+          status: result.status,
+          status_trading_copy: result.status_trading_copy,
+          is_virtual: result.is_virtual,
+        };
       }
     } catch (err) {
       throw err;
@@ -133,7 +168,7 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const user = await this._userRepository.findById(params._id);
+        const user = await this._userRepository.findById(params._id.toString());
         if (user) {
           const userEntity = user as IUserModel;
           userEntity.fullname = params.fullname;
@@ -144,7 +179,7 @@ export default class UserBussiness {
           userEntity.total_amount = params.total_amount;
           userEntity.is_virtual = params.is_virtual;
 
-          const result = await this._userRepository.update(this._userRepository.toObjectId(params._id), userEntity);
+          const result = await this._userRepository.update(params._id, userEntity);
 
           if (result) {
             return result ? true : false;
@@ -169,7 +204,7 @@ export default class UserBussiness {
             user.blockedAt.getHours() === tempDate.getHours() &&
             user.blockedAt.getMinutes() === tempDate.getMinutes()
           ) {
-            await this._userRepository.update(this._userRepository.toObjectId(user._id), {
+            await this._userRepository.update(user._id, {
               status_trading_copy: contants.STATUS.ACTIVE,
             } as IUserModel);
           }

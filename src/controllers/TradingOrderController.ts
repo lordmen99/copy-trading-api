@@ -43,7 +43,7 @@ export default class TradingOrderController {
       const params = req.body;
       const data = new CreateTradingOrder();
       data.id_expert = params.id_expert;
-      data.id_admin = (req.user as IAdminModel)._id.toString();
+      data.id_admin = (req.user as IAdminModel)._id;
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
       data.status = contants.STATUS.PENDING;

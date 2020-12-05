@@ -1,11 +1,12 @@
 import {IsNotEmpty} from 'class-validator';
+import {Schema} from 'mongoose';
 
 export class CreateTradingWithdraw {
-  id_user: string;
+  id_user: Schema.Types.ObjectId;
 
-  id_expert: string;
+  id_expert: Schema.Types.ObjectId;
 
-  id_copy: string;
+  id_copy: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Amount is required'})
   amount: number;

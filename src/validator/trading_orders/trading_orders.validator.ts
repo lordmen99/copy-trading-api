@@ -1,17 +1,11 @@
 import {IsNotEmpty, IsString} from 'class-validator';
-
+import {Schema} from 'mongoose';
 export class CreateTradingOrder {
   @IsNotEmpty({message: 'Id expert is required'})
-  @IsString({
-    message: 'Id expert is string',
-  })
-  id_expert: string;
+  id_expert: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Id admin is required'})
-  @IsString({
-    message: 'Id admin is string',
-  })
-  id_admin: string;
+  id_admin: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Type of order is required'})
   @IsString({

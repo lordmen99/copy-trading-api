@@ -14,6 +14,7 @@ import {
   TransferMoneyTradingCopy,
 } from '@src/validator/trading_copies/trading_copies.validator';
 import {validate} from 'class-validator';
+import {Schema} from 'mongoose';
 import {GetTradingCopyOfUser} from './../validator/trading_copies/trading_copies.validator';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
 
@@ -56,7 +57,7 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async findUserCopyByExpert(id_expert: string): Promise<any> {
+  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
     const listUsers = [];
 
     try {
@@ -69,7 +70,7 @@ export default class TradingCopyBussiness {
           const user = await this._userRepository.findOne({
             _id: item.id_user,
           } as IUserModel);
-          listUsers.push(user);
+          listUsers.push({...user});
         }
       }
       return listUsers;
@@ -78,7 +79,7 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async getTradingCopies(id_expert: string): Promise<ITradingCopyModel[]> {
+  public async getTradingCopies(id_expert: Schema.Types.ObjectId): Promise<ITradingCopyModel[]> {
     try {
       const result = await this._tradingCopyRepository.findWhere({
         status: contants.STATUS.ACTIVE,
@@ -100,38 +101,43 @@ export default class TradingCopyBussiness {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
         const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-        const duplicateResult = await this._tradingCopyRepository.findOne({
-          id_expert: tradingCopyEntity.id_expert,
-          id_user: tradingCopyEntity.id_user,
-        } as ITradingCopyModel);
-        if (!duplicateResult) {
-          const userBlock = await this._userRepository.findOne({
-            _id: tradingCopyEntity.id_user,
-            status_trading_copy: contants.STATUS.BLOCK,
-          } as IUserModel);
-          if (!userBlock) {
-            const result = await this._tradingCopyRepository.create(tradingCopyEntity);
-            if (result) {
-              const user = await this._userRepository.findOne({
-                _id: tradingCopyEntity.id_user,
-              } as IUserModel);
-              const updateUser = await this._userRepository.update(
-                this._userRepository.toObjectId(tradingCopyEntity.id_user),
-                {
+        // const duplicateResult = await this._tradingCopyRepository.findOne({
+        //   id_expert: tradingCopyEntity.id_expert,
+        //   id_user: tradingCopyEntity.id_user,
+        // } as ITradingCopyModel);
+        // if (!duplicateResult) {
+        const userBlock = await this._userRepository.findOne({
+          _id: tradingCopyEntity.id_user,
+          status_trading_copy: contants.STATUS.BLOCK,
+        } as IUserModel);
+        if (!userBlock) {
+          const result = await this._tradingCopyRepository.create(tradingCopyEntity);
+          if (result) {
+            const user = await this._userRepository.findOne({
+              _id: tradingCopyEntity.id_user,
+            } as IUserModel);
+            if (user) {
+              if (user.total_amount >= tradingCopyEntity.base_amount) {
+                const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
                   total_amount: user.total_amount - tradingCopyEntity.base_amount,
-                } as IUserModel,
-              );
-              if (updateUser) {
-                return result;
+                } as IUserModel);
+                if (updateUser) {
+                  return result;
+                }
+                return null;
+              } else {
+                throw new Error('Account does not have enough money!');
               }
-              return null;
+            } else {
+              throw new Error('User is not exist');
             }
-          } else {
-            throw new Error('You are blocked in 24 hours!');
           }
         } else {
-          throw new Error('Trading copy is exist!');
+          throw new Error('You are blocked in 24 hours!');
         }
+        // } else {
+        //   throw new Error('Trading copy is exist!');
+        // }
       }
     } catch (err) {
       throw err;
@@ -149,7 +155,7 @@ export default class TradingCopyBussiness {
         } as ITradingCopyModel);
         if (copy) {
           const user = await this._userRepository.findOne({_id: copy.id_user} as IUserModel);
-          const resultUser = await this._userRepository.update(this._userRepository.toObjectId(copy.id_user), {
+          const resultUser = await this._userRepository.update(copy.id_user, {
             blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
             total_amount:
@@ -168,7 +174,7 @@ export default class TradingCopyBussiness {
           if (copy.investment_amount > copy.base_amount) {
             await tradingWithdrawBussiness.createTradingWithdraw({
               id_user: copy.id_user,
-              id_expert: '',
+              id_expert: null,
               id_copy: copy._id,
               amount: copy.investment_amount - copy.base_amount,
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
@@ -278,12 +284,10 @@ export default class TradingCopyBussiness {
   public async getListTradingCopies(params: GetTradingCopyOfUser, page: number, size: number): Promise<any> {
     try {
       const copy = await this._tradingCopyRepository.findWithPagingByIdWithOr(
-        {
-          id_user: params.id_user,
-        } as ITradingCopyModel,
-        parseFloat(page.toString()),
-        parseFloat(size.toString()),
-        [{status: contants.STATUS.ACTIVE}, {status: contants.STATUS.PAUSE}],
+        {id_user: params.id_user} as ITradingCopyModel,
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+        [contants.STATUS.ACTIVE, contants.STATUS.PAUSE],
       );
       if (copy) {
         return copy;
@@ -295,7 +299,12 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async calculateMoney(id_copy: string, id: string, type: string, money: number): Promise<void> {
+  public async calculateMoney(
+    id_copy: Schema.Types.ObjectId,
+    id: Schema.Types.ObjectId,
+    type: string,
+    money: number,
+  ): Promise<void> {
     try {
       if (type === 'user') {
         const copy = await this._tradingCopyRepository.findOne({
@@ -308,7 +317,7 @@ export default class TradingCopyBussiness {
         const expert = await this._expertRepository.findOne({
           _id: id,
         } as IExpertModel);
-        await this._expertRepository.update(this._expertRepository.toObjectId(id), {
+        await this._expertRepository.update(id, {
           total_amount: expert.total_amount + money,
         } as IExpertModel);
       }
@@ -350,17 +359,14 @@ export default class TradingCopyBussiness {
       } as IUserModel);
 
       if (userCopy && copy) {
-        const resultUser = await this._userRepository.update(this._userRepository.toObjectId(userCopy._id), {
+        const resultUser = await this._userRepository.update(userCopy._id, {
           total_amount: userCopy.total_amount - transfer.amount,
         } as IUserModel);
 
-        const resultCopy = await this._tradingCopyRepository.update(
-          this._tradingCopyRepository.toObjectId(userCopy._id),
-          {
-            investment_amount: copy.investment_amount + transfer.amount,
-            base_amount: copy.investment_amount + transfer.amount,
-          } as ITradingCopyModel,
-        );
+        const resultCopy = await this._tradingCopyRepository.update(userCopy._id, {
+          investment_amount: copy.investment_amount + transfer.amount,
+          base_amount: copy.investment_amount + transfer.amount,
+        } as ITradingCopyModel);
 
         if (resultUser && resultCopy) {
           return true;
@@ -384,7 +390,7 @@ export default class TradingCopyBussiness {
       const user = await this._userRepository.findOne({
         _id: withdraw.id_user,
       } as IUserModel);
-      await this._userRepository.update(this._userRepository.toObjectId(user._id.toString()), {
+      await this._userRepository.update(user._id, {
         total_amount: user.total_amount + withdraw.amount,
       } as IUserModel);
       await this._tradingWithdrawRepository.update(withdraw._id, {

@@ -1,4 +1,5 @@
-import {IsEmail, IsNotEmpty, IsString, MaxLength, MinLength} from 'class-validator';
+import {IsEmail, IsNotEmpty, IsString, MaxLength} from 'class-validator';
+import {Schema} from 'mongoose';
 
 export class AddUser {
   @IsNotEmpty({message: 'Full name is required'})
@@ -13,10 +14,10 @@ export class AddUser {
   })
   username: string;
 
-  @IsNotEmpty({message: 'Password is required'})
-  @MinLength(8, {
-    message: 'Password must be at least 8 characters!',
-  })
+  // @IsNotEmpty({message: 'Password is required'})
+  // @MinLength(8, {
+  //   message: 'Password must be at least 8 characters!',
+  // })
   password: string;
 
   @IsEmail({}, {message: 'Email invalidate'})
@@ -41,7 +42,7 @@ export class AddUser {
 }
 
 export class EditUser {
-  _id?: string;
+  _id?: Schema.Types.ObjectId;
   @IsNotEmpty({message: 'Full name is required'})
   @IsString({
     message: 'Full name is string',
@@ -73,8 +74,5 @@ export class EditUser {
 
 export class GetUser {
   @IsNotEmpty({message: 'Id is required'})
-  @IsString({
-    message: 'Id is string',
-  })
   _id?: string;
 }

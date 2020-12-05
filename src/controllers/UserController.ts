@@ -1,4 +1,5 @@
 import UserBussiness from '@src/business/UserBussiness';
+import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
@@ -6,11 +7,11 @@ import {NextFunction, Request, Response} from 'express';
 export default class UserController {
   public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // const id = (req.user as IUserModel).id;
-      const params = req.query;
+      const id = (req.user as IUserModel)._id;
+      // const params = req.query;
       const userBusiness = new UserBussiness();
       const data = new GetUser();
-      data._id = params._id.toString();
+      data._id = id.toString();
       const result = await userBusiness.findById(data);
       res.status(200).send({data: result});
     } catch (err) {
@@ -18,6 +19,19 @@ export default class UserController {
     }
   }
 
+  public async getUserByIdAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel)._id;
+      const params = req.query;
+      const userBusiness = new UserBussiness();
+      const data = new GetUser();
+      data._id = params._id.toString();
+      const result = await userBusiness.findByIdAdmin(data);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
   public async getListUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userBusiness = new UserBussiness();
@@ -65,7 +79,7 @@ export default class UserController {
           const username = faker.internet.userName();
           const email = faker.internet.email();
           const phone = faker.phone.phoneNumber();
-          const total_amount = faker.finance.amount();
+          const total_amount = Math.floor(Math.random() * (3000 - 500)) + 500;
 
           const data = new AddUser();
 

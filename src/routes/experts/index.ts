@@ -4,7 +4,10 @@ import autoGenerateExpert from './AutoGenerateExpert';
 import deleteExpert from './DeleteExpert';
 import editExpert from './EditExpert';
 import getExpertById from './GetExpertById';
+import getExpertByName from './GetExpertByName';
+import GetExpertDetailById from './GetExpertDetailById';
 import getListExperts from './GetListExperts';
+import getUserCopyByExpert from './GetUserCopyByExpert';
 
 export default class ExpertRouter {
   public router: Router = Router();
@@ -16,5 +19,8 @@ export default class ExpertRouter {
     deleteExpert(this.router);
     autoGenerateExpert(this.router);
     getExpertById(this.router);
+    getUserCopyByExpert(this.router);
+    getExpertByName(this.router);
+    GetExpertDetailById(this.router);
   }
 }
