@@ -1,9 +1,9 @@
 import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
-import UserSchema from '@src/schemas/CPUserSchema';
+import RealUserSchema from '@src/schemas/RealUserSchema';
 import {RepositoryBase} from './base';
 
 export default class RealUserRepository extends RepositoryBase<IRealUserModel> {
   constructor() {
-    super(UserSchema);
+    super(RealUserSchema);
   }
 }
