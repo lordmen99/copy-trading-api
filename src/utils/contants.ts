@@ -24,9 +24,15 @@ enum TYPE_OF_CLIENT {
   EXPERT = 'EXPERT',
 }
 
+enum TYPE_OF_WALLET {
+  WALLET = 'WALLET',
+  COPY_TRADE = 'COPY_TRADE',
+}
+
 export default {
   STATUS,
   RATE,
   TYPE_OF_WITHDRAW,
   TYPE_OF_CLIENT,
+  TYPE_OF_WALLET,
 };

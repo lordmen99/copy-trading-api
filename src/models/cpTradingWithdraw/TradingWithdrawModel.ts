@@ -36,6 +36,10 @@ export default class TradingWithdrawModel {
     return this._tradingWithdrawModel.updatedAt;
   }
 
+  get paidAt(): Date {
+    return this._tradingWithdrawModel.paidAt;
+  }
+
   get type_of_withdraw(): string {
     return this._tradingWithdrawModel.type_of_withdraw;
   }

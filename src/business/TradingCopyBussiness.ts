@@ -1,9 +1,11 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
+import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
+import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
@@ -23,12 +25,14 @@ export default class TradingCopyBussiness {
   private _userRepository: UserRepository;
   private _expertRepository: ExpertRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
+  private _tradingHistoryRepository: TradingHistoryRepository;
 
   constructor() {
     this._tradingCopyRepository = new TradingCopyRepository();
     this._userRepository = new UserRepository();
     this._expertRepository = new ExpertRepository();
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
+    this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
   public async findById(id: string): Promise<ITradingCopyModel> {
@@ -155,41 +159,76 @@ export default class TradingCopyBussiness {
       } else {
         const copy = await this._tradingCopyRepository.findOne({
           _id: tradingCopy.id_copy,
+          id_user: tradingCopy.id_user,
         } as ITradingCopyModel);
         if (copy) {
-          const user = await this._userRepository.findOne({_id: copy.id_user} as IUserModel);
-          const resultUser = await this._userRepository.update(copy.id_user, {
-            blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            status_trading_copy: contants.STATUS.BLOCK,
-            total_amount:
-              copy.investment_amount > copy.base_amount
-                ? user.total_amount + copy.base_amount
-                : user.total_amount + copy.investment_amount,
-          } as IUserModel);
-          const resultCopy = await this._tradingCopyRepository.update(copy._id, {
-            status: contants.STATUS.STOP,
-            // investment_amount: 0,
-            // base_amount: 0,
-          } as ITradingCopyModel);
-
-          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-
           if (copy.investment_amount > copy.base_amount) {
+            const histories = await this._tradingHistoryRepository.findWhere({
+              id_user: copy.id_user,
+            } as any);
+            let keep_amount = 0;
+            if (histories) {
+              for (const history of histories) {
+                if (
+                  history.closing_time.getDate() === new Date().getDate() &&
+                  history.closing_time.getMonth() === new Date().getMonth() &&
+                  history.closing_time.getFullYear() === new Date().getFullYear()
+                ) {
+                  if (history.profit === 0) {
+                    keep_amount = keep_amount - history.order_amount;
+                  } else {
+                    keep_amount = keep_amount + history.profit - history.fee_to_expert - history.fee_to_trading;
+                  }
+                }
+              }
+            }
+            const user = await this._userRepository.findOne({_id: copy.id_user} as IUserModel);
+            const resultUser = await this._userRepository.update(copy.id_user, {
+              blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+              status_trading_copy: contants.STATUS.BLOCK,
+              total_amount: user.total_amount + copy.investment_amount - keep_amount,
+            } as IUserModel);
+            const resultCopy = await this._tradingCopyRepository.update(copy._id, {
+              status: contants.STATUS.STOP,
+              // investment_amount: 0,
+              // base_amount: 0,
+            } as ITradingCopyModel);
+
+            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+
             await tradingWithdrawBussiness.createTradingWithdraw({
               id_user: copy.id_user,
               id_expert: null,
               id_copy: copy._id,
-              amount: copy.investment_amount - copy.base_amount,
+              amount: keep_amount,
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
               createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
               updatedAt: new Date(),
+              paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             } as ITradingWithdrawModel);
+
+            if (resultUser && resultCopy) {
+              return true;
+            }
+            return false;
+          } else {
+            const user = await this._userRepository.findOne({_id: copy.id_user} as IUserModel);
+            const resultUser = await this._userRepository.update(copy.id_user, {
+              blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+              status_trading_copy: contants.STATUS.BLOCK,
+              total_amount: user.total_amount + copy.investment_amount,
+            } as IUserModel);
+            const resultCopy = await this._tradingCopyRepository.update(copy._id, {
+              status: contants.STATUS.STOP,
+              // investment_amount: 0,
+              // base_amount: 0,
+            } as ITradingCopyModel);
+            if (resultUser && resultCopy) {
+              return true;
+            }
+            return false;
           }
-          if (resultUser && resultCopy) {
-            return true;
-          }
-          return false;
         } else {
           throw new Error('Trading copy is not exist!');
         }
@@ -337,22 +376,28 @@ export default class TradingCopyBussiness {
 
   public async transferMoneyToExpert(withdraw: ITradingWithdrawModel): Promise<void> {
     try {
-      // const copy = await this._tradingCopyRepository.findOne({
-      //   _id: withdraw.id_copy,
-      // } as ITradingCopyModel);
-      // await this._tradingCopyRepository.update(copy._id, {
-      //   investment_amount: copy.investment_amount - withdraw.amount,
-      // } as ITradingCopyModel);
+      const history = await this._tradingHistoryRepository.findOne({
+        id_user: withdraw.id_user,
+        id_expert: withdraw.id_expert,
+        id_order: withdraw.id_order,
+      } as ITradingHistoryModel);
+      if (history) {
+        await this._tradingHistoryRepository.update(history._id, {
+          status: true,
+        } as ITradingHistoryModel);
+      }
       const expert = await this._expertRepository.findOne({
         _id: withdraw.id_expert,
       } as IExpertModel);
-      await this._expertRepository.update(expert._id, {
-        total_amount: expert.total_amount + withdraw.amount,
-      } as IExpertModel);
-      await this._tradingWithdrawRepository.update(withdraw._id, {
-        status: contants.STATUS.FINISH,
-        updatedAt: new Date(),
-      } as ITradingWithdrawModel);
+      if (expert) {
+        await this._expertRepository.update(expert._id, {
+          total_amount: expert.total_amount + withdraw.amount,
+        } as IExpertModel);
+        await this._tradingWithdrawRepository.update(withdraw._id, {
+          status: contants.STATUS.FINISH,
+          updatedAt: new Date(),
+        } as ITradingWithdrawModel);
+      }
     } catch (err) {
       throw err;
     }

@@ -5,6 +5,7 @@ import editUser from './EditUser';
 import getListUsers from './GetListUsers';
 import getById from './GetUserById';
 import getUserByIdAdmin from './GetUserByIdAdmin';
+import transferMoney from './TransferMoney';
 
 export default class UserRouter {
   public router: Router = Router();
@@ -16,5 +17,6 @@ export default class UserRouter {
     getListUsers(this.router);
     autoGenerateUser(this.router);
     getUserByIdAdmin(this.router);
+    transferMoney(this.router);
   }
 }

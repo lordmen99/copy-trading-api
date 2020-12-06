@@ -36,6 +36,9 @@ class CPTradingWithdrawSchema {
       updatedAt: {
         type: Date,
       },
+      paidAt: {
+        type: Date,
+      },
     });
     return schema;
   }

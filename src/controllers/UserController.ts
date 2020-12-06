@@ -1,7 +1,7 @@
 import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
-import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class UserController {
@@ -58,6 +58,22 @@ export default class UserController {
       data.status_trading_copy = contants.STATUS.ACTIVE;
       const userBusiness = new UserBussiness();
       const result = await userBusiness.addUser(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async transferMoney(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new TransferMoneyUser();
+      data.id_user = (req.user as IUserModel).id;
+      data.source = params.source;
+      data.amount = parseFloat(params.amount.toString());
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.transferMoney(data);
 
       res.status(200).send({data: result});
     } catch (err) {

@@ -10,4 +10,5 @@ export default interface ITradingHistoryModel extends mongoose.Document {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  paidAt: Date;
 }

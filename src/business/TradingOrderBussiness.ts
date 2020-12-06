@@ -234,6 +234,7 @@ export default class TradingOrderBussiness {
                       status: contants.STATUS.PENDING,
                       createdAt: new Date(),
                       updatedAt: new Date(),
+                      paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
                     } as ITradingWithdrawModel);
                   } else {
                     tradingHistoryEntity.order_amount = parseFloat(
@@ -262,6 +263,7 @@ export default class TradingOrderBussiness {
                       type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                       createdAt: new Date(),
                       updatedAt: new Date(),
+                      paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
                     } as ITradingWithdrawModel);
                   }
                 } else {
@@ -523,6 +525,7 @@ export default class TradingOrderBussiness {
                     type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                     createdAt: new Date(),
                     updatedAt: new Date(),
+                    paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
                   } as ITradingWithdrawModel);
                 } else {
                   tradingHistoryEntity.order_amount = parseFloat(
@@ -551,6 +554,7 @@ export default class TradingOrderBussiness {
                     status: contants.STATUS.PENDING,
                     createdAt: new Date(),
                     updatedAt: new Date(),
+                    paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
                   } as ITradingWithdrawModel);
                 }
               } else {
