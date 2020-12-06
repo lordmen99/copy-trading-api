@@ -9,8 +9,7 @@ const notFoundMiddleware = (req: Request, res: Response) => {
 
 /** Returns 500 if server error is encountered */
 const errorMiddleware = (err: any, req: Request, res: Response, _next: NextFunction) => {
-  logger.error(`API ERROR: ${req.path}`);
-  logger.error(err.message);
+  logger.error(`API ERROR- ${req.path}: ${err.message}`);
   if (err.code === 403) res.status(err.code).send({type: err.type, error_description: err.message});
   else res.status(500).send({error_description: err.message});
 };

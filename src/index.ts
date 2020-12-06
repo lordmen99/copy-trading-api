@@ -40,11 +40,8 @@ server.on('listening', () => {
     RealUserSchema.find({main_acc_id: null}).then((result) => {
       result.map((item) => {
         UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
-          console.log(rs, 'rs');
           if (!rs) {
-            UserSchema.create({id_user_trading: item.id, is_virtual: false, total_amount: item.amount}).then((re) => {
-              console.log(re, 're');
-            });
+            UserSchema.create({id_user_trading: item.id, is_virtual: false, total_amount: item.amount});
           }
         });
       });
