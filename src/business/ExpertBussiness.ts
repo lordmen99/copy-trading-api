@@ -55,68 +55,87 @@ export default class ExpertBussiness {
     }
   }
 
-  public async addUserAndFollowExpert(expert: AddExpert): Promise<void> {
+  public async addUserAndFollowExpert(number: number): Promise<any> {
     try {
-      const errors = await validate(expert);
-      if (errors.length > 0) {
-        throw new Error(Object.values(errors[0].constraints)[0]);
+      const faker = require('faker');
+      const resultUser = await this._userRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+        is_virtual: true,
+      } as IUserModel);
+      if (resultUser.length === 0) {
+        throw new Error('System does not have any fake users');
       } else {
-        const tradingCopy = {
-          id_user: null,
-          id_expert: null,
-          investment_amount: 0,
-          maximum_rate: 0,
-          stop_loss: 0,
-          taken_profit: 0,
-          status: contants.STATUS.ACTIVE,
-        };
+        for (let i = 0; i < number; i++) {
+          const fullname = faker.name.findName();
+          const username = faker.internet.userName();
+          const email = faker.internet.email();
+          const phone = faker.phone.phoneNumber();
+          const total_amount = parseFloat((Math.random() * (30000 - 10000) + 10000).toFixed(2));
 
-        const expertEntity = expert as IExpertModel;
-        const resultUser = await this._userRepository.findWhere({
-          status: contants.STATUS.ACTIVE,
-          is_virtual: true,
-        } as IUserModel);
-        if (resultUser) {
-          const random = Math.floor(Math.random() * resultUser.length);
-          const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
-          const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
-          const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
-          const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
+          const data = new AddExpert();
 
-          const resultExpert = await this._expertRepository.create(expertEntity);
+          data.fullname = fullname;
+          data.username = username;
+          data.email = email;
+          data.phone = phone;
+          data.avatar = '';
+          data.total_amount = total_amount;
+          data.is_virtual = true;
+          data.status = contants.STATUS.ACTIVE;
+          const expertEntity = data as IExpertModel;
+          const tradingCopy = {
+            id_user: null,
+            id_expert: null,
+            investment_amount: 0,
+            maximum_rate: 0,
+            stop_loss: 0,
+            taken_profit: 0,
+            status: contants.STATUS.ACTIVE,
+          };
 
-          if (resultExpert) {
-            const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-            tradingCopyEntity.id_user = resultUser[random]._id;
-            tradingCopyEntity.id_expert = resultExpert._id;
-            tradingCopyEntity.investment_amount = randomInvestment;
-            tradingCopyEntity.base_amount = randomInvestment;
-            tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
-            if (tradingCopyEntity.has_maximum_rate) {
-              tradingCopyEntity.maximum_rate = randomRate;
-            } else {
-              tradingCopyEntity.maximum_rate = 0;
+          if (resultUser.length > 0) {
+            const random = Math.floor(Math.random() * resultUser.length);
+            const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
+            const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
+            const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
+            const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
+
+            const resultExpert = await this._expertRepository.create(expertEntity);
+
+            if (resultExpert) {
+              const tradingCopyEntity = tradingCopy as ITradingCopyModel;
+              tradingCopyEntity.id_user = resultUser[random]._id;
+              tradingCopyEntity.id_expert = resultExpert._id;
+              tradingCopyEntity.investment_amount = randomInvestment;
+              tradingCopyEntity.base_amount = randomInvestment;
+              tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
+              if (tradingCopyEntity.has_maximum_rate) {
+                tradingCopyEntity.maximum_rate = randomRate;
+              } else {
+                tradingCopyEntity.maximum_rate = 0;
+              }
+              tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
+              if (tradingCopyEntity.has_stop_loss) {
+                tradingCopyEntity.stop_loss = randomStopLoss;
+              } else {
+                tradingCopyEntity.stop_loss = 0;
+              }
+              tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
+              if (tradingCopyEntity.has_taken_profit) {
+                tradingCopyEntity.taken_profit = randomProfit;
+              } else {
+                tradingCopyEntity.taken_profit = 0;
+              }
+              tradingCopyEntity.createdAt = new Date();
+              tradingCopyEntity.updatedAt = new Date();
+
+              await this._tradingCopyRepository.create(tradingCopyEntity);
             }
-            tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
-            if (tradingCopyEntity.has_stop_loss) {
-              tradingCopyEntity.stop_loss = randomStopLoss;
-            } else {
-              tradingCopyEntity.stop_loss = 0;
-            }
-            tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
-            if (tradingCopyEntity.has_taken_profit) {
-              tradingCopyEntity.taken_profit = randomProfit;
-            } else {
-              tradingCopyEntity.taken_profit = 0;
-            }
-            tradingCopyEntity.createdAt = new Date();
-            tradingCopyEntity.updatedAt = new Date();
-
-            await this._tradingCopyRepository.create(tradingCopyEntity);
+          } else {
+            throw new Error('System does not have any users');
           }
-        } else {
-          throw new Error('System does not have any users');
         }
+        return true;
       }
     } catch (err) {
       throw err;
@@ -213,8 +232,11 @@ export default class ExpertBussiness {
   public async getListExpertsPaging(page, size): Promise<any> {
     try {
       const result = await this._expertRepository.executeListExpertPage(page, size);
-
-      return result;
+      if (result) {
+        return result;
+      } else {
+        return [];
+      }
     } catch (err) {
       throw err;
     }

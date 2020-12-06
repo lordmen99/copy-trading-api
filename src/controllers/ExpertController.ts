@@ -1,5 +1,4 @@
 import ExpertBussiness from '@src/business/ExpertBussiness';
-import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import {contants} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
@@ -100,31 +99,10 @@ export default class ExpertController {
         throw new Error('Number is required');
       } else {
         const expertBusiness = new ExpertBussiness();
-        const faker = require('faker');
+        const result = await expertBusiness.addUserAndFollowExpert(params.number);
 
-        for (let i = 0; i < params.number; i++) {
-          const fullname = faker.name.findName();
-          const username = faker.internet.userName();
-          const email = faker.internet.email();
-          const phone = faker.phone.phoneNumber();
-          const total_amount = parseFloat((Math.random() * (30000 - 10000) + 10000).toFixed(2));
-
-          const data = new AddExpert();
-
-          data.fullname = fullname;
-          data.username = username;
-          data.email = email;
-          data.phone = phone;
-          data.avatar = '';
-          data.total_amount = total_amount;
-          data.is_virtual = true;
-          data.status = contants.STATUS.ACTIVE;
-          const expertEntity = data as IExpertModel;
-          expertBusiness.addUserAndFollowExpert(expertEntity);
-        }
-        // res.status(200).send({data: true});
+        res.status(200).send({data: result});
       }
-      res.status(200).send({data: true});
     } catch (err) {
       next(err);
     }
