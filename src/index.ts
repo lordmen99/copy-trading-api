@@ -5,6 +5,8 @@ import {Server} from 'socket.io';
 import IOClient from 'socket.io-client';
 import app from './App';
 import config from './config';
+import RealUserSchema from './schemas/RealUserSchema';
+import UserSchema from './schemas/UserSchema';
 import IOHandlers from './socketHandlers/EventHandlers';
 import TradingEventHandlers from './socketHandlers/tradingEventHandlers';
 
@@ -33,6 +35,21 @@ server.on('listening', () => {
       `\n🚀Server listening on port: ${config.port} - env: ${process.env.NODE_ENV}
       \n🚀API Document on http://localhost:${config.port}/apidoc/index.html`,
     );
+
+    /** get user from trading */
+    RealUserSchema.find({main_acc_id: null}).then((result) => {
+      result.map((item) => {
+        UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
+          console.log(rs, 'rs');
+          if (!rs) {
+            UserSchema.create({id_user_trading: item.id, is_virtual: false, total_amount: item.amount}).then((re) => {
+              console.log(re, 're');
+            });
+          }
+        });
+      });
+    });
+    /** end: get user from trading */
   });
   mongoose.connection.on('error', (err) => {
     console.error('\n🚀Unable to connect to Mongo via Mongoose', err);
