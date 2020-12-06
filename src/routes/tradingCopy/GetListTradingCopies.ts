@@ -16,8 +16,8 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_copy Id của copy trong bản cp_trading_copies
- *
+ * @apiParam {Number} page
+ * @apiParam {Number} size
  *
  * @apiSuccess {Object} data
  *
