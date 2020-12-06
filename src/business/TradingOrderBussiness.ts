@@ -518,6 +518,9 @@ export default class TradingOrderBussiness {
                     updatedAt: new Date(),
                   } as ITradingWithdrawModel);
                 } else {
+                  tradingHistoryEntity.order_amount = parseFloat(
+                    (tradingHistoryEntity.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
+                  );
                   tradingHistoryEntity.profit = parseFloat(
                     (copy.investment_amount * (flagOrder.threshold_percent / 100)).toFixed(2),
                   );
