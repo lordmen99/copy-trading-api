@@ -1,4 +1,4 @@
-import IUserModel from '@src/models/cpUser/IUserModel';
+import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
 import mongoose, {Schema} from 'mongoose';
 class UserSchema {
   static get schema() {
@@ -48,4 +48,4 @@ class UserSchema {
   }
 }
 
-export default mongoose.model<IUserModel>('user', UserSchema.schema);
+export default mongoose.model<IRealUserModel>('user', UserSchema.schema);
