@@ -29,7 +29,18 @@ export default class UserBussiness {
         const result = await this._userRepository.findById(params._id.toString());
         if (!result) {
           const user = await this._realUserRepository.findById(params._id.toString());
-          return user;
+          if (user) {
+            const result = await this._userRepository.findOne({id_user_trading: user._id} as IUserModel);
+            return {
+              _id: result._id,
+              username: result.username,
+              total_amount: result.total_amount,
+              status: result.status,
+              status_trading_copy: result.status_trading_copy,
+            };
+          } else {
+            throw new Error('User is not exist!');
+          }
         }
         return {
           _id: result._id,

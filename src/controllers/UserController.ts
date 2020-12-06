@@ -26,7 +26,7 @@ export default class UserController {
       const userBusiness = new UserBussiness();
       const data = new GetUser();
       data._id = params._id.toString();
-      const result = await userBusiness.findByIdAdmin(data);
+      const result = await userBusiness.findById(data);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
