@@ -1,9 +1,9 @@
 import IAdminModel from '@src/models/cpAdmin/IAdminModel';
-import AdminSchema from '@src/schemas/AdminSchema';
+import CPAdminSchema from '@src/schemas/CPAdminSchema';
 import {RepositoryBase} from './base';
 
 export default class AdminRepository extends RepositoryBase<IAdminModel> {
   constructor() {
-    super(AdminSchema);
+    super(CPAdminSchema);
   }
 }

@@ -1,22 +1,15 @@
-import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
+import IClientModel from '@src/models/cpClient/IClientModel';
 import mongoose from 'mongoose';
 
-class AccessTokenSchema {
+class CPClientSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       client_id: {
         type: String,
         required: true,
+        unique: true,
       },
-      id_client: {
-        type: String,
-        required: true,
-      },
-      type: {
-        type: String,
-        required: true,
-      },
-      token: {
+      client_secret: {
         type: String,
         required: true,
       },
@@ -33,4 +26,4 @@ class AccessTokenSchema {
   }
 }
 
-export default mongoose.model<IAccessTokenModel>('cp_access_token', AccessTokenSchema.schema);
+export default mongoose.model<IClientModel>('cp_client', CPClientSchema.schema);

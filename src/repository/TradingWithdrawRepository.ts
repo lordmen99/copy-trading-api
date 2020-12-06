@@ -1,9 +1,9 @@
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
-import WithdrawHistorySchema from '@src/schemas/WithdrawHistorySchema';
+import CPTradingWithdrawSchema from '@src/schemas/CPTradingWithdrawSchema';
 import {RepositoryBase} from './base';
 
 export default class TradingWithdrawRepository extends RepositoryBase<ITradingWithdrawModel> {
   constructor() {
-    super(WithdrawHistorySchema);
+    super(CPTradingWithdrawSchema);
   }
 }

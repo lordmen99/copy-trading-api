@@ -2,7 +2,7 @@ import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import {contants} from '@src/utils';
 import mongoose from 'mongoose';
 
-class ExpertSchema {
+class CPExpertSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       fullname: {
@@ -52,4 +52,4 @@ class ExpertSchema {
   }
 }
 
-export default mongoose.model<IExpertModel>('cp_expert', ExpertSchema.schema);
+export default mongoose.model<IExpertModel>('cp_expert', CPExpertSchema.schema);

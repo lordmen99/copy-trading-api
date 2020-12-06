@@ -189,9 +189,9 @@ export default class ExpertBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._expertRepository.getExpertDetails({_id: params._id} as any);
+        const result = await this._expertRepository.getExpertDetails({_id: params._id} as any);
+        return result;
       }
-      return null;
     } catch (err) {
       throw err;
     }
@@ -220,15 +220,9 @@ export default class ExpertBussiness {
     }
   }
 
-  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
+  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId, page: number, size: number): Promise<any> {
     try {
-      const result = await this._expertRepository.findWithPagingUserCopyWithAggregate(
-        {_id: id_expert} as IExpertModel,
-        '_id',
-        'id_expert',
-        'copies',
-        'cp_trading_copies',
-      );
+      const result = await this._expertRepository.getUserCopyByExpert({_id: id_expert} as IExpertModel, page, size);
       if (result) {
         return result.user;
       }

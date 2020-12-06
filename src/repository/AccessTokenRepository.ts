@@ -1,9 +1,9 @@
 import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
-import AccessTokenSchema from '@src/schemas/AccessTokenSchema';
+import CPAccessTokenSchema from '@src/schemas/CPAccessTokenSchema';
 import {RepositoryBase} from './base';
 
 export default class AccessTokenRepository extends RepositoryBase<IAccessTokenModel> {
   constructor() {
-    super(AccessTokenSchema);
+    super(CPAccessTokenSchema);
   }
 }

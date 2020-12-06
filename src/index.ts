@@ -5,8 +5,8 @@ import {Server} from 'socket.io';
 import IOClient from 'socket.io-client';
 import app from './App';
 import config from './config';
+import UserSchema from './schemas/CPUserSchema';
 import RealUserSchema from './schemas/RealUserSchema';
-import UserSchema from './schemas/UserSchema';
 import IOHandlers from './socketHandlers/EventHandlers';
 import TradingEventHandlers from './socketHandlers/tradingEventHandlers';
 

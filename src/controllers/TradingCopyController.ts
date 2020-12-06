@@ -117,7 +117,7 @@ export default class TradingCopyController {
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.getListTradingCopies(data, params.page, params.size);
 
-      res.status(200).send({data: result.result, count: result.count});
+      res.status(200).send({data: result.result.data, count: result.count});
     } catch (err) {
       next(err);
     }

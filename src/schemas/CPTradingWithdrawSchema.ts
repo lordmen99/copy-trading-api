@@ -1,23 +1,25 @@
-import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
+import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import mongoose, {Schema} from 'mongoose';
 
-class TradingOrderSchema {
+class CPTradingWithdrawSchema {
   static get schema() {
     const schema = new mongoose.Schema({
+      id_user: {
+        type: Schema.Types.ObjectId,
+        required: true,
+      },
       id_expert: {
         type: Schema.Types.ObjectId,
-        required: true,
       },
-      id_admin: {
+      id_copy: {
         type: Schema.Types.ObjectId,
-        required: true,
       },
-      type_of_order: {
-        type: String,
-        required: true,
-      },
-      threshold_percent: {
+      amount: {
         type: Number,
+        required: true,
+      },
+      type_of_withdraw: {
+        type: String,
         required: true,
       },
       status: {
@@ -28,17 +30,12 @@ class TradingOrderSchema {
         type: Date,
         required: true,
       },
-      orderedAt: {
+      updatedAt: {
         type: Date,
-        required: true,
-      },
-      timeSetup: {
-        type: Date,
-        required: true,
       },
     });
     return schema;
   }
 }
 
-export default mongoose.model<ITradingOrderModel>('cp_trading_order', TradingOrderSchema.schema);
+export default mongoose.model<ITradingWithdrawModel>('cp_trading_withdraw', CPTradingWithdrawSchema.schema);
