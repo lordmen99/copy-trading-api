@@ -55,12 +55,15 @@ export default class TradingHistoryBussiness {
     try {
       const expert = await this._expertRepository.findOneWithSelect({_id: id_expert} as IExpertModel, 'fullname');
       if (expert) {
-        const result = await this._tradingHistoryRepository.findWithPagingById(
+        const result = await this._tradingHistoryRepository.getListTradingHistoriesFollowExpert(
           {id_expert, id_user: {$ne: null} as any} as ITradingHistoryModel,
           page,
           size,
+          'id_user',
+          '_id',
+          'user',
+          'cp_users',
         );
-        result.result.expert_name = expert.fullname;
         if (result) {
           return result;
         }
