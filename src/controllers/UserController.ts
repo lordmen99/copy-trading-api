@@ -92,8 +92,8 @@ export default class UserController {
 
         for (let i = 0; i < params.number; i++) {
           const fullname = faker.name.findName();
-          const username = faker.internet.userName();
-          const email = faker.internet.email();
+          const username = faker.internet.userName().toLowerCase();
+          const email = faker.internet.email().toLowerCase();
           const phone = faker.phone.phoneNumber();
           const total_amount = Math.floor(Math.random() * (3000 - 500)) + 500;
 
