@@ -55,7 +55,7 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
                   fee_to_trading: 1,
                   type_of_money: 1,
                   expert: {
-                    fullname: 1,
+                    username: 1,
                   },
                 },
               },
