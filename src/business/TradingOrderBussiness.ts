@@ -6,7 +6,7 @@ import {contants} from '@src/utils';
 import {GetExpert} from '@src/validator/experts/experts.validator';
 import {GetTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
-import {CreateTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
+import {CreateTradingOrder, EditTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
 import moment from 'moment';
 import {Schema} from 'mongoose';
@@ -101,6 +101,7 @@ export default class TradingOrderBussiness {
               const tradingHistoryEntity = data as ITradingHistoryModel;
               tradingHistoryEntity.id_user = null;
               tradingHistoryEntity.id_expert = order.id_expert;
+              tradingHistoryEntity.id_order = null;
               tradingHistoryEntity.opening_time = tempDate;
               if (dataSocket.open > dataSocket.close) {
                 if (order.type_of_order === 'WIN') {
@@ -157,7 +158,7 @@ export default class TradingOrderBussiness {
               }
 
               tradingHistoryEntity.type_of_money = 'BTC/USDT';
-              tradingHistoryEntity.status = false;
+              tradingHistoryEntity.status = true;
 
               const tradingHistoryBusiness = new TradingHistoryBussiness();
 
@@ -172,6 +173,7 @@ export default class TradingOrderBussiness {
 
                 tradingHistoryEntity.id_user = copy.id_user;
                 tradingHistoryEntity.id_expert = order.id_expert;
+                tradingHistoryEntity.id_order = order._id;
                 tradingHistoryEntity.opening_time = tempDate;
                 if (dataSocket.open > dataSocket.close) {
                   if (order.type_of_order === 'WIN') {
@@ -226,6 +228,7 @@ export default class TradingOrderBussiness {
                       id_user: tradingHistoryEntity.id_user,
                       id_expert: copy.id_expert,
                       id_copy: copy._id,
+                      id_order: order._id,
                       amount: tradingHistoryEntity.fee_to_expert,
                       type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                       status: contants.STATUS.PENDING,
@@ -253,6 +256,7 @@ export default class TradingOrderBussiness {
                       id_user: tradingHistoryEntity.id_user,
                       id_expert: copy.id_expert,
                       id_copy: copy._id,
+                      id_order: order._id,
                       amount: tradingHistoryEntity.fee_to_expert,
                       status: contants.STATUS.PENDING,
                       type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
@@ -388,6 +392,7 @@ export default class TradingOrderBussiness {
             const tradingHistoryEntity = data as ITradingHistoryModel;
             tradingHistoryEntity.id_user = null;
             tradingHistoryEntity.id_expert = flagOrder.id_expert;
+            tradingHistoryEntity.id_order = null;
             tradingHistoryEntity.opening_time = tempDate;
             if (dataSocket.open > dataSocket.close) {
               if (flagOrder.type_of_order === 'WIN') {
@@ -442,7 +447,7 @@ export default class TradingOrderBussiness {
             }
 
             tradingHistoryEntity.type_of_money = 'BTC/USDT';
-            tradingHistoryEntity.status = false;
+            tradingHistoryEntity.status = true;
 
             const tradingHistoryBusiness = new TradingHistoryBussiness();
             await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
@@ -458,6 +463,7 @@ export default class TradingOrderBussiness {
 
               tradingHistoryEntity.id_user = copy.id_user;
               tradingHistoryEntity.id_expert = flagOrder.id_expert;
+              tradingHistoryEntity.id_order = flagOrder._id;
               tradingHistoryEntity.opening_time = tempDate;
               if (dataSocket.open > dataSocket.close) {
                 if (flagOrder.type_of_order === 'WIN') {
@@ -511,6 +517,7 @@ export default class TradingOrderBussiness {
                     id_user: tradingHistoryEntity.id_user,
                     id_expert: copy.id_expert,
                     id_copy: copy._id,
+                    id_order: flagOrder._id,
                     amount: tradingHistoryEntity.fee_to_expert,
                     status: contants.STATUS.PENDING,
                     type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
@@ -538,6 +545,7 @@ export default class TradingOrderBussiness {
                     id_user: tradingHistoryEntity.id_user,
                     id_expert: copy.id_expert,
                     id_copy: copy._id,
+                    id_order: flagOrder._id,
                     amount: tradingHistoryEntity.fee_to_expert,
                     type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
                     status: contants.STATUS.PENDING,
@@ -621,6 +629,34 @@ export default class TradingOrderBussiness {
           return result;
         }
         return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async editTradingOrder(tradingOrder: EditTradingOrder): Promise<boolean> {
+    try {
+      const errors = await validate(tradingOrder);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const order = await this._tradingOrderRepository.findOne({
+          _id: tradingOrder.id_order,
+          status: contants.STATUS.PENDING,
+        } as ITradingOrderModel);
+        if (order) {
+          const tradingOrderEntity = tradingOrder as ITradingOrderModel;
+          tradingOrderEntity.id_expert = tradingOrder.id_expert;
+          tradingOrderEntity.type_of_order = tradingOrder.type_of_order;
+          tradingOrderEntity.threshold_percent = tradingOrder.threshold_percent;
+          tradingOrderEntity.orderedAt = tradingOrder.orderedAt;
+
+          const result = await this._tradingOrderRepository.update(order._id, tradingOrderEntity);
+          return result ? true : false;
+        } else {
+          throw new Error('Order is not exist!');
+        }
       }
     } catch (err) {
       throw err;
