@@ -61,7 +61,7 @@ export default () => {
           const expertRepository = new ExpertRepository();
           const expert = await expertRepository.findById(accessToken.id_client);
           if (!expert) {
-            const realUser = await realUserRepository.findById(accessToken.id_client);
+            const realUser = await userRepository.findById(accessToken.id_client);
             if (realUser) {
               done(null, realUser);
             } else {

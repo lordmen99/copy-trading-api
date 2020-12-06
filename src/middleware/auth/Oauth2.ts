@@ -127,7 +127,9 @@ server.exchange(
               if (!isValid) {
                 return issused(new Error('Password is incorrect!'));
               } else {
-                initToken(client, real, body.type, issused);
+                const user = await _userRepository.findOne({id_user_trading: real._id} as IUserModel);
+
+                initToken(client, user, body.type, issused);
               }
             } else {
               const user = await _userRepository.findOne({username} as IUserModel);
