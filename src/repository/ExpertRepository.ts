@@ -299,7 +299,8 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
       };
       return res;
     } catch (err) {
-      throw err.errors ? err.errors.shift() : err;
+      // throw err.errors ? err.errors.shift() : err;
+      return [];
     }
   }
 }
