@@ -40,6 +40,7 @@ export default class UserBussiness {
               total_amount: result.total_amount,
               status: result.status,
               status_trading_copy: result.status_trading_copy,
+              avatar: result.avatar,
             };
           } else {
             throw new Error('User is not exist!');
