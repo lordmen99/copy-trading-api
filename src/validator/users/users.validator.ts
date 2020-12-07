@@ -1,4 +1,4 @@
-import {IsEmail, IsNotEmpty, IsString, MaxLength} from 'class-validator';
+import {IsEmail, IsNotEmpty, IsString, MaxLength, Min} from 'class-validator';
 import {Schema} from 'mongoose';
 
 export class AddUser {
@@ -75,4 +75,16 @@ export class EditUser {
 export class GetUser {
   @IsNotEmpty({message: 'Id is required'})
   _id?: string;
+}
+
+export class TransferMoneyUser {
+  @IsNotEmpty({message: 'Id is required'})
+  id_user?: Schema.Types.ObjectId;
+
+  @IsNotEmpty({message: 'Source is required'})
+  source?: string;
+
+  @IsNotEmpty({message: 'Amount is required'})
+  @Min(500)
+  amount?: number;
 }

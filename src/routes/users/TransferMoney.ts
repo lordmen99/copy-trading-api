@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /users/get_user_by_id_admin 6. Get User infor by admin
+ * @api {post} /users/transfer_money 7. Transfer money
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -16,27 +16,15 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} _id
+ * @apiParam {String} source (WALLET/COPY_TRADE)
+ * @apiParam {Number} amount Số lượng tiền cần chuyển
  *
  * @apiSuccess {Object} data
  *
  * @apiSuccessExample {json} Success
  *  HTTP/1.1 200 OK
  *  {
- *      "data": [
- *            {
- *             "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c417",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": "",
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
- *              "__v": 0
- *            }
- *        ]
+ *      "data": true
  *  }
  *
  * @apiError (404 Not Found) NotFound API not found
@@ -50,5 +38,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.get('/get_user_by_id_admin', isAuthenticated, new UserController().getUserByIdAdmin);
+export default (route: Router) => route.post('/transfer_money', isAuthenticated, new UserController().transferMoney);

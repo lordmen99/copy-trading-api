@@ -1,11 +1,13 @@
+import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
-import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
 import {validate} from 'class-validator';
+import {Error} from 'mongoose';
 
 export default class UserBussiness {
   private _userRepository: UserRepository;
@@ -118,67 +120,51 @@ export default class UserBussiness {
     }
   }
 
-  // public async addUserAndFollowExpert(user: AddUser): Promise<ITradingCopyModel> {
-  //   try {
-  //     const errors = await validate(user);
-  //     if (errors.length > 0) {
-  //       throw new Error(Object.values(errors[0].constraints)[0]);
-  //     } else {
-  //       const tradingCopy = {
-  //         id_user: '',
-  //         id_expert: '',
-  //         investment_amount: 0,
-  //         maximum_rate: 0,
-  //         stop_loss: 0,
-  //         taken_profit: 0,
-  //         status: contants.STATUS.ACTIVE,
-  //       };
-  //       const userEntity = user as IUserModel;
-
-  //       const resultExpert = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE}
-  // as IExpertModel);
-  //       const random = Math.floor(Math.random() * resultExpert.length);
-  //       const randomInvestment = Math.floor(Math.random() * userEntity.total_amount);
-  //       const randomRate = Math.floor(Math.random() * (100 - 1)) + 1;
-  //       const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
-  //       const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
-  //       const resultUser = await this._userRepository.create(userEntity);
-
-  //       if (resultUser) {
-  //         const tradingCopyEntity = tradingCopy as ITradingCopyModel;
-  //         tradingCopyEntity.id_user = resultUser._id;
-  //         tradingCopyEntity.id_expert = resultExpert[random]._id;
-  //         tradingCopyEntity.investment_amount = randomInvestment;
-  //         tradingCopyEntity.base_amount = randomInvestment;
-  //         tradingCopyEntity.has_maximum_rate = Math.random() < 0.7;
-  //         if (tradingCopyEntity.has_maximum_rate) {
-  //           tradingCopyEntity.maximum_rate = randomRate;
-  //         } else {
-  //           tradingCopyEntity.maximum_rate = 0;
-  //         }
-  //         tradingCopyEntity.has_stop_loss = Math.random() < 0.7;
-  //         if (tradingCopyEntity.has_stop_loss) {
-  //           tradingCopyEntity.stop_loss = randomStopLoss;
-  //         } else {
-  //           tradingCopyEntity.stop_loss = 0;
-  //         }
-  //         tradingCopyEntity.has_taken_profit = Math.random() < 0.7;
-  //         if (tradingCopyEntity.has_taken_profit) {
-  //           tradingCopyEntity.taken_profit = randomProfit;
-  //         } else {
-  //           tradingCopyEntity.taken_profit = 0;
-  //         }
-  //         tradingCopyEntity.createdAt = new Date();
-  //         tradingCopyEntity.updatedAt = new Date();
-
-  //         await this._tradingCopyRepository.create(tradingCopyEntity);
-  //       }
-  //       return null;
-  //     }
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+  public async transferMoney(params: TransferMoneyUser): Promise<boolean> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        if (result) {
+          const wallet = await this._realUserRepository.findOne({_id: result.id_user_trading} as IUserModel);
+          if (wallet) {
+            if (params.source === contants.TYPE_OF_WALLET.WALLET) {
+              if (parseFloat(wallet.amount.toString()) > parseFloat(params.amount.toString())) {
+                const resultWallet = await this._realUserRepository.update(wallet._id, {
+                  amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
+                } as IRealUserModel);
+                const resultCopy = await this._userRepository.update(result._id, {
+                  total_amount: parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
+                } as IUserModel);
+                return resultWallet && resultCopy ? true : false;
+              } else {
+                throw new Error('Money in wallet is not enough');
+              }
+            } else if (params.source === contants.TYPE_OF_WALLET.COPY_TRADE) {
+              if (parseFloat(result.total_amount.toString()) > parseFloat(params.amount.toString())) {
+                const resultWallet = await this._realUserRepository.update(wallet._id, {
+                  amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
+                } as IRealUserModel);
+                const resultCopy = await this._userRepository.update(result._id, {
+                  total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
+                } as IUserModel);
+                return resultWallet && resultCopy ? true : false;
+              } else {
+                throw new Error('Money in wallet is not enough');
+              }
+            } else {
+              throw new Error('The source is not exist!');
+            }
+          }
+        }
+        return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
 
   public async editUser(params: EditUser): Promise<boolean> {
     try {
@@ -209,18 +195,17 @@ export default class UserBussiness {
     }
   }
 
-  public async executeUnblockUser(): Promise<void> {
+  public async executeUnblockUser(date): Promise<void> {
     try {
       const result = await this._userRepository.findWhere({status: contants.STATUS.BLOCK} as IUserModel);
       if (result) {
-        const tempDate = new Date();
         result.map(async (user) => {
           if (
-            user.blockedAt.getDate() === tempDate.getDate() &&
-            user.blockedAt.getMonth() === tempDate.getMonth() &&
-            user.blockedAt.getFullYear() === tempDate.getFullYear() &&
-            user.blockedAt.getHours() === tempDate.getHours() &&
-            user.blockedAt.getMinutes() === tempDate.getMinutes()
+            user.blockedAt.getDate() === date.getDate() &&
+            user.blockedAt.getMonth() === date.getMonth() &&
+            user.blockedAt.getFullYear() === date.getFullYear() &&
+            user.blockedAt.getHours() === date.getHours() &&
+            user.blockedAt.getMinutes() === date.getMinutes()
           ) {
             await this._userRepository.update(user._id, {
               status_trading_copy: contants.STATUS.ACTIVE,

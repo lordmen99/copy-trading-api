@@ -14,6 +14,9 @@ class CPTradingWithdrawSchema {
       id_copy: {
         type: Schema.Types.ObjectId,
       },
+      id_order: {
+        type: Schema.Types.ObjectId,
+      },
       amount: {
         type: Number,
         required: true,
@@ -31,6 +34,9 @@ class CPTradingWithdrawSchema {
         required: true,
       },
       updatedAt: {
+        type: Date,
+      },
+      paidAt: {
         type: Date,
       },
     });

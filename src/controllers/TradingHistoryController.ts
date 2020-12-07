@@ -34,16 +34,48 @@ export default class TradingHistoryController {
     }
   }
 
+  public async getListTradingHistoriesByUserAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      // const id_user = (req.user as IUserModel).id;
+      const id_user = params.id_user;
+      const tradingHistoryBusiness = new TradingHistoryBussiness();
+      const result = await tradingHistoryBusiness.getListTradingHistoriesByUser(
+        id_user,
+        parseInt(params.page.toString()),
+        parseInt(params.size.toString()),
+      );
+      res.status(200).send({data: result.result[0].data, count: result.count});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getListTradingHistoriesByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
       const tradingHistoryBusiness = new TradingHistoryBussiness();
       const result = await tradingHistoryBusiness.getListTradingHistoriesByExpert(
-        params.id_expert.toString(),
-        parseInt(params.page.toString()),
-        parseInt(params.size.toString()),
+        params.id_expert ? params.id_expert.toString() : '',
+        params.page ? parseInt(params.page.toString()) : 0,
+        params.size ? parseInt(params.size.toString()) : 0,
       );
       res.status(200).send({data: result.result, count: result.count});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getListTradingHistoriesFollowExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const tradingHistoryBusiness = new TradingHistoryBussiness();
+      const result = await tradingHistoryBusiness.getListTradingHistoriesFollowExpert(
+        params.id_expert ? params.id_expert.toString() : '',
+        params.page ? parseInt(params.page.toString()) : 0,
+        params.size ? parseInt(params.size.toString()) : 0,
+      );
+      res.status(200).send({data: result.result[0].data, count: result.count});
     } catch (err) {
       next(err);
     }

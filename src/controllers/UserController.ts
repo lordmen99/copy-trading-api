@@ -1,7 +1,7 @@
 import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
-import {AddUser, EditUser, GetUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class UserController {
@@ -65,6 +65,22 @@ export default class UserController {
     }
   }
 
+  public async transferMoney(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new TransferMoneyUser();
+      data.id_user = (req.user as IUserModel).id;
+      data.source = params.source;
+      data.amount = parseFloat(params.amount.toString());
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.transferMoney(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async autoGenerateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
@@ -76,8 +92,8 @@ export default class UserController {
 
         for (let i = 0; i < params.number; i++) {
           const fullname = faker.name.findName();
-          const username = faker.internet.userName();
-          const email = faker.internet.email();
+          const username = faker.internet.userName().toLowerCase();
+          const email = faker.internet.email().toLowerCase();
           const phone = faker.phone.phoneNumber();
           const total_amount = Math.floor(Math.random() * (3000 - 500)) + 500;
 

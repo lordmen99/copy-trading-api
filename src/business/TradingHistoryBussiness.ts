@@ -47,6 +47,35 @@ export default class TradingHistoryBussiness {
     }
   }
 
+  public async getListTradingHistoriesFollowExpert(
+    id_expert: Schema.Types.ObjectId,
+    page: number,
+    size: number,
+  ): Promise<any> {
+    try {
+      const expert = await this._expertRepository.findOneWithSelect({_id: id_expert} as IExpertModel, 'fullname');
+      if (expert) {
+        const result = await this._tradingHistoryRepository.getListTradingHistoriesFollowExpert(
+          {id_expert, id_user: {$ne: null} as any} as ITradingHistoryModel,
+          page,
+          size,
+          'id_user',
+          '_id',
+          'user',
+          'cp_users',
+        );
+        if (result) {
+          return result;
+        }
+        return [];
+      } else {
+        throw new Error('Expert is not exist!');
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async getListTradingHistoriesByExpert(
     id_expert: Schema.Types.ObjectId,
     page: number,

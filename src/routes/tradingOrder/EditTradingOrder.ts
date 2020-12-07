@@ -1,11 +1,11 @@
-import UserController from '@src/controllers/UserController';
+import TradingOrderController from '@src/controllers/TradingOrderController';
 import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /users/get_user_by_id_admin 6. Get User infor by admin
+ * @api {post} /trading_order/edit_trading_order 5. Edit trading order
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup VI. Trading Order
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -16,7 +16,12 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} _id
+ * @apiParam {String} id_order Id của order trong bản cp_trading_orders
+ * @apiParam {String} id_expert Id của expert trong bản cp_experts
+ * @apiParam {String} id_admin Id của admin thực hiện đánh trong bản cp_admins
+ * @apiParam {String} type_of_order Loại đánh lệnh (WIN/LOSE)
+ * @apiParam {Number} threshold_percent Ngưỡng % của total_amount
+ * @apiParam {Number} orderedAt Thời gian setup lệnh chạy
  *
  * @apiSuccess {Object} data
  *
@@ -25,15 +30,14 @@ import {Router} from 'express';
  *  {
  *      "data": [
  *            {
- *             "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c417",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": "",
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
+ *              "_id": "5fbff8e935df029b281f06fe",
+ *              "id_expert": "5fbf0a869fd1920a2f5de2f9",
+ *              "type_of_order": "WIN",
+ *              "threshold_percent": 10,
+ *              "status": "ACTIVE",
+ *              "createdAt": "2020-11-26T18:50:17.262Z",
+ *              "ordereddAt": "2020-11-26T18:50:17.262Z",
+ *              "timeSetup": "2020-11-26T18:50:17.262Z",
  *              "__v": 0
  *            }
  *        ]
@@ -51,4 +55,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.get('/get_user_by_id_admin', isAuthenticated, new UserController().getUserByIdAdmin);
+  route.post('/edit_trading_order', isAuthenticated, new TradingOrderController().editTradingOrder);

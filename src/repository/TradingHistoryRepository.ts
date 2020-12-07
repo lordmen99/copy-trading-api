@@ -55,7 +55,76 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
                   fee_to_trading: 1,
                   type_of_money: 1,
                   expert: {
-                    fullname: 1,
+                    username: 1,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {$project: {data: '$data'}},
+      ]);
+
+      const count = await CPTradingHistorySchema.countDocuments(item);
+
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async getListTradingHistoriesFollowExpert(
+    item: any,
+    page: number,
+    size: number,
+    localField: string,
+    foreignField: string,
+    as: string,
+    from: string,
+  ): Promise<any> {
+    try {
+      const result = await CPTradingHistorySchema.aggregate([
+        {
+          $match: {
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+            id_user: {$ne: null},
+          },
+        },
+        {
+          $facet: {
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from,
+                  localField,
+                  foreignField,
+                  as,
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  status: 1,
+                  id_user: 1,
+                  id_expert: 1,
+                  opening_time: 1,
+                  type_of_order: 1,
+                  opening_price: 1,
+                  closing_time: 1,
+                  closing_price: 1,
+                  investment_amount: 1,
+                  order_amount: 1,
+                  profit: 1,
+                  fee_to_expert: 1,
+                  fee_to_trading: 1,
+                  type_of_money: 1,
+                  user: {
+                    username: 1,
                   },
                 },
               },

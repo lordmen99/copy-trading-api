@@ -20,6 +20,10 @@ export default class TradingWithdrawModel {
     return this._tradingWithdrawModel.id_copy;
   }
 
+  get id_order(): Schema.Types.ObjectId {
+    return this._tradingWithdrawModel.id_order;
+  }
+
   get amount(): number {
     return this._tradingWithdrawModel.amount;
   }
@@ -30,6 +34,10 @@ export default class TradingWithdrawModel {
 
   get updatedAt(): Date {
     return this._tradingWithdrawModel.updatedAt;
+  }
+
+  get paidAt(): Date {
+    return this._tradingWithdrawModel.paidAt;
   }
 
   get type_of_withdraw(): string {
