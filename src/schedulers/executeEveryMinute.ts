@@ -2,7 +2,6 @@ import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
-import moment from 'moment';
 
 export default (date: Date) => {
   try {
@@ -16,9 +15,7 @@ export default (date: Date) => {
     // trả tiền lãi cho user sau 24h kể từ khi ngừng copy
     tradingWithdrawBussiness.getListPendingWithdraw(date).then((listWithdraws) => {
       listWithdraws.map((withdraw) => {
-        if (moment(withdraw.paidAt).isSameOrBefore(date)) {
-          tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
-        }
+        tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
       });
     });
 
@@ -26,9 +23,7 @@ export default (date: Date) => {
 
     tradingWithdrawBussiness.getListPendingTradingWithdraw(date).then((listWithdraws) => {
       listWithdraws.map((withdraw) => {
-        if (moment(withdraw.paidAt).isSameOrBefore(date)) {
-          tradingCopyBussiness.transferMoneyToExpert(withdraw);
-        }
+        tradingCopyBussiness.transferMoneyToExpert(withdraw);
       });
     });
   } catch (error) {

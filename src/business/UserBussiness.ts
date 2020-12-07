@@ -7,6 +7,7 @@ import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
 import {validate} from 'class-validator';
+import moment from 'moment';
 import {Error} from 'mongoose';
 
 export default class UserBussiness {
@@ -195,16 +196,19 @@ export default class UserBussiness {
     }
   }
 
-  public async executeUnblockUser(date): Promise<void> {
+  public async executeUnblockUser(date: Date): Promise<void> {
     try {
-      const result = await this._userRepository.findWhere({status: contants.STATUS.BLOCK} as IUserModel);
+      const result = await this._userRepository.findWhere({
+        status_trading_copy: contants.STATUS.BLOCK,
+        blockedAt: {
+          $lt: moment(date),
+        } as any,
+      } as IUserModel);
       if (result) {
         result.map(async (user) => {
-          if (moment(user.blockedAt).isSameOrBefore(date)) {
-            await this._userRepository.update(user._id, {
-              status_trading_copy: contants.STATUS.ACTIVE,
-            } as IUserModel);
-          }
+          await this._userRepository.update(user._id, {
+            status_trading_copy: contants.STATUS.ACTIVE,
+          } as IUserModel);
         });
       }
     } catch (err) {

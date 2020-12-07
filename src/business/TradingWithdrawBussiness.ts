@@ -70,14 +70,11 @@ export default class TradingWithdrawBussiness {
 
   public async getListPendingTradingWithdraw(date: Date): Promise<any> {
     try {
-      const tempDate = new Date(date).setHours(0, 0, 0);
-
       const result = await this._tradingWithdrawRepository.findWhere({
         status: contants.STATUS.PENDING,
         type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
         paidAt: {
-          $gte: tempDate,
-          $lt: moment(date).add(1, 'days'),
+          $lt: moment(date),
         } as any,
       } as ITradingWithdrawModel);
       if (result) {
@@ -91,13 +88,11 @@ export default class TradingWithdrawBussiness {
 
   public async getListPendingWithdraw(date: Date): Promise<any> {
     try {
-      const tempDate = new Date(date).setHours(0, 0, 0);
       const result = await this._tradingWithdrawRepository.findWhere({
         status: contants.STATUS.PENDING,
         type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
         paidAt: {
-          $gte: tempDate,
-          $lt: moment(date).add(1, 'days'),
+          $lt: moment(date),
         } as any,
       } as ITradingWithdrawModel);
       if (result) {
