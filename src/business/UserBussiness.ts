@@ -40,6 +40,7 @@ export default class UserBussiness {
               total_amount: result.total_amount,
               status: result.status,
               status_trading_copy: result.status_trading_copy,
+              avatar: result.avatar,
             };
           } else {
             throw new Error('User is not exist!');
@@ -86,9 +87,14 @@ export default class UserBussiness {
     }
   }
 
-  public async getListUsers(): Promise<IUserModel[]> {
+  public async getListUsers(page: number, size: number): Promise<IUserModel[]> {
     try {
-      const result = this._userRepository.findWhere({status: contants.STATUS.ACTIVE} as IUserModel);
+      const result = await this._userRepository.findWithPagingById(
+        {status: contants.STATUS.ACTIVE} as IUserModel,
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+      );
+
       if (result) {
         return result;
       }

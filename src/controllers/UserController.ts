@@ -34,8 +34,9 @@ export default class UserController {
   }
   public async getListUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const params = req.body;
       const userBusiness = new UserBussiness();
-      const result = await userBusiness.getListUsers();
+      const result = await userBusiness.getListUsers(params.page, params.size);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
