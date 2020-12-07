@@ -15,9 +15,9 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const tradingCopyBusiness = new TradingCopyBussiness();
-      const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert);
+      const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert, params.page, params.size);
 
-      res.status(200).send({data: result});
+      res.status(200).send({data: result.result[0].data, count: result.count});
     } catch (err) {
       next(err);
     }

@@ -67,6 +67,65 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
     }
   }
 
+  public async getListCopiesByExpert(item: any, page: number, size: number, orArray): Promise<any> {
+    try {
+      const result = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            status: {$in: orArray},
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+          },
+        },
+        {
+          $facet: {
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_users',
+                  localField: 'id_user',
+                  foreignField: '_id',
+                  as: 'user',
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  status: 1,
+                  id_user: 1,
+                  id_expert: 1,
+                  investment_amount: 1,
+                  maximum_rate: 1,
+                  has_maximum_rate: 1,
+                  has_stop_loss: 1,
+                  has_taken_profit: 1,
+                  stop_loss: 1,
+                  taken_profit: 1,
+                  createdAt: 1,
+                  updatedAt: 1,
+                  base_amount: 1,
+                  user: {
+                    username: 1,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {$project: {data: '$data'}},
+      ]);
+
+      const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
+      return {
+        result,
+        count,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async getUserCopyByExpert(item: any): Promise<any> {
     try {
       const result = await CPTradingCopySchema.aggregate([

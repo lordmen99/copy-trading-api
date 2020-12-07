@@ -61,26 +61,16 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId): Promise<any> {
+  public async findUserCopyByExpert(id_expert: Schema.Types.ObjectId, page: number, size: number): Promise<any> {
     try {
-      const result = await this._tradingCopyRepository.getUserCopyByExpert({_id: id_expert} as IExpertModel);
-      const listUsers = [];
-      const listId = [];
-      if (result) {
-        if (result.result[0]) {
-          for (const item of result.result[0].data) {
-            if (item.users) {
-              for (const user of item.users) {
-                if (listId.indexOf(user._id.toString()) === -1) {
-                  listId.push(user._id.toString());
-                  listUsers.push(user);
-                }
-              }
-            }
-          }
-        }
-      }
-      return listUsers;
+      const result = await this._tradingCopyRepository.getListCopiesByExpert(
+        {id_expert} as ITradingCopyModel,
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+        [contants.STATUS.ACTIVE, contants.STATUS.PAUSE],
+      );
+
+      return result;
     } catch (err) {
       throw err;
     }

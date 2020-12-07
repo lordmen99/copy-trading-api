@@ -17,7 +17,8 @@ import {Router} from 'express';
  *      "Accept": "application/json"
  *
  * @apiParam {String} id_expert Id của expert trong bản cp_experts
- *
+ * @apiParam {String} page
+ * @apiParam {String} size
  *
  * @apiSuccess {Object} data
  *
