@@ -5,7 +5,6 @@
   "repository": {
     "url": "https://manhninh91@bitbucket.org/smap_projects/smap_datacollection.git"
   },
-  "license": "",
   "scripts": {
     "apidoc": "apidoc -i src/ -o dist/wwwroot/apidoc/ && ncp ./style.css ./dist/wwwroot/apidoc/css/style.css",
     "build": "rimraf ./dist && tsc --build tsconfig.json && npm run apidoc",

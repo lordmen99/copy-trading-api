@@ -23,11 +23,9 @@
         "NODE_ENV": "development",
         "PORT": "5000",
         "MONGODB_URI": "mongodb+srv://ninhpm:ninhpm123@cluster0.ofmu5.mongodb.net/bo_trading",
-        "SERVER_TRADING_URI": "http://localhost:6789",
+        "SERVER_TRADING_URI": "http://13.231.217.254:6789",
         "SOCKET_TRADING_URI": "/kline",
-        "SCHEDULE_EXECUTE_TRANSFER_FEE_TO_EXPERT":"*/30 * * * * *",
-        "SCHEDULE_EXECUTE_UNBLOCK_USER":"*/30 * * * * *",
-        "SCHEDULE_EXECUTE_WITHDRAW_AFTER_STOP_COPY":"*/30 * * * * *"
+        "SCHEDULE_EXECUTE_EVERY_MINUTE":"0 */5 * * * *"
       }
     }
   ]
