@@ -313,7 +313,11 @@ export default class TradingOrderBussiness {
                   await tradingCopyBussiness.pauseTradingCopy(data);
                 }
 
-                if (copy.investment_amount > copy.taken_profit && copy.has_taken_profit === true) {
+                if (
+                  copy.investment_amount > copy.base_amount &&
+                  copy.investment_amount - copy.base_amount > copy.taken_profit * copy.base_amount &&
+                  copy.has_taken_profit === true
+                ) {
                   const data = new GetTradingCopy();
                   data.id_copy = copy._id.toString();
                   await tradingCopyBussiness.pauseTradingCopy(data);
@@ -604,7 +608,11 @@ export default class TradingOrderBussiness {
                 await tradingCopyBussiness.pauseTradingCopy(data);
               }
 
-              if (copy.investment_amount > copy.taken_profit && copy.has_taken_profit === true) {
+              if (
+                copy.investment_amount > copy.base_amount &&
+                copy.investment_amount - copy.base_amount > copy.taken_profit * copy.base_amount &&
+                copy.has_taken_profit === true
+              ) {
                 const data = new GetTradingCopy();
                 data.id_copy = copy._id.toString();
                 await tradingCopyBussiness.pauseTradingCopy(data);
