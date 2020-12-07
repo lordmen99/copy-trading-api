@@ -200,13 +200,7 @@ export default class UserBussiness {
       const result = await this._userRepository.findWhere({status: contants.STATUS.BLOCK} as IUserModel);
       if (result) {
         result.map(async (user) => {
-          if (
-            user.blockedAt.getDate() === date.getDate() &&
-            user.blockedAt.getMonth() === date.getMonth() &&
-            user.blockedAt.getFullYear() === date.getFullYear() &&
-            user.blockedAt.getHours() === date.getHours() &&
-            user.blockedAt.getMinutes() === date.getMinutes()
-          ) {
+          if (moment(user.blockedAt).isSameOrBefore(date)) {
             await this._userRepository.update(user._id, {
               status_trading_copy: contants.STATUS.ACTIVE,
             } as IUserModel);

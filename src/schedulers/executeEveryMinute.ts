@@ -2,6 +2,7 @@ import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
+import moment from 'moment';
 
 export default (date: Date) => {
   try {
@@ -13,15 +14,9 @@ export default (date: Date) => {
     userBussiness.executeUnblockUser(date);
 
     // trả tiền lãi cho user sau 24h kể từ khi ngừng copy
-    tradingWithdrawBussiness.getListPendingWithdraw().then((listWithdraws) => {
+    tradingWithdrawBussiness.getListPendingWithdraw(date).then((listWithdraws) => {
       listWithdraws.map((withdraw) => {
-        if (
-          withdraw.paidAt.getDate() === date.getDate() &&
-          withdraw.paidAt.getMonth() === date.getMonth() &&
-          withdraw.paidAt.getFullYear() === date.getFullYear() &&
-          withdraw.paidAt.getHours() === date.getHours() &&
-          withdraw.paidAt.getMinutes() === date.getMinutes()
-        ) {
+        if (moment(withdraw.paidAt).isSameOrBefore(date)) {
           tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
         }
       });
@@ -29,15 +24,9 @@ export default (date: Date) => {
 
     // trả 5% cho expert vào 23h59 cùng ngày
 
-    tradingWithdrawBussiness.getListPendingTradingWithdraw().then((listWithdraws) => {
+    tradingWithdrawBussiness.getListPendingTradingWithdraw(date).then((listWithdraws) => {
       listWithdraws.map((withdraw) => {
-        if (
-          withdraw.paidAt.getDate() === date.getDate() &&
-          withdraw.paidAt.getMonth() === date.getMonth() &&
-          withdraw.paidAt.getFullYear() === date.getFullYear() &&
-          withdraw.paidAt.getHours() === date.getHours() &&
-          withdraw.paidAt.getMinutes() === date.getMinutes()
-        ) {
+        if (moment(withdraw.paidAt).isSameOrBefore(date)) {
           tradingCopyBussiness.transferMoneyToExpert(withdraw);
         }
       });
