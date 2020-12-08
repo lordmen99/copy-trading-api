@@ -1,4 +1,6 @@
+import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
+import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
@@ -145,7 +147,20 @@ export default class UserBussiness {
                 const resultCopy = await this._userRepository.update(result._id, {
                   total_amount: parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
                 } as IUserModel);
-                return resultWallet && resultCopy ? true : false;
+                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                  id_user: result._id,
+                  id_expert: null,
+                  id_copy: null,
+                  id_order: null,
+                  amount: parseFloat(params.amount.toString()),
+                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
+                  status: contants.STATUS.FINISH,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                  paidAt: new Date(),
+                } as ITradingWithdrawModel);
+                return resultWallet && resultCopy && resultWithdraw ? true : false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
@@ -157,7 +172,20 @@ export default class UserBussiness {
                 const resultCopy = await this._userRepository.update(result._id, {
                   total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
                 } as IUserModel);
-                return resultWallet && resultCopy ? true : false;
+                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                  id_user: result._id,
+                  id_expert: null,
+                  id_copy: null,
+                  id_order: null,
+                  amount: parseFloat(params.amount.toString()),
+                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
+                  status: contants.STATUS.FINISH,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                  paidAt: new Date(),
+                } as ITradingWithdrawModel);
+                return resultWallet && resultCopy && resultWithdraw ? true : false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }

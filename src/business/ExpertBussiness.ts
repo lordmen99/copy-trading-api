@@ -1,8 +1,10 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
+import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
+import TradingGainRepository from '@src/repository/TradingGainRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
@@ -13,11 +15,13 @@ export default class ExpertBussiness {
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
+  private _tradingGainRepository: TradingGainRepository;
 
   constructor() {
     this._expertRepository = new ExpertRepository();
     this._userRepository = new UserRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
+    this._tradingGainRepository = new TradingGainRepository();
   }
 
   public async getListExperts(): Promise<IExpertModel[]> {
@@ -84,6 +88,14 @@ export default class ExpertBussiness {
           data.status = contants.STATUS.ACTIVE;
           const expertEntity = data as IExpertModel;
           const resultExpert = await this._expertRepository.create(expertEntity);
+          await this._tradingGainRepository.create({
+            id_expert: resultExpert._id,
+            gain_last_month: Math.floor(Math.random() * (10 - 1)) + 1,
+            gain_last_year: Math.floor(Math.random() * (100 - 1)) + 1,
+            total_gain: Math.floor(Math.random() * (1000 - 100)) + 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as ITradingGainModel);
 
           const tradingCopy = {
             id_user: null,
