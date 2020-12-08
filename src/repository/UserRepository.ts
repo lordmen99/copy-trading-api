@@ -22,10 +22,13 @@ export default class UserRepository extends RepositoryBase<IUserModel> {
 
   public async findRandomUser(): Promise<IUserModel[]> {
     try {
-      const result = await CPUserSchema.find({
-        status: contants.STATUS.ACTIVE,
-        is_virtual: true,
-      })
+      const result = await CPUserSchema.find(
+        {
+          status: contants.STATUS.ACTIVE,
+          is_virtual: true,
+        },
+        {_id: 1, total_amount: 1},
+      )
         .limit(Math.floor(Math.random() * (30 - 10)) + 10)
         .skip(Math.floor(Math.random() * (30 - 10)) + 10);
       return result;

@@ -193,4 +193,13 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async insertManyTradingCopy(arrTradingCopy: ITradingCopyModel[]) {
+    try {
+      const result = await CPTradingCopySchema.insertMany(arrTradingCopy);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
