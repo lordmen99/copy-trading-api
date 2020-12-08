@@ -84,10 +84,8 @@ export default class ExpertBussiness {
           // render data table profit of expert
           dataRandomTradingGain.push({
             id_expert: item.id,
-            gain_last_month: Math.floor(Math.random() * (10 - 1)) + 1,
-            total_gain: Math.floor(Math.random() * (1000 - 100)) + 1,
+            total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
             createdAt: new Date(),
-            updatedAt: new Date(),
           } as ITradingGainModel);
           // render data table Trading copy of expert
           const resultUser = await this._userRepository.findRandomUser();
