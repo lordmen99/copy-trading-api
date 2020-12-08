@@ -15,9 +15,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "outputCapture": "std",
       "env": {
         "NODE_ENV": "development",
@@ -25,9 +23,7 @@
         "MONGODB_URI": "mongodb+srv://ninhpm:ninhpm123@cluster0.ofmu5.mongodb.net/bo_trading",
         "SERVER_TRADING_URI": "http://localhost:6789",
         "SOCKET_TRADING_URI": "/kline",
-        "SCHEDULE_EXECUTE_TRANSFER_FEE_TO_EXPERT":"*/30 * * * * *",
-        "SCHEDULE_EXECUTE_UNBLOCK_USER":"*/30 * * * * *",
-        "SCHEDULE_EXECUTE_WITHDRAW_AFTER_STOP_COPY":"*/30 * * * * *"
+        "SCHEDULE_EXECUTE_EVERY_MINUTE": "0 */1 * * * *"
       }
     }
   ]

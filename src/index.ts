@@ -28,6 +28,7 @@ IOHandlers(io);
 /** khởi động server */
 server.listen(config.port);
 server.on('listening', () => {
+  if (process.env.NODE_ENV !== 'production') mongoose.set('debug', true);
   mongoose.connect(config.MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
   mongoose.connection.once('open', () => {
     console.info('\n🚀Connected to Mongo via Mongoose');
@@ -41,7 +42,15 @@ server.on('listening', () => {
       result.map((item) => {
         UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
           if (!rs) {
-            UserSchema.create({id_user_trading: item.id, is_virtual: false, total_amount: item.amount});
+            UserSchema.create({
+              id_user_trading: item.id,
+              username: item.username,
+              email: item.email,
+              fullname: item.full_name,
+              phone: item.phone,
+              is_virtual: false,
+              total_amount: item.amount,
+            });
           }
         });
       });
