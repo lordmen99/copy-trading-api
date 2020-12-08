@@ -1,7 +1,6 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingGainRepository from '@src/repository/TradingGainRepository';
@@ -62,10 +61,7 @@ export default class ExpertBussiness {
   public async addUserAndFollowExpert(number: number): Promise<any> {
     try {
       const faker = require('faker');
-      const resultUser = await this._userRepository.findWhere({
-        status: contants.STATUS.ACTIVE,
-        is_virtual: true,
-      } as IUserModel);
+      const resultUser = await this._userRepository.findRandomUser();
       if (resultUser.length === 0) {
         throw new Error('System does not have any fake users');
       } else {
@@ -245,6 +241,19 @@ export default class ExpertBussiness {
   public async getListExpertsPaging(page, size): Promise<any> {
     try {
       const result = await this._expertRepository.executeListExpertPage(page, size);
+      if (result) {
+        return result;
+      } else {
+        return [];
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListExpertsPagingForUser(page, size): Promise<any> {
+    try {
+      const result = await this._expertRepository.executeListExpertPageForUser(page, size);
       if (result) {
         return result;
       } else {

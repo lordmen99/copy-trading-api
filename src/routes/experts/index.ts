@@ -7,6 +7,7 @@ import getExpertById from './GetExpertById';
 import getExpertByName from './GetExpertByName';
 import GetExpertDetailById from './GetExpertDetailById';
 import getListExperts from './GetListExperts';
+import getListExpertsForUser from './GetListExpertsForUser';
 
 export default class ExpertRouter {
   public router: Router = Router();
@@ -20,5 +21,6 @@ export default class ExpertRouter {
     getExpertById(this.router);
     getExpertByName(this.router);
     GetExpertDetailById(this.router);
+    getListExpertsForUser(this.router);
   }
 }

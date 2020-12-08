@@ -216,6 +216,116 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   as: 'trading_gains',
                 },
               },
+              // {
+              //   $project: {
+              //     _id: 1,
+              //     fullname: 1,
+              //     username: 1,
+              //     avatar: 1,
+              //     trading_copies: 1,
+              //     trading_histories: 1,
+              //     trading_gains: 1,
+              //   },
+              // },
+            ],
+          },
+        },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await CPExpertSchema.countDocuments({});
+
+      const list = [];
+      if (result) {
+        const info = {
+          gain_rate_last_month: 0,
+          gain_rate_months: 0,
+          copier: 0,
+          removed_copier: 0,
+        };
+        for (const expert of result[0].data) {
+          if (expert.trading_copies) {
+            let copier = 0;
+            const listCheckUsers = [];
+            for (const user of expert.trading_copies) {
+              if (user.status === contants.STATUS.ACTIVE && listCheckUsers.indexOf(user.id_user.toString()) === -1) {
+                copier = copier + 1;
+                listCheckUsers.push(user.id_user.toString());
+              }
+            }
+            info.copier = copier;
+          }
+          if (expert.trading_copies) {
+            const today = new Date();
+            let removed_copier = 0;
+            const listCheckUsers = [];
+            for (const user of expert.trading_copies) {
+              if (
+                today.getMonth() === new Date(user.createdAt).getMonth() &&
+                user.status === contants.STATUS.STOP &&
+                listCheckUsers.indexOf(user.id_user.toString()) === -1
+              )
+                removed_copier = removed_copier + 1;
+              listCheckUsers.push(user.id_user.toString());
+            }
+            info.removed_copier = removed_copier;
+          }
+          if (expert.trading_gains.length > 0) {
+            info.gain_rate_last_month = expert.trading_gains[0].gain_last_month;
+            info.gain_rate_months = expert.trading_gains[0].gain_last_year;
+          }
+          const temp = {
+            expert,
+            info: {...info},
+          };
+          list.push({...temp});
+        }
+      }
+
+      const res = {
+        result: list,
+        count,
+      };
+      return res;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  public async executeListExpertPageForUser(page: number, size: number): Promise<any> {
+    try {
+      const result = await CPExpertSchema.aggregate([
+        {
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_histories',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_copies',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_copies',
+                },
+              },
+              {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_gains',
+                },
+              },
               {
                 $project: {
                   _id: 1,
