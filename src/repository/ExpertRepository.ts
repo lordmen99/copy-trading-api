@@ -402,4 +402,13 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
       return [];
     }
   }
+
+  public async insertManyExxpert(arrExpert: IExpertModel[]) {
+    try {
+      const result = await CPExpertSchema.insertMany(arrExpert);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
