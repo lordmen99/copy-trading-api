@@ -106,7 +106,7 @@ export default class ExpertBussiness {
           };
 
           // random ra một số user copy expert
-          for (let i = 0; i < Math.floor(Math.random() * (30 - 10)) + 10; i++) {
+          for (let i = 0; i < Math.floor(Math.random() * (resultUser.length - 10)) + 10; i++) {
             const random = Math.floor(Math.random() * resultUser.length);
             const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
             const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
