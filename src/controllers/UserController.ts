@@ -2,6 +2,7 @@ import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
 import {AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser} from '@src/validator/users/users.validator';
+import {AvailableWalletUser} from '@src/validator/users/users_money.validator';
 import {NextFunction, Request, Response} from 'express';
 export default class UserController {
   public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -88,6 +89,21 @@ export default class UserController {
       data.id_user = (req.user as IUserModel).id;
       const userBusiness = new UserBussiness();
       const result = await userBusiness.viewWalletHistory(data, params.page, params.size);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getAvailableMoney(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new AvailableWalletUser();
+      data.id_user = (req.user as IUserModel).id;
+      data.source = params.source;
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.getAvailableMoney(data);
 
       res.status(200).send({data: result});
     } catch (err) {

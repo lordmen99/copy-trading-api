@@ -7,7 +7,8 @@ import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
-import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser} from '@src/validator/users/users.validator';
+import {AvailableWalletUser} from '@src/validator/users/users_money.validator';
 import {validate} from 'class-validator';
 import moment from 'moment';
 import {Error} from 'mongoose';
@@ -195,6 +196,48 @@ export default class UserBussiness {
           }
         }
         return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async viewWalletHistory(params: WalletUser, page, size): Promise<boolean> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        if (result) {
+          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+
+          const resultWithdraw = await tradingWithdrawBussiness.getWalletHistory(result._id, page, size);
+          return resultWithdraw;
+        } else {
+          throw new Error('Money in wallet is not enough');
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getAvailableMoney(params: AvailableWalletUser): Promise<boolean> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        if (result) {
+          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+
+          const resultWithdraw = await tradingWithdrawBussiness.getAvailableMoney(result._id, params.source);
+          return resultWithdraw;
+        } else {
+          throw new Error('Money in wallet is not enough');
+        }
       }
     } catch (err) {
       throw err;

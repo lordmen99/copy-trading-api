@@ -2,6 +2,7 @@ import {Router} from 'express';
 import addUser from './AddUser';
 import autoGenerateUser from './AutoGenerateUser';
 import editUser from './EditUser';
+import GetAvailableMoney from './GetAvailableMoney';
 import getListUsers from './GetListUsers';
 import getById from './GetUserById';
 import getUserByIdAdmin from './GetUserByIdAdmin';
@@ -20,5 +21,6 @@ export default class UserRouter {
     getUserByIdAdmin(this.router);
     transferMoney(this.router);
     ViewWalletHistory(this.router);
+    GetAvailableMoney(this.router);
   }
 }
