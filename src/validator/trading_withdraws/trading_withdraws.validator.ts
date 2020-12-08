@@ -4,9 +4,9 @@ import {Schema} from 'mongoose';
 export class CreateTradingWithdraw {
   id_user: Schema.Types.ObjectId;
 
-  id_expert: Schema.Types.ObjectId;
+  id_expert?: Schema.Types.ObjectId;
 
-  id_copy: Schema.Types.ObjectId;
+  id_copy?: Schema.Types.ObjectId;
 
   @IsNotEmpty({message: 'Amount is required'})
   amount: number;

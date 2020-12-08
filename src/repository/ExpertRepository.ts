@@ -208,6 +208,25 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   as: 'trading_copies',
                 },
               },
+              {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'trading_gains',
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  fullname: 1,
+                  username: 1,
+                  avatar: 1,
+                  trading_copies: 1,
+                  trading_histories: 1,
+                  trading_gains: 1,
+                },
+              },
             ],
           },
         },
@@ -252,38 +271,9 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             }
             info.removed_copier = removed_copier;
           }
-
-          if (expert.trading_histories) {
-            let gain = 0;
-            for (const history of expert.trading_histories) {
-              if (
-                new Date().getMonth() - 1 === new Date(history.closing_time).getMonth() &&
-                new Date().getFullYear() === new Date(history.closing_time).getFullYear()
-              ) {
-                if (history.profit > 0) {
-                  gain = gain + history.profit - history.fee_to_trading;
-                } else {
-                  gain = gain - history.order_amount;
-                }
-              }
-            }
-            const gain_rate_last_month = gain / expert.total_amount;
-            info.gain_rate_last_month = gain_rate_last_month;
-          }
-
-          if (expert.trading_histories) {
-            let gain = 0;
-            for (const history of expert.trading_histories) {
-              if (new Date().getFullYear() === new Date(history.closing_time).getFullYear()) {
-                if (history.profit > 0) {
-                  gain = gain + history.profit - history.fee_to_trading;
-                } else {
-                  gain = gain - history.order_amount;
-                }
-              }
-            }
-            const gain_rate_months = gain / expert.total_amount;
-            info.gain_rate_months = gain_rate_months;
+          if (expert.trading_gains.length > 0) {
+            info.gain_rate_last_month = expert.trading_gains[0].gain_last_month;
+            info.gain_rate_months = expert.trading_gains[0].gain_last_year;
           }
           const temp = {
             expert,
@@ -299,7 +289,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
       };
       return res;
     } catch (err) {
-      // throw err.errors ? err.errors.shift() : err;
       return [];
     }
   }

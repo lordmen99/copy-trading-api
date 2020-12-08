@@ -88,3 +88,8 @@ export class TransferMoneyUser {
   @Min(500)
   amount?: number;
 }
+
+export class WalletUser {
+  @IsNotEmpty({message: 'Id is required'})
+  id_user?: Schema.Types.ObjectId;
+}
