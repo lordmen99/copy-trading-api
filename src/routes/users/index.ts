@@ -2,10 +2,12 @@ import {Router} from 'express';
 import addUser from './AddUser';
 import autoGenerateUser from './AutoGenerateUser';
 import editUser from './EditUser';
+import GetAvailableMoney from './GetAvailableMoney';
 import getListUsers from './GetListUsers';
 import getById from './GetUserById';
 import getUserByIdAdmin from './GetUserByIdAdmin';
 import transferMoney from './TransferMoney';
+import ViewWalletHistory from './ViewWalletHistory';
 
 export default class UserRouter {
   public router: Router = Router();
@@ -18,5 +20,7 @@ export default class UserRouter {
     autoGenerateUser(this.router);
     getUserByIdAdmin(this.router);
     transferMoney(this.router);
+    ViewWalletHistory(this.router);
+    GetAvailableMoney(this.router);
   }
 }

@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /users/get_list_users 3. Get List Users
+ * @api {post} /users/view_wallet_history 8. View wallet history
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -21,32 +21,7 @@ import {Router} from 'express';
  * @apiSuccessExample {json} Success
  *  HTTP/1.1 200 OK
  *  {
- *      "data": [
- *            {
- *              "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c417",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": '',
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
- *              "__v": 0
- *            },
- *            {
- *              "is_virtual": true,
- *              "_id": "5fbe0f803252b8487841c4f7",
- *              "fullname": "DanhNguyen",
- *              "username": "coldblooda9",
- *              "email": "coldblooda9@gmail.com",
- *              "phone": "313113131",
- *              "avatar": '',
- *              "total_amount": 10000,
- *              "status": 'ACTIVE',
- *              "__v": 0
- *            }
- *        ]
+ *      "data": true
  *  }
  *
  * @apiError (404 Not Found) NotFound API not found
@@ -60,4 +35,5 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.post('/get_list_users', isAuthenticated, new UserController().getListUsers);
+export default (route: Router) =>
+  route.post('/view_wallet_history', isAuthenticated, new UserController().viewWalletHistory);

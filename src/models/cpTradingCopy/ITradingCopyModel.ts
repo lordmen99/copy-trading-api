@@ -12,6 +12,6 @@ export default interface ITradingCopyModel extends mongoose.Document {
   taken_profit?: number;
   has_taken_profit?: boolean;
   status?: string; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
-  createdAt?: Date; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
-  updatedAt?: Date; // ACTIVE là trạng thái đang follow, DELETE là trạng thái unfollow
+  createdAt?: Date;
+  updatedAt?: Date;
 }
