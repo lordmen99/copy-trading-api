@@ -8,7 +8,7 @@ export default class TradingWithdrawRepository extends RepositoryBase<ITradingWi
   constructor() {
     super(CPTradingWithdrawSchema);
   }
-  public async getUserWalletHistory(id_user, page, size): Promise<ITradingWithdrawModel[]> {
+  public async getUserWalletHistory(id_user, page, size): Promise<any> {
     try {
       const result = await CPTradingWithdrawSchema.aggregate([
         {
@@ -21,12 +21,15 @@ export default class TradingWithdrawRepository extends RepositoryBase<ITradingWi
         },
         {
           $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
             data: [
               {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
               {$limit: parseInt(size.toString())},
             ],
           },
         },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
       ]);
 
       if (result) {
