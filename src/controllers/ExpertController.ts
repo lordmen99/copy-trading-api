@@ -16,6 +16,17 @@ export default class ExpertController {
     }
   }
 
+  public async getListExpertsForUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.getListExpertsPagingForUser(params.page, params.size);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getUserCopyByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;

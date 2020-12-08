@@ -1,7 +1,6 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingGainRepository from '@src/repository/TradingGainRepository';
@@ -62,10 +61,7 @@ export default class ExpertBussiness {
   public async addUserAndFollowExpert(number: number): Promise<any> {
     try {
       const faker = require('faker');
-      const resultUser = await this._userRepository.findWhere({
-        status: contants.STATUS.ACTIVE,
-        is_virtual: true,
-      } as IUserModel);
+      const resultUser = await this._userRepository.findRandomUser();
       if (resultUser.length === 0) {
         throw new Error('System does not have any fake users');
       } else {
@@ -110,7 +106,7 @@ export default class ExpertBussiness {
           };
 
           // random ra một số user copy expert
-          for (let i = 0; i < Math.floor(Math.random() * (30 - 10)) + 10; i++) {
+          for (let i = 0; i < Math.floor(Math.random() * (resultUser.length - 10)) + 10; i++) {
             const random = Math.floor(Math.random() * resultUser.length);
             const randomInvestment = Math.floor(Math.random() * (resultUser[random].total_amount - 500) + 500);
             const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
@@ -245,6 +241,19 @@ export default class ExpertBussiness {
   public async getListExpertsPaging(page, size): Promise<any> {
     try {
       const result = await this._expertRepository.executeListExpertPage(page, size);
+      if (result) {
+        return result;
+      } else {
+        return [];
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListExpertsPagingForUser(page, size): Promise<any> {
+    try {
+      const result = await this._expertRepository.executeListExpertPageForUser(page, size);
       if (result) {
         return result;
       } else {
