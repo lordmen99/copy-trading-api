@@ -12,10 +12,6 @@ class CPTradingGainSchema {
         type: Number,
         required: true,
       },
-      gain_last_year: {
-        type: Number,
-        required: true,
-      },
       total_gain: {
         type: Number,
         required: true,

@@ -15,10 +15,6 @@ export default class TradingGainModel {
     return this._tradingGainModel.gain_last_month;
   }
 
-  get gain_last_year(): number {
-    return this._tradingGainModel.gain_last_year;
-  }
-
   get total_gain(): number {
     return this._tradingGainModel.total_gain;
   }

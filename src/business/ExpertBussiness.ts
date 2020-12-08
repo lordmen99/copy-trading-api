@@ -91,7 +91,6 @@ export default class ExpertBussiness {
           await this._tradingGainRepository.create({
             id_expert: resultExpert._id,
             gain_last_month: Math.floor(Math.random() * (10 - 1)) + 1,
-            gain_last_year: Math.floor(Math.random() * (100 - 1)) + 1,
             total_gain: Math.floor(Math.random() * (1000 - 100)) + 1,
             createdAt: new Date(),
             updatedAt: new Date(),

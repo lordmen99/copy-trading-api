@@ -68,6 +68,18 @@ export default class TradingWithdrawBussiness {
     }
   }
 
+  public async getWalletHistory(id_user, page, size): Promise<any> {
+    try {
+      const result = await this._tradingWithdrawRepository.getUserWalletHistory(id_user, page, size);
+      if (result) {
+        return result;
+      }
+      return [];
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async getListPendingTradingWithdraw(date: Date): Promise<any> {
     try {
       const result = await this._tradingWithdrawRepository.findWhere({

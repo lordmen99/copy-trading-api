@@ -1,9 +1,8 @@
 import UserBussiness from '@src/business/UserBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import {contants} from '@src/utils';
-import {AddUser, EditUser, GetUser, TransferMoneyUser} from '@src/validator/users/users.validator';
+import {AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser} from '@src/validator/users/users.validator';
 import {NextFunction, Request, Response} from 'express';
-
 export default class UserController {
   public async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -75,6 +74,20 @@ export default class UserController {
       data.amount = parseFloat(params.amount.toString());
       const userBusiness = new UserBussiness();
       const result = await userBusiness.transferMoney(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async viewWalletHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new WalletUser();
+      data.id_user = (req.user as IUserModel).id;
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.viewWalletHistory(data, params.page, params.size);
 
       res.status(200).send({data: result});
     } catch (err) {
