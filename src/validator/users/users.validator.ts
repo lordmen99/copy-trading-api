@@ -85,7 +85,7 @@ export class TransferMoneyUser {
   source?: string;
 
   @IsNotEmpty({message: 'Amount is required'})
-  @Min(500)
+  @Min(10)
   amount?: number;
 }
 

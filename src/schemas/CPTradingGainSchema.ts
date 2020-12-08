@@ -8,19 +8,11 @@ class CPTradingGainSchema {
         type: Schema.Types.ObjectId,
         required: true,
       },
-      gain_last_month: {
-        type: Number,
-        required: true,
-      },
       total_gain: {
         type: Number,
         required: true,
       },
       createdAt: {
-        type: Date,
-        required: true,
-      },
-      updatedAt: {
         type: Date,
         required: true,
       },
