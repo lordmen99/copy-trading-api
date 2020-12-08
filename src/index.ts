@@ -41,7 +41,15 @@ server.on('listening', () => {
       result.map((item) => {
         UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
           if (!rs) {
-            UserSchema.create({id_user_trading: item.id, is_virtual: false, total_amount: item.amount});
+            UserSchema.create({
+              id_user_trading: item.id,
+              username: item.username,
+              email: item.email,
+              fullname: item.full_name,
+              phone: item.phone,
+              is_virtual: false,
+              total_amount: item.amount,
+            });
           }
         });
       });
