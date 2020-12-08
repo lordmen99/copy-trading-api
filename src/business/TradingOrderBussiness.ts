@@ -1,6 +1,7 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
+import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import {contants} from '@src/utils';
 import {GetExpert} from '@src/validator/experts/experts.validator';
@@ -16,9 +17,11 @@ import TradingHistoryBussiness from './TradingHistoryBussiness';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
+  private _tradingHistoryRepository: TradingHistoryRepository;
 
   constructor() {
     this._tradingOrderRepository = new TradingOrderRepository();
+    this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -180,6 +183,7 @@ export default class TradingOrderBussiness {
               }
 
               if (tradingCopy) {
+                const dataTradingHistory: ITradingHistoryModel[] = [];
                 tradingCopy.map(async (copy) => {
                   // tạo history
                   const data = new CreateTradingHistory();
@@ -336,9 +340,9 @@ export default class TradingOrderBussiness {
                     data.id_copy = copy._id.toString();
                     await tradingCopyBussiness.pauseTradingCopy(data);
                   }
-                  const tradingHistoryBusiness = new TradingHistoryBussiness();
-                  await tradingHistoryBusiness.createTradingHistory(tradingHistoryEntity);
+                  dataTradingHistory.push(tradingHistoryEntity);
                 });
+                await this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
               }
             }
           }

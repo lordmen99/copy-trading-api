@@ -144,4 +144,13 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async insertManyTradingHistory(arrTradingHistory: ITradingHistoryModel[]) {
+    try {
+      const result = await CPTradingHistorySchema.insertMany(arrTradingHistory);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
