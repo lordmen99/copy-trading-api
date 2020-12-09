@@ -16,7 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} fullname
+ * @apiParam {String} username
  *
  * @apiSuccess {Object} data
  *
