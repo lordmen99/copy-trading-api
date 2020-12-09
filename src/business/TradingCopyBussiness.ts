@@ -4,7 +4,6 @@ import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryMo
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
-import TradingCopierRepository from '@src/repository/TradingCopierRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
@@ -27,7 +26,6 @@ export default class TradingCopyBussiness {
   private _expertRepository: ExpertRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
-  private _tradingCopierRepository: TradingCopierRepository;
 
   constructor() {
     this._tradingCopyRepository = new TradingCopyRepository();
@@ -35,7 +33,6 @@ export default class TradingCopyBussiness {
     this._expertRepository = new ExpertRepository();
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
     this._tradingHistoryRepository = new TradingHistoryRepository();
-    this._tradingCopierRepository = new TradingCopierRepository();
   }
 
   public async findById(id: string): Promise<ITradingCopyModel> {
@@ -348,19 +345,13 @@ export default class TradingCopyBussiness {
   ): Promise<void> {
     try {
       if (type === 'user') {
-        const copy = await this._tradingCopyRepository.findOne({
-          _id: id_copy,
-        } as ITradingCopyModel);
-        const result = await this._tradingCopyRepository.update(copy._id, {
+        const copy = await this._tradingCopyRepository.findOne({_id: id_copy} as ITradingCopyModel);
+        await this._tradingCopyRepository.update(copy._id, {
           investment_amount: copy.investment_amount + money,
         } as ITradingCopyModel);
       } else {
-        const expert = await this._expertRepository.findOne({
-          _id: id,
-        } as IExpertModel);
-        await this._expertRepository.update(id, {
-          total_amount: expert.total_amount + money,
-        } as IExpertModel);
+        const expert = await this._expertRepository.findOne({_id: id} as IExpertModel);
+        await this._expertRepository.update(id, {total_amount: expert.total_amount + money} as IExpertModel);
       }
     } catch (err) {
       throw err;
@@ -448,67 +439,4 @@ export default class TradingCopyBussiness {
       throw err;
     }
   }
-
-  // public async calculateCopierForExpert(date: Date): Promise<void> {
-  //   try {
-  //     const experts = await this._expertRepository.findWhere({
-  //       status: contants.STATUS.ACTIVE,
-  //     } as IExpertModel);
-  //     for (const expert of experts) {
-  //       const trading_gain = await this._tradingCopierRepository.findOneSort({
-  //         id_expert: expert._id,
-  //       } as ITradingGainModel);
-  //       if (trading_gain) {
-  //         const result = await this._tradingHistoryRepository.findWhere({
-  //           id_expert: expert._id,
-  //           closing_time: {
-  //             $gte: moment(new Date(trading_gain.createdAt)),
-  //             $lt: moment(date),
-  //           } as any,
-  //         } as ITradingHistoryModel);
-  //         if (result) {
-  //           let profit = 0;
-  //           for (const history of result) {
-  //             if (history.id_user) {
-  //               profit = profit + history.fee_to_expert;
-  //             } else {
-  //               profit = profit + history.profit - history.fee_to_trading;
-  //             }
-  //           }
-  //           await this._tradingGainRepository.create({
-  //             id_expert: expert._id,
-  //             total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
-  //             createdAt: new Date(date),
-  //             updatedAt: new Date(date),
-  //           } as ITradingGainModel);
-  //         }
-  //       } else {
-  //         const result = await this._tradingHistoryRepository.findWhere({
-  //           id_expert: expert._id,
-  //           closing_time: {
-  //             $lt: moment(date),
-  //           } as any,
-  //         } as ITradingHistoryModel);
-  //         if (result) {
-  //           let profit = 0;
-  //           for (const history of result) {
-  //             if (history.id_user) {
-  //               profit = profit + history.fee_to_expert;
-  //             } else {
-  //               profit = profit + history.profit - history.fee_to_trading;
-  //             }
-  //           }
-  //           await this._tradingGainRepository.create({
-  //             id_expert: expert._id,
-  //             total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
-  //             createdAt: new Date(date),
-  //             updatedAt: new Date(date),
-  //           } as ITradingGainModel);
-  //         }
-  //       }
-  //     }
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
 }

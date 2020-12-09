@@ -1,6 +1,7 @@
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import CPTradingCopySchema from '@src/schemas/CPTradingCopySchema';
-import mongoose from 'mongoose';
+import {contants} from '@src/utils';
+import mongoose, {Schema} from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class TradingCopyRepository extends RepositoryBase<ITradingCopyModel> {
@@ -197,6 +198,20 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
   public async insertManyTradingCopy(arrTradingCopy: ITradingCopyModel[]) {
     try {
       const result = await CPTradingCopySchema.insertMany(arrTradingCopy);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async updateManyPauseCopy(arrIds: Schema.Types.ObjectId[]) {
+    try {
+      const result = await CPTradingCopySchema.updateMany(
+        {_id: {$in: arrIds}},
+        {
+          status: contants.STATUS.PAUSE,
+        },
+      );
       return result;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

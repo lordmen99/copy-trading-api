@@ -40,4 +40,13 @@ export default class TradingWithdrawRepository extends RepositoryBase<ITradingWi
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async insertManyTradingWithdraw(arrTradingWithdraw: ITradingWithdrawModel[]) {
+    try {
+      const result = await CPTradingWithdrawSchema.insertMany(arrTradingWithdraw);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
