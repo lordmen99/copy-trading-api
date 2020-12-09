@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {get} /trading_order/get_list_trading_orders 2. Get list trading orders
+ * @api {post} /trading_order/get_list_trading_orders 2. Get list trading orders
  * @apiVersion 0.1.0
  * @apiGroup VI. Trading Order
  *
@@ -15,6 +15,9 @@ import {Router} from 'express';
  *      "Authorization": "Bearer fc4262627f14ec090ebc5b2b4bc7c3d7f528de4c0ef2a8e48"
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
+ *
+ * @apiParam {Number} page
+ * @apiParam {Number} size
  *
  * @apiSuccess {Object} data
  *
@@ -67,4 +70,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.get('/get_list_trading_orders', isAuthenticated, new TradingOrderController().getListTradingOrders);
+  route.post('/get_list_trading_orders', isAuthenticated, new TradingOrderController().getListTradingOrders);

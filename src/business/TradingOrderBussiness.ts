@@ -42,9 +42,9 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async getListOrders(): Promise<ITradingOrderModel[]> {
+  public async getListOrders(page: number, size: number): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findAll();
+      const result = await this._tradingOrderRepository.findWithPaging(page, size);
       if (result) {
         return result;
       }
@@ -54,11 +54,15 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async getListOrdersByExpert(id_expert: Schema.Types.ObjectId): Promise<ITradingOrderModel[]> {
+  public async getListOrdersByExpert(id_expert: Schema.Types.ObjectId, page, size): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findWhere({
-        id_expert,
-      } as ITradingOrderModel);
+      const result = await this._tradingOrderRepository.findWithPagingById(
+        {
+          id_expert,
+        } as ITradingOrderModel,
+        page,
+        size,
+      );
       if (result) {
         return result;
       }
@@ -146,7 +150,7 @@ export default class TradingOrderBussiness {
           tradingOrderEntity.id_expert = tradingOrder.id_expert;
           tradingOrderEntity.type_of_order = tradingOrder.type_of_order;
           tradingOrderEntity.threshold_percent = tradingOrder.threshold_percent;
-          tradingOrderEntity.orderedAt = tradingOrder.orderedAt;
+          tradingOrderEntity.timeSetup = tradingOrder.timeSetup;
 
           const result = await this._tradingOrderRepository.update(order._id, tradingOrderEntity);
           return result ? true : false;

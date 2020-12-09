@@ -18,4 +18,8 @@ export default class TradingGainModel {
   get createdAt(): Date {
     return this._tradingGainModel.createdAt;
   }
+
+  get updatedAt(): Date {
+    return this._tradingGainModel.updatedAt;
+  }
 }

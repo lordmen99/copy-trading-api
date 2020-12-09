@@ -1,14 +1,18 @@
-import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
+import ITradingCopierModel from '@src/models/cpTradingCopier/ITradingCopierModel';
 import mongoose, {Schema} from 'mongoose';
 
-class CPTradingGainSchema {
+class CPTradingCopierSchema {
   static get schema() {
     const schema = new mongoose.Schema({
       id_expert: {
         type: Schema.Types.ObjectId,
         required: true,
       },
-      total_gain: {
+      copier: {
+        type: Number,
+        required: true,
+      },
+      removed_copier: {
         type: Number,
         required: true,
       },
@@ -25,4 +29,4 @@ class CPTradingGainSchema {
   }
 }
 
-export default mongoose.model<ITradingGainModel>('cp_trading_gain', CPTradingGainSchema.schema);
+export default mongoose.model<ITradingCopierModel>('cp_trading_copier', CPTradingCopierSchema.schema);
