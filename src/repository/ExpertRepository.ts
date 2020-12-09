@@ -328,54 +328,34 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
 
       // const count = await CPExpertSchema.countDocuments({});
 
-      // const list = [];
-      // if (result) {
-      //   const info = {
-      //     gain_rate_last_month: 0,
-      //     gain_rate_months: 0,
-      //     copier: 0,
-      //     removed_copier: 0,
-      //   };
-      //   for (const expert of result[0].data) {
-      //     if (expert.trading_copies) {
-      //       let copier = 0;
-      //       const listCheckUsers = [];
-      //       for (const user of expert.trading_copies) {
-      //         if (user.status === contants.STATUS.ACTIVE && listCheckUsers.indexOf(user.id_user.toString()) === -1) {
-      //           copier = copier + 1;
-      //           listCheckUsers.push(user.id_user.toString());
-      //         }
-      //       }
-      //       info.copier = copier;
-      //     }
-      //     if (expert.trading_copies) {
-      //       const today = new Date();
-      //       let removed_copier = 0;
-      //       const listCheckUsers = [];
-      //       for (const user of expert.trading_copies) {
-      //         if (
-      //           today.getMonth() === new Date(user.createdAt).getMonth() &&
-      //           user.status === contants.STATUS.STOP &&
-      //           listCheckUsers.indexOf(user.id_user.toString()) === -1
-      //         )
-      //           removed_copier = removed_copier + 1;
-      //         listCheckUsers.push(user.id_user.toString());
-      //       }
-      //       info.removed_copier = removed_copier;
-      //     }
-      //     if (expert.trading_gains.length > 0) {
-      //       info.gain_rate_last_month = expert.trading_gains[0].gain_last_month;
-      //       info.gain_rate_months = expert.trading_gains[0].gain_last_year;
-      //     }
-      //     const temp = {
-      //       expert,
-      //       info: {...info},
-      //     };
-      //     list.push({...temp});
-      //   }
-      // }
+      const list = [];
+      if (result) {
+        const info = {
+          gain_rate_last_month: 0,
+          gain_rate_months: 0,
+          copier: 0,
+          removed_copier: 0,
+        };
+        for (const expert of result[0].data) {
+          if (expert.gain_every_months.length > 0) {
+            info.copier = expert.gain_every_months[0].copier;
+            info.removed_copier = expert.gain_every_months[0].removed_copier;
+            info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
+            let gain = 0;
+            for (const item of expert.gain_every_months) {
+              gain = gain + item.total_gain;
+            }
+            info.gain_rate_months = parseFloat((gain / expert.gain_every_months.length).toFixed(2));
+          }
+          const temp = {
+            expert,
+            info: {...info},
+          };
+          list.push({...temp});
+        }
+      }
 
-      return result;
+      return list;
     } catch (err) {
       return [];
     }
