@@ -1,7 +1,6 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
@@ -81,50 +80,51 @@ export default class ExpertBussiness {
         const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
         if (result.length <= 0) return true;
-        await Promise.all(
-          result.map(async (item: IExpertModel) => {
-            // render data table Trading copy of expert
-            const resultUser = await this._userRepository.findRandomUser();
-            if (resultUser.length > 0) {
-              resultUser.map((itemUser: IUserModel) => {
-                const randomInvestment = Math.floor(Math.random() * (itemUser.total_amount - 500) + 500);
-                const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
-                const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
-                const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
-                const has_maximum_rate = Math.random() < 0.7;
-                const has_stop_loss = Math.random() < 0.7;
-                const has_taken_profit = Math.random() < 0.7;
-                const userCopyModel = {
-                  id_user: itemUser._id,
-                  id_expert: item._id,
-                  investment_amount: randomInvestment,
-                  base_amount: randomInvestment,
-                  has_maximum_rate,
-                  maximum_rate: has_maximum_rate ? randomRate : 0,
-                  has_stop_loss,
-                  stop_loss: has_stop_loss ? randomStopLoss : 0,
-                  has_taken_profit,
-                  taken_profit: has_taken_profit ? randomProfit : 0,
-                  status: contants.STATUS.ACTIVE,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                };
-                dataRandomTradingCopy.push(userCopyModel as ITradingCopyModel);
-              });
-            }
-            // render data table profit of expert for 11 recent months
-            for (let i = 0; i < 11; i++) {
-              dataRandomTradingGainEveryMonth.push({
-                id_expert: item._id,
-                total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
-                copier: Math.floor(Math.random() * (resultUser.length - 1)) + 1,
-                removed_copier: Math.floor(Math.random() * (10 - 1)) + 1,
-                createdAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
-                updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
-              } as ITradingGainEveryMonthModel);
-            }
-          }),
-        );
+        // await Promise.all(
+        result.map((item: IExpertModel) => {
+          // render data table Trading copy of expert
+          // const resultUser = await this._userRepository.findRandomUser();
+          // if (resultUser.length > 0) {
+          //   resultUser.map((itemUser: IUserModel) => {
+          //     const randomInvestment = Math.floor(Math.random() * (itemUser.total_amount - 500) + 500);
+          //     const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
+          //     const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
+          //     const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
+          //     const has_maximum_rate = Math.random() < 0.7;
+          //     const has_stop_loss = Math.random() < 0.7;
+          //     const has_taken_profit = Math.random() < 0.7;
+          //     const userCopyModel = {
+          //       id_user: itemUser._id,
+          //       id_expert: item._id,
+          //       investment_amount: randomInvestment,
+          //       base_amount: randomInvestment,
+          //       has_maximum_rate,
+          //       maximum_rate: has_maximum_rate ? randomRate : 0,
+          //       has_stop_loss,
+          //       stop_loss: has_stop_loss ? randomStopLoss : 0,
+          //       has_taken_profit,
+          //       taken_profit: has_taken_profit ? randomProfit : 0,
+          //       status: contants.STATUS.ACTIVE,
+          //       createdAt: new Date(),
+          //       updatedAt: new Date(),
+          //     };
+          //     dataRandomTradingCopy.push(userCopyModel as ITradingCopyModel);
+          //   });
+          // }
+          // render data table profit of expert for 11 recent months
+          for (let i = 0; i < 11; i++) {
+            dataRandomTradingGainEveryMonth.push({
+              id_expert: item._id,
+              total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
+              // copier: Math.floor(Math.random() * (resultUser.length - 1)) + 1,
+              copier: Math.floor(Math.random() * (50 - 30)) + 30,
+              removed_copier: Math.floor(Math.random() * (10 - 1)) + 1,
+              createdAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+              updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+            } as ITradingGainEveryMonthModel);
+          }
+        });
+        // );
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
         await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
       }
