@@ -93,12 +93,12 @@ export default class TradingOrderBussiness {
           const end = new Date();
           end.setHours(23, 59, 59);
           const diffES = (end.getTime() - start.getTime()) * Math.random();
-          await this._tradingOrderRepository.update(result[i]._id, {
+          this._tradingOrderRepository.update(result[i]._id, {
             timeSetup: new Date(start.getTime() + diffES),
           } as ITradingOrderModel);
         } else {
           // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
-          await this._tradingOrderRepository.update(result[i]._id, {
+          this._tradingOrderRepository.update(result[i]._id, {
             status: contants.STATUS.FINISH,
           } as ITradingOrderModel);
 
@@ -176,7 +176,9 @@ export default class TradingOrderBussiness {
         tradingHistoryEntity.id_order = null;
         let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
         renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
-        tradingHistoryEntity.opening_time = new Date(moment().format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
+        const dateOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
+        tradingHistoryEntity.opening_time = dateOpening;
+        tradingHistoryEntity.closing_time = dateOpening;
         if (dataSocket.open > dataSocket.close)
           tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'SELL' : 'BUY';
         else tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'BUY' : 'SELL';
@@ -230,7 +232,9 @@ export default class TradingOrderBussiness {
         historyModel.id_order = order._id;
         let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
         renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
-        historyModel.opening_time = new Date(moment().format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
+        const dateOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
+        historyModel.opening_time = dateOpening;
+        historyModel.closing_time = dateOpening;
         historyModel.opening_price = dataSocket.open;
         historyModel.closing_price = dataSocket.close;
         historyModel.type_of_money = 'BTC/USDT';
