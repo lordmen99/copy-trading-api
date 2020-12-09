@@ -1,10 +1,8 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
-import ITradingCopierModel from '@src/models/cpTradingCopier/ITradingCopierModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
-import TradingCopierRepository from '@src/repository/TradingCopierRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
 import UserRepository from '@src/repository/UserRepository';
@@ -19,14 +17,12 @@ export default class ExpertBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
   private _tradingGainEveryMonthRepository: TradingGainEveryMonthRepository;
-  private _tradingCopierRepository: TradingCopierRepository;
 
   constructor() {
     this._expertRepository = new ExpertRepository();
     this._userRepository = new UserRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
     this._tradingGainEveryMonthRepository = new TradingGainEveryMonthRepository();
-    this._tradingCopierRepository = new TradingCopierRepository();
   }
 
   public async getListExperts(): Promise<IExpertModel[]> {
@@ -84,59 +80,52 @@ export default class ExpertBussiness {
         const result = await this._expertRepository.insertManyExxpert(dataRandomExpert);
         const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
-        const dataRandomTradingCopier: ITradingCopierModel[] = [];
-        result.map(async (item: IExpertModel) => {
-          // render data table profit of expert for 11 recent months
-          for (let i = 0; i < 11; i++) {
-            dataRandomTradingGainEveryMonth.push({
-              id_expert: item._id,
-              total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
-              createdAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
-              updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
-            } as ITradingGainEveryMonthModel);
-          }
-
-          // render data table Trading copy of expert
-          const resultUser = await this._userRepository.findRandomUser();
-          if (resultUser.length > 0) {
-            resultUser.map((itemUser: IUserModel) => {
-              const randomInvestment = Math.floor(Math.random() * (itemUser.total_amount - 500) + 500);
-              const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
-              const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
-              const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
-              const has_maximum_rate = Math.random() < 0.7;
-              const has_stop_loss = Math.random() < 0.7;
-              const has_taken_profit = Math.random() < 0.7;
-              const userCopyModel = {
-                id_user: itemUser._id,
+        if (result)
+          result.map(async (item: IExpertModel) => {
+            // render data table Trading copy of expert
+            const resultUser = await this._userRepository.findRandomUser();
+            if (resultUser.length > 0) {
+              resultUser.map((itemUser: IUserModel) => {
+                const randomInvestment = Math.floor(Math.random() * (itemUser.total_amount - 500) + 500);
+                const randomRate = Math.floor(Math.random() * (50 - 1)) + 1;
+                const randomStopLoss = Math.floor(Math.random() * (100 - 10)) + 10;
+                const randomProfit = Math.floor(Math.random() * (3000 - 100)) + 100;
+                const has_maximum_rate = Math.random() < 0.7;
+                const has_stop_loss = Math.random() < 0.7;
+                const has_taken_profit = Math.random() < 0.7;
+                const userCopyModel = {
+                  id_user: itemUser._id,
+                  id_expert: item._id,
+                  investment_amount: randomInvestment,
+                  base_amount: randomInvestment,
+                  has_maximum_rate,
+                  maximum_rate: has_maximum_rate ? randomRate : 0,
+                  has_stop_loss,
+                  stop_loss: has_stop_loss ? randomStopLoss : 0,
+                  has_taken_profit,
+                  taken_profit: has_taken_profit ? randomProfit : 0,
+                  status: contants.STATUS.ACTIVE,
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                };
+                dataRandomTradingCopy.push(userCopyModel as ITradingCopyModel);
+              });
+            }
+            // render data table profit of expert for 11 recent months
+            for (let i = 0; i < 11; i++) {
+              dataRandomTradingGainEveryMonth.push({
                 id_expert: item._id,
-                investment_amount: randomInvestment,
-                base_amount: randomInvestment,
-                has_maximum_rate,
-                maximum_rate: has_maximum_rate ? randomRate : 0,
-                has_stop_loss,
-                stop_loss: has_stop_loss ? randomStopLoss : 0,
-                has_taken_profit,
-                taken_profit: has_taken_profit ? randomProfit : 0,
-                status: contants.STATUS.ACTIVE,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              dataRandomTradingCopy.push(userCopyModel as ITradingCopyModel);
-            });
-          }
-          dataRandomTradingCopier.push({
-            id_expert: item._id,
-            copier: resultUser.length,
-            removed_copier: Math.floor(Math.random() * (20 - 1)) + 1,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          } as ITradingCopierModel);
-        });
+                total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
+                copier: Math.floor(Math.random() * (resultUser.length - 1)) + 1,
+                removed_copier: Math.floor(Math.random() * (10 - 1)) + 1,
+                createdAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+                updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+              } as ITradingGainEveryMonthModel);
+            }
+          });
 
-        await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
-        await this._tradingCopierRepository.insertManyTradingCopier(dataRandomTradingCopier);
+        await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
       }
       return true;
     } catch (err) {

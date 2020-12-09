@@ -12,6 +12,14 @@ class CPTradingGainEveryMonthSchema {
         type: Number,
         required: true,
       },
+      copier: {
+        type: Number,
+        required: true,
+      },
+      removed_copier: {
+        type: Number,
+        required: true,
+      },
       createdAt: {
         type: Date,
         required: true,
