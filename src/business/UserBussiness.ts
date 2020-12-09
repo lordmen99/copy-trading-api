@@ -58,7 +58,7 @@ export default class UserBussiness {
           total_amount: result.total_amount,
           status: result.status,
           status_trading_copy: result.status_trading_copy,
-          is_virtual: result.is_virtual,
+          avatar: result.avatar,
         };
       }
     } catch (err) {

@@ -1,7 +1,11 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
+import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import TradingCopyRepository from '@src/repository/TradingCopyRepository';
+import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
 import TradingGainRepository from '@src/repository/TradingGainRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import {contants} from '@src/utils';
@@ -14,11 +18,15 @@ export default class TradingHistoryBussiness {
   private _tradingHistoryRepository: TradingHistoryRepository;
   private _expertRepository: ExpertRepository;
   private _tradingGainRepository: TradingGainRepository;
+  private _tradingGainEveryMonthRepository: TradingGainEveryMonthRepository;
+  private _tradingCopyRepository: TradingCopyRepository;
 
   constructor() {
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._expertRepository = new ExpertRepository();
     this._tradingGainRepository = new TradingGainRepository();
+    this._tradingGainEveryMonthRepository = new TradingGainEveryMonthRepository();
+    this._tradingCopyRepository = new TradingCopyRepository();
   }
 
   public async getListTradingHistories(page: number, size: number): Promise<any> {
@@ -126,7 +134,67 @@ export default class TradingHistoryBussiness {
     }
   }
 
-  public async calculateProfitForExpert(date: Date): Promise<void> {
+  public async calculateProfitForExpertEveryMonth(date: Date): Promise<void> {
+    try {
+      const experts = await this._expertRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+      } as IExpertModel);
+      for (const expert of experts) {
+        const trading_gain_every_month = await this._tradingGainEveryMonthRepository.findOneSort({
+          id_expert: expert._id,
+        } as ITradingGainEveryMonthModel);
+        const trading_gains = await this._tradingGainRepository.findWhere({
+          id_expert: expert._id,
+          createdAt: {
+            $gte: moment(new Date(trading_gain_every_month.createdAt)),
+            $lt: moment(date),
+          } as any,
+        } as ITradingGainModel);
+
+        const count_trading_copies = await this._tradingCopyRepository.count({
+          id_expert: expert._id,
+          createdAt: {
+            $gte: moment(new Date(trading_gain_every_month.createdAt)),
+            $lt: moment(date),
+          } as any,
+        } as ITradingCopyModel);
+
+        let profit = 0;
+        const removed_copier =
+          trading_gain_every_month.copier > count_trading_copies
+            ? trading_gain_every_month.copier - count_trading_copies
+            : 0;
+        if (trading_gains.length > 0) {
+          for (const trading_gain of trading_gains) {
+            profit = profit + trading_gain.total_gain;
+          }
+
+          await this._tradingGainEveryMonthRepository.create({
+            id_expert: expert._id,
+            total_gain: profit,
+            copier: count_trading_copies,
+            removed_copier,
+            createdAt: new Date(date),
+            updatedAt: new Date(date),
+          } as ITradingGainEveryMonthModel);
+        } else {
+          profit = 0;
+          await this._tradingGainEveryMonthRepository.create({
+            id_expert: expert._id,
+            total_gain: profit,
+            copier: count_trading_copies,
+            removed_copier,
+            createdAt: new Date(date),
+            updatedAt: new Date(date),
+          } as ITradingGainEveryMonthModel);
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async calculateProfitForExpertEveryDay(date: Date): Promise<void> {
     try {
       const experts = await this._expertRepository.findWhere({
         status: contants.STATUS.ACTIVE,
