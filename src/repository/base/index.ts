@@ -49,8 +49,8 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     try {
       const result = await this._model
         .find(item)
-        .limit(size)
-        .skip((page - 1) * size);
+        .limit(parseInt(size.toString()))
+        .skip((parseInt(page.toString()) - 1) * parseInt(size.toString()));
       const count = await this._model.countDocuments(item);
       return {
         result,
