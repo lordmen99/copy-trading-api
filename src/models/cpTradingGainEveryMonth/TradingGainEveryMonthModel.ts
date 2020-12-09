@@ -15,6 +15,14 @@ export default class TradingGainModel {
     return this._tradingGainEveryMonthModel.total_gain;
   }
 
+  get copier(): number {
+    return this._tradingGainEveryMonthModel.copier;
+  }
+
+  get removed_copier(): number {
+    return this._tradingGainEveryMonthModel.removed_copier;
+  }
+
   get createdAt(): Date {
     return this._tradingGainEveryMonthModel.createdAt;
   }

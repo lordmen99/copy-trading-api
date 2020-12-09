@@ -311,20 +311,11 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                 },
               },
               {
-                $lookup: {
-                  from: 'cp_trading_copiers',
-                  localField: '_id',
-                  foreignField: 'id_expert',
-                  as: 'trading_copiers',
-                },
-              },
-              {
                 $project: {
                   _id: 1,
                   fullname: 1,
                   username: 1,
                   avatar: 1,
-                  trading_copiers: 1,
                   gain_every_months: 1,
                 },
               },
