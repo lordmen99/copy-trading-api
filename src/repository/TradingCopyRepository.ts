@@ -217,4 +217,13 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async count(item) {
+    try {
+      const result = await CPTradingCopySchema.count(item);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
