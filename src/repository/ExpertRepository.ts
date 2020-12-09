@@ -277,7 +277,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         {$project: {count: '$total.count', data: '$data'}},
       ]);
 
-      // const count = await CPExpertSchema.countDocuments({});
+      const count = await CPExpertSchema.countDocuments({});
 
       const list = [];
       if (result) {
@@ -301,6 +301,83 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           const temp = {
             expert,
             info: {...info},
+            count,
+          };
+          list.push({...temp});
+        }
+      }
+
+      return list;
+    } catch (err) {
+      return [];
+    }
+  }
+
+  public async searchByUserName(data, page: number, size: number): Promise<any> {
+    try {
+      const result = await CPExpertSchema.aggregate([
+        {
+          $match: {
+            username: {$regex: '.*' + data.username + '.*'},
+          },
+        },
+        {
+          $facet: {
+            total: [{$group: {_id: null, count: {$sum: 1}}}],
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_trading_gain_every_months',
+                  localField: '_id',
+                  foreignField: 'id_expert',
+                  as: 'gain_every_months',
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  fullname: 1,
+                  username: 1,
+                  avatar: 1,
+                  gain_every_months: 1,
+                },
+              },
+            ],
+          },
+        },
+        {$unwind: '$total'},
+        {$project: {count: '$total.count', data: '$data'}},
+      ]);
+
+      const count = await CPExpertSchema.countDocuments({
+        username: {$regex: '.*' + data.username + '.*'},
+      });
+
+      const list = [];
+      if (result) {
+        const info = {
+          gain_rate_last_month: 0,
+          gain_rate_months: 0,
+          copier: 0,
+          removed_copier: 0,
+        };
+        for (const expert of result[0].data) {
+          if (expert.gain_every_months.length > 0) {
+            info.copier = expert.gain_every_months[0].copier;
+            info.removed_copier = expert.gain_every_months[0].removed_copier;
+            info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
+            let gain = 0;
+            for (const item of expert.gain_every_months) {
+              gain = gain + item.total_gain;
+            }
+            info.gain_rate_months = parseFloat((gain / expert.gain_every_months.length).toFixed(2));
+          }
+          const temp = {
+            expert,
+            info: {...info},
+            count,
           };
           list.push({...temp});
         }

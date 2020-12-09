@@ -77,5 +77,5 @@ export class GetExpert {
 
 export class GetExpertByName {
   @IsNotEmpty({message: 'Name is required'})
-  fullname: string;
+  username: string;
 }

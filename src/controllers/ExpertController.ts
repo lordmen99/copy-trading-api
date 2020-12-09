@@ -73,8 +73,8 @@ export default class ExpertController {
       const params = req.body;
       const expertBusiness = new ExpertBussiness();
       const data = new GetExpertByName();
-      data.fullname = params.fullname;
-      const result = await expertBusiness.findByName(data);
+      data.username = params.username;
+      const result = await expertBusiness.findByName(data, params.page, params.size);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);

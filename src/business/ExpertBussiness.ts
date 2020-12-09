@@ -214,13 +214,13 @@ export default class ExpertBussiness {
     }
   }
 
-  public async findByName(params: GetExpertByName): Promise<IExpertModel[]> {
+  public async findByName(params: GetExpertByName, page: number, size: number): Promise<IExpertModel[]> {
     try {
       const errors = await validate(params);
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        return this._expertRepository.findWhere({fullname: {$regex: '.*' + params.fullname + '.*'}} as any);
+        return this._expertRepository.searchByUserName(params, page, size);
       }
     } catch (err) {
       throw err;
