@@ -304,26 +304,18 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
               {$limit: parseInt(size.toString())},
               {
                 $lookup: {
-                  from: 'cp_trading_histories',
+                  from: 'cp_trading_gain_every_months',
                   localField: '_id',
                   foreignField: 'id_expert',
-                  as: 'trading_histories',
+                  as: 'gain_every_months',
                 },
               },
               {
                 $lookup: {
-                  from: 'cp_trading_copies',
+                  from: 'cp_trading_copiers',
                   localField: '_id',
                   foreignField: 'id_expert',
-                  as: 'trading_copies',
-                },
-              },
-              {
-                $lookup: {
-                  from: 'cp_trading_gains',
-                  localField: '_id',
-                  foreignField: 'id_expert',
-                  as: 'trading_gains',
+                  as: 'trading_copiers',
                 },
               },
               {
@@ -332,9 +324,8 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   fullname: 1,
                   username: 1,
                   avatar: 1,
-                  trading_copies: 1,
-                  trading_histories: 1,
-                  trading_gains: 1,
+                  trading_copiers: 1,
+                  gain_every_months: 1,
                 },
               },
             ],
@@ -344,60 +335,56 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         {$project: {count: '$total.count', data: '$data'}},
       ]);
 
-      const count = await CPExpertSchema.countDocuments({});
+      // const count = await CPExpertSchema.countDocuments({});
 
-      const list = [];
-      if (result) {
-        const info = {
-          gain_rate_last_month: 0,
-          gain_rate_months: 0,
-          copier: 0,
-          removed_copier: 0,
-        };
-        for (const expert of result[0].data) {
-          if (expert.trading_copies) {
-            let copier = 0;
-            const listCheckUsers = [];
-            for (const user of expert.trading_copies) {
-              if (user.status === contants.STATUS.ACTIVE && listCheckUsers.indexOf(user.id_user.toString()) === -1) {
-                copier = copier + 1;
-                listCheckUsers.push(user.id_user.toString());
-              }
-            }
-            info.copier = copier;
-          }
-          if (expert.trading_copies) {
-            const today = new Date();
-            let removed_copier = 0;
-            const listCheckUsers = [];
-            for (const user of expert.trading_copies) {
-              if (
-                today.getMonth() === new Date(user.createdAt).getMonth() &&
-                user.status === contants.STATUS.STOP &&
-                listCheckUsers.indexOf(user.id_user.toString()) === -1
-              )
-                removed_copier = removed_copier + 1;
-              listCheckUsers.push(user.id_user.toString());
-            }
-            info.removed_copier = removed_copier;
-          }
-          if (expert.trading_gains.length > 0) {
-            info.gain_rate_last_month = expert.trading_gains[0].gain_last_month;
-            info.gain_rate_months = expert.trading_gains[0].gain_last_year;
-          }
-          const temp = {
-            expert,
-            info: {...info},
-          };
-          list.push({...temp});
-        }
-      }
+      // const list = [];
+      // if (result) {
+      //   const info = {
+      //     gain_rate_last_month: 0,
+      //     gain_rate_months: 0,
+      //     copier: 0,
+      //     removed_copier: 0,
+      //   };
+      //   for (const expert of result[0].data) {
+      //     if (expert.trading_copies) {
+      //       let copier = 0;
+      //       const listCheckUsers = [];
+      //       for (const user of expert.trading_copies) {
+      //         if (user.status === contants.STATUS.ACTIVE && listCheckUsers.indexOf(user.id_user.toString()) === -1) {
+      //           copier = copier + 1;
+      //           listCheckUsers.push(user.id_user.toString());
+      //         }
+      //       }
+      //       info.copier = copier;
+      //     }
+      //     if (expert.trading_copies) {
+      //       const today = new Date();
+      //       let removed_copier = 0;
+      //       const listCheckUsers = [];
+      //       for (const user of expert.trading_copies) {
+      //         if (
+      //           today.getMonth() === new Date(user.createdAt).getMonth() &&
+      //           user.status === contants.STATUS.STOP &&
+      //           listCheckUsers.indexOf(user.id_user.toString()) === -1
+      //         )
+      //           removed_copier = removed_copier + 1;
+      //         listCheckUsers.push(user.id_user.toString());
+      //       }
+      //       info.removed_copier = removed_copier;
+      //     }
+      //     if (expert.trading_gains.length > 0) {
+      //       info.gain_rate_last_month = expert.trading_gains[0].gain_last_month;
+      //       info.gain_rate_months = expert.trading_gains[0].gain_last_year;
+      //     }
+      //     const temp = {
+      //       expert,
+      //       info: {...info},
+      //     };
+      //     list.push({...temp});
+      //   }
+      // }
 
-      const res = {
-        result: list,
-        count,
-      };
-      return res;
+      return result;
     } catch (err) {
       return [];
     }
