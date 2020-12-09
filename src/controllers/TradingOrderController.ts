@@ -19,8 +19,9 @@ export default class TradingOrderController {
 
   public async getListTradingOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const params = req.body;
       const tradingOrderBusiness = new TradingOrderBussiness();
-      const result = await tradingOrderBusiness.getListOrders();
+      const result = await tradingOrderBusiness.getListOrders(params.page, params.size);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -87,26 +88,24 @@ export default class TradingOrderController {
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
       data.status = contants.STATUS.PENDING;
-      const utc = new Date(params.orderedAt).toUTCString();
-      data.orderedAt = new Date(utc);
-      data.createdAt = new Date(new Date().toUTCString());
+      // const utc = new Date(params.orderedAt).toUTCString();
+      // data.orderedAt = new Date(utc);
+      // data.createdAt = new Date(new Date().toUTCString());
 
-      const start = new Date(params.orderedAt);
+      // if (
+      //   new Date(data.orderedAt).getDate() !== data.createdAt.getDate() ||
+      //   new Date(data.orderedAt).getMonth() !== data.createdAt.getMonth() ||
+      //   new Date(data.orderedAt).getFullYear() !== data.createdAt.getFullYear()
+      // ) {
+      //   start.setHours(0, 0, 0);
+      // }
 
-      if (
-        new Date(data.orderedAt).getDate() !== data.createdAt.getDate() ||
-        new Date(data.orderedAt).getMonth() !== data.createdAt.getMonth() ||
-        new Date(data.orderedAt).getFullYear() !== data.createdAt.getFullYear()
-      ) {
-        start.setHours(0, 0, 0);
-      }
+      // const end = new Date(params.orderedAt);
 
-      const end = new Date(params.orderedAt);
+      // end.setHours(23, 59, 59);
+      // const diff = (end.getTime() - start.getTime()) * Math.random();
 
-      end.setHours(23, 59, 59);
-      const diff = (end.getTime() - start.getTime()) * Math.random();
-
-      data.timeSetup = new Date(start.getTime() + diff);
+      data.timeSetup = new Date(params.timeSetup);
 
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.editTradingOrder(data);

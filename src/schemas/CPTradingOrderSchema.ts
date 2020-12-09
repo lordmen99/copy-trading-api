@@ -26,11 +26,9 @@ class CPTradingOrderSchema {
       },
       createdAt: {
         type: Date,
-        required: true,
       },
       orderedAt: {
         type: Date,
-        required: true,
       },
       timeSetup: {
         type: Date,
