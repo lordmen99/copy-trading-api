@@ -6,8 +6,8 @@ import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
+import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import {contants} from '@src/utils';
-import {GetTradingCopy} from '@src/validator/trading_copies/trading_copies.validator';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {CreateTradingOrder, EditTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
@@ -15,14 +15,16 @@ import moment from 'moment';
 import {Schema} from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
-import TradingWithdrawBussiness from './TradingWithdrawBussiness';
+
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
+  private _tradingWithdrawRepository: TradingWithdrawRepository;
 
   constructor() {
+    this._tradingWithdrawRepository = new TradingWithdrawRepository();
     this._tradingOrderRepository = new TradingOrderRepository();
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._expertRepository = new ExpertRepository();
@@ -83,7 +85,7 @@ export default class TradingOrderBussiness {
         } as ITradingOrderModel,
         'timeSetup',
       );
-
+      console.log(result, 'result');
       if (result.length <= 0) return;
       for (let i = 0; i <= result.length - 1; i++) {
         if (i !== result.length - 1) {
@@ -150,7 +152,7 @@ export default class TradingOrderBussiness {
           tradingOrderEntity.id_expert = tradingOrder.id_expert;
           tradingOrderEntity.type_of_order = tradingOrder.type_of_order;
           tradingOrderEntity.threshold_percent = tradingOrder.threshold_percent;
-          tradingOrderEntity.timeSetup = tradingOrder.timeSetup;
+          tradingOrderEntity.orderedAt = tradingOrder.orderedAt;
 
           const result = await this._tradingOrderRepository.update(order._id, tradingOrderEntity);
           return result ? true : false;
@@ -172,12 +174,13 @@ export default class TradingOrderBussiness {
         tradingHistoryEntity.id_user = null;
         tradingHistoryEntity.id_expert = order.id_expert;
         tradingHistoryEntity.id_order = null;
-        tradingHistoryEntity.opening_time = new Date();
+        let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
+        renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
+        tradingHistoryEntity.opening_time = new Date(moment().format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
         if (dataSocket.open > dataSocket.close)
           tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'SELL' : 'BUY';
         else tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'BUY' : 'SELL';
         tradingHistoryEntity.opening_price = dataSocket.open;
-        tradingHistoryEntity.closing_time = new Date();
         tradingHistoryEntity.closing_price = dataSocket.close;
         const order_amount = parseFloat((expert.total_amount * (order.threshold_percent / 100)).toFixed(2));
         tradingHistoryEntity.investment_amount = order_amount;
@@ -207,146 +210,130 @@ export default class TradingOrderBussiness {
     }
   }
 
-  private async createHistoryForUserCopy(order, dataSocket, tradingCopy): Promise<void> {
+  private async createHistoryForUserCopy(
+    order: ITradingOrderModel,
+    dataSocket: any,
+    tradingCopy: ITradingCopyModel[],
+  ): Promise<void> {
     try {
       const dataTradingHistory: ITradingHistoryModel[] = [];
-      const tradingCopyBussiness = new TradingCopyBussiness();
+      const dataCalculateMoney: {id_copy: Schema.Types.ObjectId; money: number}[] = [];
+      const dataTradingWithdraw: ITradingWithdrawModel[] = [];
+      const dataPauseCopy: Schema.Types.ObjectId[] = [];
 
-      tradingCopy.map(async (copy) => {
+      tradingCopy.map(async (copy: ITradingCopyModel) => {
         // tạo history
         const data = new CreateTradingHistory();
-        const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-        const tradingHistoryEntity = data as ITradingHistoryModel;
-        tradingHistoryEntity.id_user = copy.id_user;
-        tradingHistoryEntity.id_expert = order.id_expert;
-        tradingHistoryEntity.id_order = order._id;
-        tradingHistoryEntity.opening_time = new Date();
+        const historyModel = data as ITradingHistoryModel;
+        historyModel.id_user = copy.id_user;
+        historyModel.id_expert = order.id_expert;
+        historyModel.id_order = order._id;
+        let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
+        renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
+        historyModel.opening_time = new Date(moment().format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
+        historyModel.opening_price = dataSocket.open;
+        historyModel.closing_price = dataSocket.close;
+        historyModel.type_of_money = 'BTC/USDT';
+        historyModel.status = false;
 
         if (dataSocket.open > dataSocket.close)
-          tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'SELL' : 'BUY';
-        else tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'BUY' : 'SELL';
-
-        tradingHistoryEntity.opening_price = dataSocket.open;
-        tradingHistoryEntity.closing_time = new Date();
-        tradingHistoryEntity.closing_price = dataSocket.close;
+          historyModel.type_of_order = order.type_of_order === 'WIN' ? 'SELL' : 'BUY';
+        else historyModel.type_of_order = order.type_of_order === 'WIN' ? 'BUY' : 'SELL';
 
         if (copy.investment_amount > copy.base_amount || copy.investment_amount === copy.base_amount)
-          tradingHistoryEntity.investment_amount = copy.base_amount;
-        else tradingHistoryEntity.investment_amount = copy.investment_amount;
+          historyModel.investment_amount = copy.base_amount;
+        else historyModel.investment_amount = copy.investment_amount;
+
+        const threshold_percent_amount = Number(
+          (historyModel.investment_amount * (order.threshold_percent / 100)).toFixed(2),
+        );
+        const maximum_rate_amount = Number((historyModel.investment_amount * (copy.maximum_rate / 100)).toFixed(2));
 
         if (order.type_of_order === 'WIN') {
           if (copy.has_maximum_rate) {
             if (copy.maximum_rate > order.threshold_percent) {
-              tradingHistoryEntity.order_amount = parseFloat(
-                (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-              );
-              tradingHistoryEntity.profit = parseFloat(
-                (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-              );
+              historyModel.order_amount = threshold_percent_amount;
+              historyModel.profit = threshold_percent_amount;
             } else {
-              tradingHistoryEntity.order_amount = parseFloat(
-                (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
-              );
-              tradingHistoryEntity.profit = parseFloat(
-                (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
-              );
+              historyModel.order_amount = maximum_rate_amount;
+              historyModel.profit = maximum_rate_amount;
             }
-
-            tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
-            tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
-            await tradingCopyBussiness.calculateMoney(
-              copy._id,
-              tradingHistoryEntity.id_user,
-              'user',
-              tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading - tradingHistoryEntity.fee_to_expert,
-            );
-            await tradingWithdrawBussiness.createTradingWithdraw({
-              id_user: tradingHistoryEntity.id_user,
-              id_expert: copy.id_expert,
-              id_copy: copy._id,
-              id_order: order._id,
-              amount: tradingHistoryEntity.fee_to_expert,
-              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
-              status: contants.STATUS.PENDING,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            } as ITradingWithdrawModel);
+            historyModel.fee_to_expert = parseFloat((historyModel.profit * 0.05).toFixed(2));
+            historyModel.fee_to_trading = parseFloat((historyModel.profit * 0.05).toFixed(2));
           } else {
-            tradingHistoryEntity.order_amount = parseFloat(
-              (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-            );
-            tradingHistoryEntity.profit = parseFloat(
-              (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-            );
-            tradingHistoryEntity.fee_to_expert = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
-            tradingHistoryEntity.fee_to_trading = parseFloat((tradingHistoryEntity.profit * 0.05).toFixed(2));
-            await tradingCopyBussiness.calculateMoney(
-              copy._id,
-              tradingHistoryEntity.id_user,
-              'user',
-              tradingHistoryEntity.profit - tradingHistoryEntity.fee_to_trading - tradingHistoryEntity.fee_to_expert,
-            );
-            await tradingWithdrawBussiness.createTradingWithdraw({
-              id_user: tradingHistoryEntity.id_user,
-              id_expert: copy.id_expert,
-              id_copy: copy._id,
-              id_order: order._id,
-              amount: tradingHistoryEntity.fee_to_expert,
-              status: contants.STATUS.PENDING,
-              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            } as ITradingWithdrawModel);
+            historyModel.order_amount = threshold_percent_amount;
+            historyModel.profit = threshold_percent_amount;
+            historyModel.fee_to_expert = parseFloat((historyModel.profit * 0.05).toFixed(2));
+            historyModel.fee_to_trading = parseFloat((historyModel.profit * 0.05).toFixed(2));
           }
+          /** thêm vào tính toán tiền lãi */
+          dataCalculateMoney.push({
+            id_copy: copy._id,
+            money: historyModel.profit - historyModel.fee_to_trading - historyModel.fee_to_expert,
+          });
+          /** thêm vào tính toán tiền trả chuyên gia */
+          dataTradingWithdraw.push({
+            id_user: historyModel.id_user,
+            id_expert: copy.id_expert,
+            id_copy: copy._id,
+            id_order: order._id,
+            amount: historyModel.fee_to_expert,
+            type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
+            status: contants.STATUS.PENDING,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+          } as ITradingWithdrawModel);
         } else {
           if (copy.has_maximum_rate) {
-            if (copy.maximum_rate > order.threshold_percent) {
-              tradingHistoryEntity.order_amount = parseFloat(
-                (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-              );
-            } else {
-              tradingHistoryEntity.order_amount = parseFloat(
-                (tradingHistoryEntity.investment_amount * (copy.maximum_rate / 100)).toFixed(2),
-              );
-            }
+            if (copy.maximum_rate > order.threshold_percent) historyModel.order_amount = threshold_percent_amount;
+            else historyModel.order_amount = maximum_rate_amount;
           } else {
-            tradingHistoryEntity.order_amount = parseFloat(
-              (tradingHistoryEntity.investment_amount * (order.threshold_percent / 100)).toFixed(2),
-            );
+            historyModel.order_amount = threshold_percent_amount;
           }
-          tradingHistoryEntity.profit = 0;
-          tradingHistoryEntity.fee_to_expert = 0;
-          tradingHistoryEntity.fee_to_trading = 0;
-          await tradingCopyBussiness.calculateMoney(
-            copy._id,
-            tradingHistoryEntity.id_user,
-            'user',
-            tradingHistoryEntity.order_amount * -1,
-          );
-        }
-        tradingHistoryEntity.type_of_money = 'BTC/USDT';
-        tradingHistoryEntity.status = false;
-
-        if (copy.investment_amount < ((100 - copy.stop_loss) / 100) * copy.base_amount && copy.has_stop_loss === true) {
-          const data = new GetTradingCopy();
-          data.id_copy = copy._id.toString();
-          await tradingCopyBussiness.pauseTradingCopy(data);
+          historyModel.profit = 0;
+          historyModel.fee_to_expert = 0;
+          historyModel.fee_to_trading = 0;
+          /** thêm vào tính toán thua lỗ */
+          dataCalculateMoney.push({
+            id_copy: copy._id,
+            money: historyModel.order_amount * -1,
+          });
         }
 
-        if (
+        /** chạm đến stop loss khi copy */
+        const stop_loss =
+          copy.investment_amount < ((100 - copy.stop_loss) / 100) * copy.base_amount && copy.has_stop_loss === true;
+
+        /** chạm đến take profit khi copy */
+        const take_profit =
           copy.investment_amount > copy.base_amount &&
           copy.investment_amount - copy.base_amount > copy.taken_profit * copy.base_amount &&
-          copy.has_taken_profit === true
-        ) {
-          const data = new GetTradingCopy();
-          data.id_copy = copy._id.toString();
-          await tradingCopyBussiness.pauseTradingCopy(data);
+          copy.has_taken_profit === true;
+
+        /** thì sẽ tạm dừng copy */
+        if (stop_loss || take_profit) {
+          dataPauseCopy.push(copy._id);
         }
-        dataTradingHistory.push(tradingHistoryEntity);
+        dataTradingHistory.push(historyModel);
       });
-      await this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
+
+      /** tính toán số tiền nhận được */
+      dataCalculateMoney.map(async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
+        const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy} as ITradingCopyModel);
+        this._tradingCopyRepository.update(copy._id, {
+          investment_amount: copy.investment_amount + item.money,
+        } as ITradingCopyModel);
+      });
+
+      /** số tiền để sau trả lại chuyên gia nếu thắng */
+      this._tradingWithdrawRepository.insertManyTradingWithdraw(dataTradingWithdraw);
+
+      /** dừng copy với những tài khoản chạm stop_loss hoặc take_profit */
+      this._tradingCopyRepository.updateManyPauseCopy(dataPauseCopy);
+
+      /** thêm vào lịch sử giao dịch */
+      this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
     } catch (err) {
       throw err;
     }
