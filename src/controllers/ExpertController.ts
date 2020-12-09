@@ -111,7 +111,6 @@ export default class ExpertController {
       } else {
         const expertBusiness = new ExpertBussiness();
         const result = await expertBusiness.addUserAndFollowExpert(params.number);
-
         res.status(200).send({data: result});
       }
     } catch (err) {

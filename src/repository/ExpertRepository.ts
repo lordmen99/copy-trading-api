@@ -381,7 +381,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
     }
   }
 
-  public async insertManyExxpert(arrExpert: IExpertModel[]) {
+  public async insertManyExpert(arrExpert: IExpertModel[]) {
     try {
       const result = await CPExpertSchema.insertMany(arrExpert);
       return result;

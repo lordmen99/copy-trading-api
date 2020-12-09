@@ -77,13 +77,19 @@ export default class ExpertBussiness {
         dataRandomExpert.push(data as IExpertModel);
       }
       if (dataRandomExpert.length > 0) {
-        const result = await this._expertRepository.insertManyExxpert(dataRandomExpert);
+        const result = await this._expertRepository.insertManyExpert(dataRandomExpert);
+        console.log(result.length, 'resultExpert');
         const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
-        if (result)
+        if (result.length <= 0) {
+          console.log('ssss');
+          return true;
+        }
+        await Promise.all(
           result.map(async (item: IExpertModel) => {
             // render data table Trading copy of expert
             const resultUser = await this._userRepository.findRandomUser();
+            console.log(resultUser.length, 'resultUser');
             if (resultUser.length > 0) {
               resultUser.map((itemUser: IUserModel) => {
                 const randomInvestment = Math.floor(Math.random() * (itemUser.total_amount - 500) + 500);
@@ -122,8 +128,9 @@ export default class ExpertBussiness {
                 updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
               } as ITradingGainEveryMonthModel);
             }
-          });
-
+          }),
+        );
+        console.log(dataRandomTradingCopy.length, 'dataRandomTradingCopy');
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
         await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
       }
