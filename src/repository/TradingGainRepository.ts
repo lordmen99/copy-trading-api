@@ -15,4 +15,15 @@ export default class TradingGainRepository extends RepositoryBase<ITradingGainMo
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async findOneSort(item: ITradingGainModel) {
+    try {
+      const result = await CPTradingGainSchema.findOne(item).sort({
+        createdAt: -1,
+      });
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }

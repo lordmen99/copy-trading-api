@@ -1,10 +1,12 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
+import ITradingCopierModel from '@src/models/cpTradingCopier/ITradingCopierModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
-import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
+import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import TradingCopierRepository from '@src/repository/TradingCopierRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
-import TradingGainRepository from '@src/repository/TradingGainRepository';
+import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
@@ -16,13 +18,15 @@ export default class ExpertBussiness {
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
-  private _tradingGainRepository: TradingGainRepository;
+  private _tradingGainEveryMonthRepository: TradingGainEveryMonthRepository;
+  private _tradingCopierRepository: TradingCopierRepository;
 
   constructor() {
     this._expertRepository = new ExpertRepository();
     this._userRepository = new UserRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
-    this._tradingGainRepository = new TradingGainRepository();
+    this._tradingGainEveryMonthRepository = new TradingGainEveryMonthRepository();
+    this._tradingCopierRepository = new TradingCopierRepository();
   }
 
   public async getListExperts(): Promise<IExpertModel[]> {
@@ -78,15 +82,20 @@ export default class ExpertBussiness {
       }
       if (dataRandomExpert.length > 0) {
         const result = await this._expertRepository.insertManyExxpert(dataRandomExpert);
-        const dataRandomTradingGain: ITradingGainModel[] = [];
+        const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
+        const dataRandomTradingCopier: ITradingCopierModel[] = [];
         result.map(async (item: IExpertModel) => {
-          // render data table profit of expert
-          dataRandomTradingGain.push({
-            id_expert: item.id,
-            total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
-            createdAt: new Date(),
-          } as ITradingGainModel);
+          // render data table profit of expert for 11 recent months
+          for (let i = 0; i < 11; i++) {
+            dataRandomTradingGainEveryMonth.push({
+              id_expert: item._id,
+              total_gain: Math.floor(Math.random() * (50 - 1)) + 1,
+              createdAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+              updatedAt: new Date(new Date().setMonth(new Date().getMonth() - i - 1)),
+            } as ITradingGainEveryMonthModel);
+          }
+
           // render data table Trading copy of expert
           const resultUser = await this._userRepository.findRandomUser();
           if (resultUser.length > 0) {
@@ -116,9 +125,18 @@ export default class ExpertBussiness {
               dataRandomTradingCopy.push(userCopyModel as ITradingCopyModel);
             });
           }
+          dataRandomTradingCopier.push({
+            id_expert: item._id,
+            copier: resultUser.length,
+            removed_copier: Math.floor(Math.random() * (20 - 1)) + 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as ITradingCopierModel);
         });
-        await this._tradingGainRepository.insertManyTradingGain(dataRandomTradingGain);
+
+        await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
+        await this._tradingCopierRepository.insertManyTradingCopier(dataRandomTradingCopier);
       }
       return true;
     } catch (err) {

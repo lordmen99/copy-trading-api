@@ -4,6 +4,7 @@ import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryMo
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingGainRepository from '@src/repository/TradingGainRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
+import {contants} from '@src/utils';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {validate} from 'class-validator';
 import moment from 'moment';
@@ -127,29 +128,60 @@ export default class TradingHistoryBussiness {
 
   public async calculateProfitForExpert(date: Date): Promise<void> {
     try {
-      const experts = await this._expertRepository.findAll();
+      const experts = await this._expertRepository.findWhere({
+        status: contants.STATUS.ACTIVE,
+      } as IExpertModel);
       for (const expert of experts) {
-        const result = await this._tradingHistoryRepository.findWhere({
+        const trading_gain = await this._tradingGainRepository.findOneSort({
           id_expert: expert._id,
-          closing_time: {
-            $gte: moment(new Date(date.getTime() - 30 * 60 * 60 * 24 * 1000)),
-            $lt: moment(date),
-          } as any,
-        } as ITradingHistoryModel);
-        if (result) {
-          let profit = 0;
-          for (const history of result) {
-            if (history.id_user) {
-              profit = profit + history.fee_to_expert;
-            } else {
-              profit = profit + history.profit - history.fee_to_trading;
-            }
-          }
-          await this._tradingGainRepository.create({
+        } as ITradingGainModel);
+        if (trading_gain) {
+          const result = await this._tradingHistoryRepository.findWhere({
             id_expert: expert._id,
-            total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
-            createdAt: new Date(),
-          } as ITradingGainModel);
+            closing_time: {
+              $gte: moment(new Date(trading_gain.createdAt)),
+              $lt: moment(date),
+            } as any,
+          } as ITradingHistoryModel);
+          if (result) {
+            let profit = 0;
+            for (const history of result) {
+              if (history.id_user) {
+                profit = profit + history.fee_to_expert;
+              } else {
+                profit = profit + history.profit - history.fee_to_trading;
+              }
+            }
+            await this._tradingGainRepository.create({
+              id_expert: expert._id,
+              total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainModel);
+          }
+        } else {
+          const result = await this._tradingHistoryRepository.findWhere({
+            id_expert: expert._id,
+            closing_time: {
+              $lt: moment(date),
+            } as any,
+          } as ITradingHistoryModel);
+          if (result) {
+            let profit = 0;
+            for (const history of result) {
+              if (history.id_user) {
+                profit = profit + history.fee_to_expert;
+              } else {
+                profit = profit + history.profit - history.fee_to_trading;
+              }
+            }
+            await this._tradingGainRepository.create({
+              id_expert: expert._id,
+              total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainModel);
+          }
         }
       }
     } catch (err) {
