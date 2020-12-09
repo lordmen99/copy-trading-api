@@ -307,7 +307,11 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         }
       }
 
-      return list;
+      const res = {
+        result: list,
+        count,
+      };
+      return res;
     } catch (err) {
       return [];
     }
@@ -383,7 +387,11 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         }
       }
 
-      return list;
+      const res = {
+        result: list,
+        count,
+      };
+      return res;
     } catch (err) {
       return [];
     }
