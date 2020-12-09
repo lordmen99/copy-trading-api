@@ -85,7 +85,6 @@ export default class TradingOrderBussiness {
         } as ITradingOrderModel,
         'timeSetup',
       );
-      console.log(result, 'result');
       if (result.length <= 0) return;
       for (let i = 0; i <= result.length - 1; i++) {
         if (i !== result.length - 1) {
@@ -102,16 +101,21 @@ export default class TradingOrderBussiness {
             status: contants.STATUS.FINISH,
           } as ITradingOrderModel);
 
+          /** khởi tạo time vào lệnh cho cả chuyên gia và user */
+          let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
+          secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
+          const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
+
           // tạo history cho expert
           const expert = await this._expertRepository.findById(result[i].id_expert.toString());
-          if (expert) this.createHistoryForExpert(result[i], dataSocket, expert);
+          if (expert) this.createHistoryForExpert(result[i], dataSocket, expert, timeOpening);
 
           // tạo histories cho user copy
           const tradingCopy = await this._tradingCopyRepository.findWhere({
             status: contants.STATUS.ACTIVE,
             id_expert: result[i].id_expert,
           } as ITradingCopyModel);
-          if (tradingCopy) this.createHistoryForUserCopy(result[i], dataSocket, tradingCopy);
+          if (tradingCopy) this.createHistoryForUserCopy(result[i], dataSocket, tradingCopy, timeOpening);
         }
       }
     } catch (err) {
@@ -165,7 +169,7 @@ export default class TradingOrderBussiness {
     }
   }
 
-  private async createHistoryForExpert(order: any, dataSocket: any, expert: any): Promise<void> {
+  private async createHistoryForExpert(order: any, dataSocket: any, expert: any, timeOpening: Date): Promise<void> {
     try {
       const tradingCopyBussiness = new TradingCopyBussiness();
       const data = new CreateTradingHistory();
@@ -174,11 +178,9 @@ export default class TradingOrderBussiness {
         tradingHistoryEntity.id_user = null;
         tradingHistoryEntity.id_expert = order.id_expert;
         tradingHistoryEntity.id_order = null;
-        let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
-        renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
-        const dateOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
-        tradingHistoryEntity.opening_time = dateOpening;
-        tradingHistoryEntity.closing_time = dateOpening;
+
+        tradingHistoryEntity.opening_time = timeOpening;
+        tradingHistoryEntity.closing_time = timeOpening;
         if (dataSocket.open > dataSocket.close)
           tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'SELL' : 'BUY';
         else tradingHistoryEntity.type_of_order = order.type_of_order === 'WIN' ? 'BUY' : 'SELL';
@@ -216,6 +218,7 @@ export default class TradingOrderBussiness {
     order: ITradingOrderModel,
     dataSocket: any,
     tradingCopy: ITradingCopyModel[],
+    timeOpening: Date,
   ): Promise<void> {
     try {
       const dataTradingHistory: ITradingHistoryModel[] = [];
@@ -230,11 +233,8 @@ export default class TradingOrderBussiness {
         historyModel.id_user = copy.id_user;
         historyModel.id_expert = order.id_expert;
         historyModel.id_order = order._id;
-        let renderTimeOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
-        renderTimeOpen = renderTimeOpen.length === 1 ? `0${renderTimeOpen}` : renderTimeOpen;
-        const dateOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${renderTimeOpen}`));
-        historyModel.opening_time = dateOpening;
-        historyModel.closing_time = dateOpening;
+        historyModel.opening_time = timeOpening;
+        historyModel.closing_time = timeOpening;
         historyModel.opening_price = dataSocket.open;
         historyModel.closing_price = dataSocket.close;
         historyModel.type_of_money = 'BTC/USDT';
