@@ -301,7 +301,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           const temp = {
             expert,
             info: {...info},
-            count,
           };
           list.push({...temp});
         }
@@ -381,7 +380,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           const temp = {
             expert,
             info: {...info},
-            count,
           };
           list.push({...temp});
         }
