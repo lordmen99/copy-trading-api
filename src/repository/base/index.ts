@@ -1,11 +1,9 @@
-import mongoose, {Schema} from 'mongoose';
+import mongoose, {FilterQuery, Schema, UpdateQuery} from 'mongoose';
 import IRead from '../interfaces/IRead';
 import IWrite from '../interfaces/IWrite';
 
 export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
   private _model: mongoose.Model<mongoose.Document>;
-  private _aggregate: mongoose.Aggregate<any>;
-  private _query: mongoose.Query<any>;
 
   constructor(schemaModel: mongoose.Model<mongoose.Document>) {
     this._model = schemaModel;
@@ -45,7 +43,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findWithPagingById(item: T, page: number, size: number): Promise<any> {
+  public async findWithPagingById(item: FilterQuery<T>, page: number, size: number): Promise<any> {
     try {
       const result = await this._model
         .find(item)
@@ -61,16 +59,16 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findWhere(item: T): Promise<T[]> {
+  public async findWhere(conditions: FilterQuery<T>, projection?: any | null): Promise<T[]> {
     try {
-      const result = await this._model.find(item);
+      const result = await this._model.find(conditions, projection);
       return result as T[];
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
     }
   }
 
-  public async findWhereSortByField(item: T, field: string): Promise<T[]> {
+  public async findWhereSortByField(item: FilterQuery<T>, field: string): Promise<T[]> {
     try {
       const result = await this._model.find(item).sort({
         [field]: 1,
@@ -81,7 +79,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findOne(item: T): Promise<T> {
+  public async findOne(item: FilterQuery<T>): Promise<T> {
     try {
       const result = await this._model.findOne(item);
       return result as T;
@@ -90,7 +88,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async findOneWithSelect(item: T, select: string): Promise<T> {
+  public async findOneWithSelect(item: FilterQuery<T>, select: string): Promise<T> {
     try {
       const result = await this._model.findOne(item).select(select);
       return result as T;
@@ -108,7 +106,7 @@ export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IW
     }
   }
 
-  public async update(id: Schema.Types.ObjectId, item: T): Promise<T> {
+  public async update(id: Schema.Types.ObjectId, item: UpdateQuery<T>): Promise<T> {
     try {
       const result = await this._model.updateOne({_id: id}, item);
       return result as T;

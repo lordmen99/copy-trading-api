@@ -1,5 +1,4 @@
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
-import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
@@ -10,7 +9,6 @@ import {contants, security} from '@src/utils';
 import {AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser} from '@src/validator/users/users.validator';
 import {AvailableWalletUser} from '@src/validator/users/users_money.validator';
 import {validate} from 'class-validator';
-import moment from 'moment';
 import {Error} from 'mongoose';
 
 export default class UserBussiness {
@@ -36,7 +34,7 @@ export default class UserBussiness {
         if (!result) {
           const user = await this._realUserRepository.findById(params._id.toString());
           if (user) {
-            const result = await this._userRepository.findOne({id_user_trading: user._id} as IUserModel);
+            const result = await this._userRepository.findOne({id_user_trading: user._id});
             return {
               _id: result._id,
               username: result.username,
@@ -93,7 +91,7 @@ export default class UserBussiness {
   public async getListUsers(page: number, size: number): Promise<IUserModel[]> {
     try {
       const result = await this._userRepository.findWithPagingById(
-        {status: contants.STATUS.ACTIVE} as IUserModel,
+        {status: contants.STATUS.ACTIVE},
         parseInt(page.toString()),
         parseInt(size.toString()),
       );
@@ -136,18 +134,18 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        const result = await this._userRepository.findOne({_id: params.id_user});
         if (result) {
-          const wallet = await this._realUserRepository.findOne({_id: result.id_user_trading} as IUserModel);
+          const wallet = await this._realUserRepository.findOne({_id: result.id_user_trading});
           if (wallet) {
             if (params.source === contants.TYPE_OF_WALLET.WALLET) {
               if (parseFloat(wallet.amount.toString()) > parseFloat(params.amount.toString())) {
                 const resultWallet = await this._realUserRepository.update(wallet._id, {
                   amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
-                } as IRealUserModel);
+                });
                 const resultCopy = await this._userRepository.update(result._id, {
                   total_amount: parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
-                } as IUserModel);
+                });
                 const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                 const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
                   id_user: result._id,
@@ -169,10 +167,10 @@ export default class UserBussiness {
               if (parseFloat(result.total_amount.toString()) > parseFloat(params.amount.toString())) {
                 const resultWallet = await this._realUserRepository.update(wallet._id, {
                   amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
-                } as IRealUserModel);
+                });
                 const resultCopy = await this._userRepository.update(result._id, {
                   total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
-                } as IUserModel);
+                });
                 const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                 const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
                   id_user: result._id,
@@ -208,7 +206,7 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        const result = await this._userRepository.findOne({_id: params.id_user});
         if (result) {
           const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
@@ -229,7 +227,7 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user} as IUserModel);
+        const result = await this._userRepository.findOne({_id: params.id_user});
         if (result) {
           const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
@@ -278,14 +276,14 @@ export default class UserBussiness {
       const result = await this._userRepository.findWhere({
         status_trading_copy: contants.STATUS.BLOCK,
         blockedAt: {
-          $lt: moment(date),
-        } as any,
-      } as IUserModel);
+          $lt: date,
+        },
+      });
       if (result) {
         result.map(async (user) => {
           await this._userRepository.update(user._id, {
             status_trading_copy: contants.STATUS.ACTIVE,
-          } as IUserModel);
+          });
         });
       }
     } catch (err) {

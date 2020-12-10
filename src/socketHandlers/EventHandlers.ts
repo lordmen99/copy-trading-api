@@ -1,5 +1,4 @@
 import logger from '@src/middleware/Logger';
-import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
@@ -21,7 +20,7 @@ export default (io: Server) => {
         const token = socket.handshake.query['token'];
         if (token) {
           const accessTokenRes = new AccessTokenRepository();
-          const accessToken = await accessTokenRes.findOne({token} as IAccessTokenModel);
+          const accessToken = await accessTokenRes.findOne({token});
           const userRepository = new UserRepository();
           const realUserRepository = new RealUserRepository();
           const expertRepository = new ExpertRepository();
