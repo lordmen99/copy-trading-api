@@ -7,7 +7,7 @@ export default (date: Date) => {
     const tradingHistoryBussiness = new TradingHistoryBussiness();
     const tradingCopyBussiness = new TradingCopyBussiness();
 
-    // tính profit cho expert hàng tháng
+    // tính profit cho expert hàng ngày
     tradingHistoryBussiness.calculateProfitForExpertEveryDay(date);
   } catch (error) {
     logger.error(`\nSCHEDULER ERROR: `);

@@ -2,7 +2,7 @@ import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITr
 import CPTradingGainEveryMonthSchema from '@src/schemas/CPTradingGainEveryMonthSchema';
 import {RepositoryBase} from './base';
 
-export default class TradingGainRepository extends RepositoryBase<ITradingGainEveryMonthModel> {
+export default class TradingGainEveryMonthRepository extends RepositoryBase<ITradingGainEveryMonthModel> {
   constructor() {
     super(CPTradingGainEveryMonthSchema);
   }
