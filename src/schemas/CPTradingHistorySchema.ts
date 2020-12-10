@@ -14,6 +14,9 @@ class CPTradingHistorySchema {
       id_order: {
         type: Schema.Types.ObjectId,
       },
+      id_copy: {
+        type: Schema.Types.ObjectId,
+      },
       opening_time: {
         type: Date,
         required: true,

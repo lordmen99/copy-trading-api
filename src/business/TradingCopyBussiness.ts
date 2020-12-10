@@ -146,7 +146,10 @@ export default class TradingCopyBussiness {
         });
         if (copy) {
           if (copy.investment_amount > copy.base_amount) {
-            const histories = await this._tradingHistoryRepository.findWhere({id_user: copy.id_user});
+            const histories = await this._tradingHistoryRepository.findWhere({
+              id_copy: copy._id,
+              id_user: copy.id_user,
+            });
             let keep_amount = 0;
             if (histories) {
               for (const history of histories) {

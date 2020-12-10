@@ -170,6 +170,7 @@ export default class TradingOrderBussiness {
         tradingHistoryEntity.id_user = null;
         tradingHistoryEntity.id_expert = order.id_expert;
         tradingHistoryEntity.id_order = null;
+        tradingHistoryEntity.id_copy = null;
 
         tradingHistoryEntity.opening_time = timeOpening;
         tradingHistoryEntity.closing_time = timeOpening;
@@ -225,6 +226,7 @@ export default class TradingOrderBussiness {
         historyModel.id_user = copy.id_user;
         historyModel.id_expert = order.id_expert;
         historyModel.id_order = order._id;
+        historyModel.id_copy = copy._id;
         historyModel.opening_time = timeOpening;
         historyModel.closing_time = timeOpening;
         historyModel.opening_price = dataSocket.open;
