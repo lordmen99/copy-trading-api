@@ -245,6 +245,7 @@ export default class TradingOrderBussiness {
         );
         const maximum_rate_amount = Number((historyModel.investment_amount * (copy.maximum_rate / 100)).toFixed(2));
 
+        let money = 0;
         if (order.type_of_order === 'WIN') {
           if (copy.has_maximum_rate) {
             if (copy.maximum_rate > order.threshold_percent) {
@@ -263,9 +264,10 @@ export default class TradingOrderBussiness {
             historyModel.fee_to_trading = parseFloat((historyModel.profit * 0.05).toFixed(2));
           }
           /** thêm vào tính toán tiền lãi */
+          money = historyModel.profit - historyModel.fee_to_trading - historyModel.fee_to_expert;
           dataCalculateMoney.push({
             id_copy: copy._id,
-            money: historyModel.profit - historyModel.fee_to_trading - historyModel.fee_to_expert,
+            money,
           });
           /** thêm vào tính toán tiền trả chuyên gia */
           dataTradingWithdraw.push({
@@ -291,24 +293,30 @@ export default class TradingOrderBussiness {
           historyModel.fee_to_expert = 0;
           historyModel.fee_to_trading = 0;
           /** thêm vào tính toán thua lỗ */
+          money = historyModel.order_amount * -1;
           dataCalculateMoney.push({
             id_copy: copy._id,
-            money: historyModel.order_amount * -1,
+            money,
           });
         }
 
         /** chạm đến stop loss khi copy */
+        console.log(copy.investment_amount + money, 'copy.investment_amount');
+        console.log(copy.stop_loss, 'copy.stop_loss');
+        console.log(copy.base_amount, 'copy.base_amount');
         const stop_loss =
-          copy.investment_amount < ((100 - copy.stop_loss) / 100) * copy.base_amount && copy.has_stop_loss === true;
+          copy.investment_amount + money < ((100 - copy.stop_loss) / 100) * copy.base_amount &&
+          copy.has_stop_loss === true;
 
         /** chạm đến take profit khi copy */
         const take_profit =
-          copy.investment_amount > copy.base_amount &&
-          copy.investment_amount - copy.base_amount > copy.taken_profit * copy.base_amount &&
+          copy.investment_amount + money > copy.base_amount &&
+          copy.investment_amount + money - copy.base_amount > copy.taken_profit * copy.base_amount &&
           copy.has_taken_profit === true;
 
         /** thì sẽ tạm dừng copy */
         if (stop_loss || take_profit) {
+          console.log('stop losss');
           dataPauseCopy.push(copy._id);
         }
         dataTradingHistory.push(historyModel);
