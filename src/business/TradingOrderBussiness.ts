@@ -301,9 +301,6 @@ export default class TradingOrderBussiness {
         }
 
         /** chạm đến stop loss khi copy */
-        console.log(copy.investment_amount + money, 'copy.investment_amount');
-        console.log(copy.stop_loss, 'copy.stop_loss');
-        console.log(copy.base_amount, 'copy.base_amount');
         const stop_loss =
           copy.investment_amount + money < ((100 - copy.stop_loss) / 100) * copy.base_amount &&
           copy.has_stop_loss === true;
@@ -316,7 +313,6 @@ export default class TradingOrderBussiness {
 
         /** thì sẽ tạm dừng copy */
         if (stop_loss || take_profit) {
-          console.log('stop losss');
           dataPauseCopy.push(copy._id);
         }
         dataTradingHistory.push(historyModel);

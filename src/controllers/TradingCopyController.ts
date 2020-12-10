@@ -54,12 +54,10 @@ export default class TradingCopyController {
     try {
       const params = req.body;
       const data = new StopTradingCopy();
-      // data.id_user = params.id_user;
       data.id_user = (req.user as IUserModel).id;
       data.id_copy = params.id_copy;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.stopTradingCopy(data);
-
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
