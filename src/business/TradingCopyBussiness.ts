@@ -181,7 +181,7 @@ export default class TradingCopyBussiness {
               id_user: copy.id_user,
               id_expert: null,
               id_copy: copy._id,
-              amount: keep_amount,
+              amount: parseFloat(keep_amount.toFixed(2)),
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
               createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
