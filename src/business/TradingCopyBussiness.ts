@@ -102,29 +102,26 @@ export default class TradingCopyBussiness {
           status_trading_copy: contants.STATUS.BLOCK,
         });
         if (!userBlock) {
-          const result = await this._tradingCopyRepository.create(tradingCopyEntity);
-          if (result) {
-            const user = await this._userRepository.findOne({
-              _id: tradingCopyEntity.id_user,
-            });
-            if (user) {
-              if (user.total_amount >= tradingCopyEntity.base_amount) {
-                const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
-                  total_amount: user.total_amount - tradingCopyEntity.base_amount,
-                });
-                if (updateUser) {
-                  return result;
-                }
-                return null;
-              } else {
-                throw new Error('Account does not have enough money!');
+          const user = await this._userRepository.findOne({
+            _id: tradingCopyEntity.id_user,
+          });
+          if (user) {
+            if (user.total_amount >= tradingCopyEntity.base_amount) {
+              const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
+                total_amount: user.total_amount - tradingCopyEntity.base_amount,
+              });
+              const result = await this._tradingCopyRepository.create(tradingCopyEntity);
+
+              if (updateUser) {
+                return result;
               }
               return null;
             } else {
               throw new Error('Account does not have enough money!');
             }
+            return null;
           } else {
-            throw new Error('User is not exist');
+            throw new Error('Account does not have enough money!');
           }
         } else {
           throw new Error('You are blocked in 24 hours!');
