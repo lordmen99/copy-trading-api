@@ -1,13 +1,10 @@
-import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
 import {CreateTradingWithdraw} from '@src/validator/trading_withdraws/trading_withdraws.validator';
 import {validate} from 'class-validator';
-import moment from 'moment';
 
 export default class TradingWithdrawBussiness {
   private _tradingWithdrawRepository: TradingWithdrawRepository;
@@ -19,44 +16,6 @@ export default class TradingWithdrawBussiness {
     this._userRepository = new UserRepository();
     this._realUserRepository = new RealUserRepository();
   }
-
-  // public async getListTradingHistories(page: number, size: number): Promise<any> {
-  //   try {
-  //     const result = this._tradingHistoryRepository.findWithPaging(page, size);
-  //     if (result) {
-  //       return result;
-  //     }
-  //     return [];
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
-
-  // public async getListTradingHistoriesByUser(id_user: string, page: number, size: number): Promise<any> {
-  //   try {
-  //     const result = this._tradingHistoryRepository.findWithPagingById({id_user}
-  // as ITradingHistoryModel, page, size);
-  //     if (result) {
-  //       return result;
-  //     }
-  //     return [];
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
-
-  // public async getListTradingHistoriesByExpert(id_expert: string, page: number, size: number): Promise<any> {
-  //   try {
-  //     const result = this._tradingHistoryRepository.findWithPagingById({id_expert}
-  // as ITradingHistoryModel, page, size);
-  //     if (result) {
-  //       return result;
-  //     }
-  //     return [];
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
 
   public async createTradingWithdraw(tradingWithdraw: CreateTradingWithdraw): Promise<ITradingWithdrawModel> {
     try {
@@ -91,13 +50,13 @@ export default class TradingWithdrawBussiness {
   public async getAvailableMoney(id_user, source): Promise<any> {
     try {
       if (source === contants.TYPE_OF_WALLET.WALLET) {
-        const user = await this._userRepository.findOne({_id: id_user} as IUserModel);
+        const user = await this._userRepository.findOne({_id: id_user});
         if (user) {
-          const result = await this._realUserRepository.findOne({_id: user.id_user_trading} as IRealUserModel);
+          const result = await this._realUserRepository.findOne({_id: user.id_user_trading});
           return parseFloat(result.amount.toString());
         }
       } else if (source === contants.TYPE_OF_WALLET.COPY_TRADE) {
-        const result = await this._userRepository.findOne({_id: id_user} as IUserModel);
+        const result = await this._userRepository.findOne({_id: id_user});
         if (result) {
           return result.total_amount;
         }
@@ -115,9 +74,9 @@ export default class TradingWithdrawBussiness {
         status: contants.STATUS.PENDING,
         type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER,
         paidAt: {
-          $lt: moment(date),
-        } as any,
-      } as ITradingWithdrawModel);
+          $lt: date,
+        },
+      });
       if (result) {
         return result;
       }
@@ -133,9 +92,9 @@ export default class TradingWithdrawBussiness {
         status: contants.STATUS.PENDING,
         type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
         paidAt: {
-          $lt: moment(date),
-        } as any,
-      } as ITradingWithdrawModel);
+          $lt: date,
+        },
+      });
       if (result) {
         return result;
       }

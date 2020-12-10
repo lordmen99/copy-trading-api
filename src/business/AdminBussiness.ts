@@ -56,7 +56,7 @@ export default class AdminBussiness {
             const result = await this._adminRepository.update(params._id, {
               hashed_password: securityPass.hashedPassword,
               salt: securityPass.salt,
-            } as IAdminModel);
+            });
             return result ? true : false;
           } else throw new Error('Current password is false');
         } else throw new Error('Account does not exist');

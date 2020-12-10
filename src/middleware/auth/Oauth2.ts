@@ -1,9 +1,5 @@
 import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
-import IAdminEntities from '@src/models/cpAdmin/IAdminModel';
 import ClientEntities from '@src/models/cpClient/IClientModel';
-import IExpertModel from '@src/models/cpExpert/IExpertModel';
-import IRealUserModel from '@src/models/cpRealUser/IRealUserModel';
-import IUserModel from '@src/models/cpUser/IUserModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
@@ -24,7 +20,7 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
       const result = await _accessTokenRepository.findOne({
         client_id: client.client_id,
         id_client: clientModel._id,
-      } as IAccessTokenModel);
+      });
       if (result) {
         await _accessTokenRepository.delete(result._id);
       }
@@ -44,12 +40,12 @@ const initToken = async (client: ClientEntities, clientModel: any, type: string,
       const expertResult = await _accessTokenRepository.findOne({
         client_id: client.client_id,
         id_client: clientModel._id,
-      } as IAccessTokenModel);
+      });
       if (expertResult) {
         const result = await _accessTokenRepository.findOne({
           client_id: client.client_id,
           id_client: clientModel._id,
-        } as IAccessTokenModel);
+        });
         if (result) {
           await _accessTokenRepository.delete(result._id);
         }
@@ -96,7 +92,7 @@ server.exchange(
       try {
         if (body.type === contants.TYPE_OF_CLIENT.ADMIN) {
           const _adminRepository = new AdminRepository();
-          const admin = await _adminRepository.findOne({username} as IAdminEntities);
+          const admin = await _adminRepository.findOne({username});
           if (!admin) return issused(new Error('The account or password is incorrect!'));
           if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
             return issused(new Error('Password is incorrect!'));
@@ -108,7 +104,7 @@ server.exchange(
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.USER) {
           const _expertRepository = new ExpertRepository();
-          const expert = await _expertRepository.findOne({username} as IExpertModel);
+          const expert = await _expertRepository.findOne({username});
           if (expert) {
             if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
               return issused(new Error('Password is incorrect!'));
@@ -121,18 +117,18 @@ server.exchange(
           } else {
             const _userRepository = new UserRepository();
             const _realUserRepository = new RealUserRepository();
-            const real = await _realUserRepository.findOne({username} as IRealUserModel);
+            const real = await _realUserRepository.findOne({username});
             if (real) {
               const isValid = bcrypt.compareSync(password, real.password);
               if (!isValid) {
                 return issused(new Error('Password is incorrect!'));
               } else {
-                const user = await _userRepository.findOne({id_user_trading: real._id} as IUserModel);
+                const user = await _userRepository.findOne({id_user_trading: real._id});
 
                 initToken(client, user, body.type, issused);
               }
             } else {
-              const user = await _userRepository.findOne({username} as IUserModel);
+              const user = await _userRepository.findOne({username});
               if (!user) return issused(new Error('The account or password is incorrect!'));
               if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
                 return issused(new Error('Password is incorrect!'));

@@ -1,4 +1,3 @@
-import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
 import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
@@ -67,7 +66,7 @@ export default class TradingHistoryBussiness {
     size: number,
   ): Promise<any> {
     try {
-      const expert = await this._expertRepository.findOneWithSelect({_id: id_expert} as IExpertModel, 'fullname');
+      const expert = await this._expertRepository.findOneWithSelect({_id: id_expert}, 'fullname');
       if (expert) {
         const result = await this._tradingHistoryRepository.getListTradingHistoriesFollowExpert(
           {id_expert, id_user: {$ne: null} as any} as ITradingHistoryModel,
@@ -96,13 +95,9 @@ export default class TradingHistoryBussiness {
     size: number,
   ): Promise<any> {
     try {
-      const expert = await this._expertRepository.findOneWithSelect({_id: id_expert} as IExpertModel, 'fullname');
+      const expert = await this._expertRepository.findOneWithSelect({_id: id_expert}, 'fullname');
       if (expert) {
-        const result = await this._tradingHistoryRepository.findWithPagingById(
-          {id_expert, id_user: null} as ITradingHistoryModel,
-          page,
-          size,
-        );
+        const result = await this._tradingHistoryRepository.findWithPagingById({id_expert, id_user: null}, page, size);
         result.result.expert_name = expert.fullname;
         if (result) {
           return result;
@@ -136,9 +131,7 @@ export default class TradingHistoryBussiness {
 
   public async calculateProfitForExpertEveryMonth(date: Date): Promise<void> {
     try {
-      const experts = await this._expertRepository.findWhere({
-        status: contants.STATUS.ACTIVE,
-      } as IExpertModel);
+      const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       for (const expert of experts) {
         const trading_gain_every_month = await this._tradingGainEveryMonthRepository.findOneSort({
           id_expert: expert._id,
@@ -146,10 +139,10 @@ export default class TradingHistoryBussiness {
         const trading_gains = await this._tradingGainRepository.findWhere({
           id_expert: expert._id,
           createdAt: {
-            $gte: moment(new Date(trading_gain_every_month.createdAt)),
-            $lt: moment(date),
-          } as any,
-        } as ITradingGainModel);
+            $gte: new Date(trading_gain_every_month.createdAt),
+            $lt: date,
+          },
+        });
 
         const count_trading_copies = await this._tradingCopyRepository.count({
           id_expert: expert._id,
@@ -196,60 +189,41 @@ export default class TradingHistoryBussiness {
 
   public async calculateProfitForExpertEveryDay(date: Date): Promise<void> {
     try {
-      const experts = await this._expertRepository.findWhere({
-        status: contants.STATUS.ACTIVE,
-      } as IExpertModel);
+      const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       for (const expert of experts) {
         const trading_gain = await this._tradingGainRepository.findOneSort({
           id_expert: expert._id,
         } as ITradingGainModel);
+        let result: ITradingHistoryModel[] = [];
         if (trading_gain) {
-          const result = await this._tradingHistoryRepository.findWhere({
+          result = await this._tradingHistoryRepository.findWhere({
             id_expert: expert._id,
             closing_time: {
-              $gte: moment(new Date(trading_gain.createdAt)),
-              $lt: moment(date),
-            } as any,
-          } as ITradingHistoryModel);
-          if (result) {
-            let profit = 0;
-            for (const history of result) {
-              if (history.id_user) {
-                profit = profit + history.fee_to_expert;
-              } else {
-                profit = profit + history.profit - history.fee_to_trading;
-              }
-            }
-            await this._tradingGainRepository.create({
-              id_expert: expert._id,
-              total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
-              createdAt: new Date(date),
-              updatedAt: new Date(date),
-            } as ITradingGainModel);
-          }
+              $gte: new Date(trading_gain.createdAt),
+              $lt: date,
+            },
+          });
         } else {
-          const result = await this._tradingHistoryRepository.findWhere({
+          result = await this._tradingHistoryRepository.findWhere({
             id_expert: expert._id,
-            closing_time: {
-              $lt: moment(date),
-            } as any,
-          } as ITradingHistoryModel);
-          if (result) {
-            let profit = 0;
-            for (const history of result) {
-              if (history.id_user) {
-                profit = profit + history.fee_to_expert;
-              } else {
-                profit = profit + history.profit - history.fee_to_trading;
-              }
+            closing_time: {$lt: date},
+          });
+        }
+        if (result?.length > 0) {
+          let profit = 0;
+          for (const history of result) {
+            if (history.id_user) {
+              profit = profit + history.fee_to_expert;
+            } else {
+              profit = profit + history.profit - history.fee_to_trading;
             }
-            await this._tradingGainRepository.create({
-              id_expert: expert._id,
-              total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
-              createdAt: new Date(date),
-              updatedAt: new Date(date),
-            } as ITradingGainModel);
           }
+          await this._tradingGainRepository.create({
+            id_expert: expert._id,
+            total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
+            createdAt: new Date(date),
+            updatedAt: new Date(date),
+          } as ITradingGainModel);
         }
       }
     } catch (err) {

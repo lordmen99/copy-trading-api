@@ -26,7 +26,7 @@ export default class ExpertBussiness {
 
   public async getListExperts(): Promise<IExpertModel[]> {
     try {
-      const result = this._expertRepository.findWhere({status: contants.STATUS.ACTIVE} as IExpertModel);
+      const result = this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       if (result) {
         return result;
       }
@@ -142,7 +142,7 @@ export default class ExpertBussiness {
       } else {
         const expert = await this._expertRepository.findById(params._id.toString());
         if (expert) {
-          const expertEntity = expert as IExpertModel;
+          const expertEntity = expert;
           expertEntity.fullname = params.fullname;
           expertEntity.username = params.username;
           expertEntity.email = params.email;
@@ -150,9 +150,7 @@ export default class ExpertBussiness {
           expertEntity.avatar = params.avatar;
           expertEntity.total_amount = params.total_amount;
           expertEntity.is_virtual = params.is_virtual;
-
           const result = await this._expertRepository.update(params._id, expertEntity);
-
           if (result) {
             return result ? true : false;
           }
@@ -167,11 +165,9 @@ export default class ExpertBussiness {
     try {
       const expert = await this._expertRepository.findById(_id.toString());
       if (expert) {
-        const expertEntity = expert as IExpertModel;
+        const expertEntity = expert;
         expertEntity.status = 'DELETE';
-
         const result = await this._expertRepository.update(_id, expertEntity);
-
         if (result) {
           return result ? true : false;
         }

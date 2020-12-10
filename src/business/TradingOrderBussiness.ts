@@ -58,16 +58,8 @@ export default class TradingOrderBussiness {
 
   public async getListOrdersByExpert(id_expert: Schema.Types.ObjectId, page, size): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findWithPagingById(
-        {
-          id_expert,
-        } as ITradingOrderModel,
-        page,
-        size,
-      );
-      if (result) {
-        return result;
-      }
+      const result = await this._tradingOrderRepository.findWithPagingById({id_expert}, page, size);
+      if (result) return result;
       return [];
     } catch (err) {
       throw err;
@@ -80,9 +72,9 @@ export default class TradingOrderBussiness {
         {
           status: contants.STATUS.PENDING,
           timeSetup: {
-            $lt: moment(new Date()),
-          } as any,
-        } as ITradingOrderModel,
+            $lt: new Date(),
+          },
+        },
         'timeSetup',
       );
       if (result.length <= 0) return;
@@ -94,12 +86,12 @@ export default class TradingOrderBussiness {
           const diffES = (end.getTime() - start.getTime()) * Math.random();
           this._tradingOrderRepository.update(result[i]._id, {
             timeSetup: new Date(start.getTime() + diffES),
-          } as ITradingOrderModel);
+          });
         } else {
           // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
           this._tradingOrderRepository.update(result[i]._id, {
             status: contants.STATUS.FINISH,
-          } as ITradingOrderModel);
+          });
 
           /** khởi tạo time vào lệnh cho cả chuyên gia và user */
           let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
@@ -114,7 +106,7 @@ export default class TradingOrderBussiness {
           const tradingCopy = await this._tradingCopyRepository.findWhere({
             status: contants.STATUS.ACTIVE,
             id_expert: result[i].id_expert,
-          } as ITradingCopyModel);
+          });
           if (tradingCopy) this.createHistoryForUserCopy(result[i], dataSocket, tradingCopy, timeOpening);
         }
       }
@@ -150,7 +142,7 @@ export default class TradingOrderBussiness {
         const order = await this._tradingOrderRepository.findOne({
           _id: tradingOrder.id_order,
           status: contants.STATUS.PENDING,
-        } as ITradingOrderModel);
+        });
         if (order) {
           const tradingOrderEntity = tradingOrder as ITradingOrderModel;
           tradingOrderEntity.id_expert = tradingOrder.id_expert;
@@ -324,10 +316,10 @@ export default class TradingOrderBussiness {
 
       /** tính toán số tiền nhận được */
       dataCalculateMoney.map(async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
-        const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy} as ITradingCopyModel);
+        const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
         this._tradingCopyRepository.update(copy._id, {
           investment_amount: copy.investment_amount + item.money,
-        } as ITradingCopyModel);
+        });
       });
 
       /** số tiền để sau trả lại chuyên gia nếu thắng */

@@ -1,6 +1,3 @@
-import IAccessTokenModel from '@src/models/cpAccessToken/IAccessTokenModel';
-import IAdminEntities from '@src/models/cpAdmin/IAdminModel';
-import IClientModel from '@src/models/cpClient/IClientModel';
 import AccessTokenRepository from '@src/repository/AccessTokenRepository';
 import AdminRepository from '@src/repository/AdminRepository';
 import ClientRepository from '@src/repository/ClientRepository';
@@ -19,7 +16,7 @@ export default () => {
     new BasicStrategy(async (username, password, done) => {
       try {
         const adminRepository = new AdminRepository();
-        const admin = await adminRepository.findOne({username} as IAdminEntities);
+        const admin = await adminRepository.findOne({username});
         if (!admin) return done(null, false);
         if (!security.checkPassword(password, admin.salt, admin.hashed_password)) return done(null, false);
       } catch (error) {
@@ -33,7 +30,7 @@ export default () => {
         const clientRes = new ClientRepository();
         const result = await clientRes.findOne({
           client_id: clientId,
-        } as IClientModel);
+        });
         if (!result) return done(null, false);
         const hashClientSecret = createHash('sha512').update(clientSecret).digest('hex');
         if (result.client_secret !== hashClientSecret) return done(null, false);
@@ -47,7 +44,7 @@ export default () => {
     new BearerStrategy(async (token, done) => {
       try {
         const accessTokenRes = new AccessTokenRepository();
-        const accessToken = await accessTokenRes.findOne({token} as IAccessTokenModel);
+        const accessToken = await accessTokenRes.findOne({token});
         if (!accessToken) return done({code: 403, type: 'invalidToken', message: 'Token invalid'});
         if (accessToken.type === contants.TYPE_OF_CLIENT.ADMIN) {
           const adminRepository = new AdminRepository();
