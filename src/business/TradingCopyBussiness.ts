@@ -119,9 +119,8 @@ export default class TradingCopyBussiness {
             } else {
               throw new Error('Account does not have enough money!');
             }
-            return null;
           } else {
-            throw new Error('Account does not have enough money!');
+            throw new Error('User is not exits');
           }
         } else {
           throw new Error('You are blocked in 24 hours!');
