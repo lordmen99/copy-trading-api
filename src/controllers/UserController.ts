@@ -32,6 +32,21 @@ export default class UserController {
       next(err);
     }
   }
+
+  public async getUserByName(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // const id = (req.user as IUserModel).id;
+      const params = req.body;
+      const userBusiness = new UserBussiness();
+      // const data = new GetExpertByName();
+      // data.username = params.username;
+      const result = await userBusiness.findByName(params.username, params.page, params.size);
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getListUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;

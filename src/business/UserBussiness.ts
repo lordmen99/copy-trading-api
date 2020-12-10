@@ -290,4 +290,16 @@ export default class UserBussiness {
       throw err;
     }
   }
+
+  public async findByName(username: string, page: number, size: number): Promise<IUserModel[]> {
+    try {
+      return this._userRepository.findWithPagingById(
+        {username: {$regex: '.*' + username + '.*'}} as any,
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
 }

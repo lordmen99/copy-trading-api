@@ -49,6 +49,7 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
                   base_amount: 1,
                   expert: {
                     username: 1,
+                    avatar: 1,
                   },
                 },
               },
