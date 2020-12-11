@@ -134,9 +134,14 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
     }
   }
 
-  public async executeListExpertPage(page: number, size: number): Promise<any> {
+  public async executeListExpertPage(username: string, page: number, size: number): Promise<any> {
     try {
       const result = await CPExpertSchema.aggregate([
+        {
+          $match: {
+            username: {$regex: '.*' + username + '.*'},
+          },
+        },
         {
           $facet: {
             total: [{$group: {_id: null, count: {$sum: 1}}}],

@@ -217,9 +217,22 @@ export default class ExpertBussiness {
     }
   }
 
-  public async getListExpertsPaging(page, size): Promise<any> {
+  public async findByNameAdmin(params: GetExpertByName, page: number, size: number): Promise<IExpertModel[]> {
     try {
-      const result = await this._expertRepository.executeListExpertPage(page, size);
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        return this._expertRepository.searchByUserName(params, page, size);
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListExpertsPaging(username, page, size): Promise<any> {
+    try {
+      const result = await this._expertRepository.executeListExpertPage(username, page, size);
       if (result) {
         return result;
       } else {
