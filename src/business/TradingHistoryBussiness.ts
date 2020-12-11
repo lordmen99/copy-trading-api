@@ -64,18 +64,25 @@ export default class TradingHistoryBussiness {
     id_expert: Schema.Types.ObjectId,
     page: number,
     size: number,
+    fromDate: Date,
+    toDate: Date,
   ): Promise<any> {
     try {
       const expert = await this._expertRepository.findOneWithSelect({_id: id_expert}, 'fullname');
       if (expert) {
         const result = await this._tradingHistoryRepository.getListTradingHistoriesFollowExpert(
-          {id_expert, id_user: {$ne: null} as any} as ITradingHistoryModel,
+          {
+            id_expert,
+            id_user: {$ne: null} as any,
+          } as ITradingHistoryModel,
           page,
           size,
           'id_user',
           '_id',
           'user',
           'cp_users',
+          fromDate,
+          toDate,
         );
         if (result) {
           return result;

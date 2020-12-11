@@ -74,8 +74,10 @@ export default class TradingHistoryController {
         params.id_expert ? params.id_expert.toString() : '',
         params.page ? parseInt(params.page.toString()) : 0,
         params.size ? parseInt(params.size.toString()) : 0,
+        params.fromDate,
+        params.toDate,
       );
-      res.status(200).send({data: result.result[0].data, count: result.count});
+      res.status(200).send({data: result.result[0].data, count: result.count, profit: result.profit});
     } catch (err) {
       next(err);
     }
