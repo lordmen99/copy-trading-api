@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import createTradingCopy from './CreateTradingCopy';
 import getListTradingCopies from './GetListTradingCopies';
+import getListTradingCopiesStop from './GetListTradingCopiesStop';
 import getTradingCopyById from './GetTradingCopyById';
 import getUserCopyByExpert from './GetUserCopyByExpert';
 import pauseTradingCopy from './PauseTradingCopy';
@@ -20,5 +21,6 @@ export default class TradingCopyRouter {
     resumeTradingCopy(this.router);
     transferMoneyToTradingCopy(this.router);
     getUserCopyByExpert(this.router);
+    getListTradingCopiesStop(this.router);
   }
 }

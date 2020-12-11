@@ -121,6 +121,21 @@ export default class TradingCopyController {
     }
   }
 
+  public async getListStopTradingCopies(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new GetTradingCopyOfUser();
+      // data.id_user = params.id_user;
+      data.id_user = (req.user as IUserModel).id;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.getListStopTradingCopies(data, params.page, params.size);
+
+      res.status(200).send({data: result.result.data, count: result.count});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async transferMoneyToTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
