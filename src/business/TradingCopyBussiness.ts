@@ -144,22 +144,24 @@ export default class TradingCopyBussiness {
           _id: tradingCopy.id_copy,
           id_user: tradingCopy.id_user,
         });
+
         if (copy) {
           if (copy.investment_amount > copy.base_amount) {
-            const histories = await this._tradingHistoryRepository.findWhere({id_user: copy.id_user});
+            const histories = await this._tradingHistoryRepository.findWhere({
+              id_copy: copy._id,
+              id_user: copy.id_user,
+              closing_time: {
+                $gte: new Date(new Date().setHours(0, 0, 0)),
+                $lt: new Date(new Date().setHours(23, 59, 59)),
+              },
+            });
             let keep_amount = 0;
-            if (histories) {
+            if (histories.length > 0) {
               for (const history of histories) {
-                if (
-                  history.closing_time.getDate() === new Date().getDate() &&
-                  history.closing_time.getMonth() === new Date().getMonth() &&
-                  history.closing_time.getFullYear() === new Date().getFullYear()
-                ) {
-                  if (history.profit === 0) {
-                    keep_amount = keep_amount - history.order_amount;
-                  } else {
-                    keep_amount = keep_amount + history.profit - history.fee_to_expert - history.fee_to_trading;
-                  }
+                if (history.profit === 0) {
+                  keep_amount = keep_amount - history.order_amount;
+                } else {
+                  keep_amount = keep_amount + history.profit - history.fee_to_expert - history.fee_to_trading;
                 }
               }
             }
@@ -179,7 +181,7 @@ export default class TradingCopyBussiness {
               id_user: copy.id_user,
               id_expert: null,
               id_copy: copy._id,
-              amount: keep_amount,
+              amount: parseFloat(keep_amount.toFixed(2)),
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
               createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),

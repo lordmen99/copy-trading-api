@@ -19,6 +19,10 @@ export default class TradingHistoryModel {
     return this._tradingHistoryModel.id_order;
   }
 
+  get id_copy(): Schema.Types.ObjectId {
+    return this._tradingHistoryModel.id_copy;
+  }
+
   get opening_time(): Date {
     return this._tradingHistoryModel.opening_time;
   }

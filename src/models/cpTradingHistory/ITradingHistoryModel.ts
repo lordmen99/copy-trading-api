@@ -4,6 +4,7 @@ export default interface ITradingHistoryModel extends mongoose.Document {
   id_user: Schema.Types.ObjectId; // id user nối với bảng bên trading
   id_expert: Schema.Types.ObjectId; // id chuyên gia mà user thực hiện copy trading
   id_order: Schema.Types.ObjectId;
+  id_copy: Schema.Types.ObjectId;
   opening_time: Date; // Thời gian mở lệnh
   opening_price: number; // Giá mở lệnh
   closing_time: Date; // Thời gian đóng lệnh
