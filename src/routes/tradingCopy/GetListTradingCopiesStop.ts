@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading_copy/get_list_stop_trading_copies 5. Get list trading copies
+ * @api {post} /trading_copy/get_list_stop_trading_copies 6. Get list stop trading copies
  * @apiVersion 0.1.0
  * @apiGroup III. Trading Copy
  *
