@@ -32,11 +32,32 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
                 },
               },
               {
+                $lookup: {
+                  from: 'cp_trading_histories',
+                  let: {
+                    id_copy: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {$expr: {$eq: ['$id_copy', '$$id_copy']}},
+                    },
+                    {
+                      $sort: {closing_time: -1},
+                    },
+                    {
+                      $limit: 1,
+                    },
+                  ],
+                  as: 'trading_histories',
+                },
+              },
+              {
                 $project: {
                   _id: 1,
                   status: 1,
                   id_user: 1,
                   id_expert: 1,
+                  id_copy: 1,
                   investment_amount: 1,
                   maximum_rate: 1,
                   has_maximum_rate: 1,
@@ -51,6 +72,7 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
                     username: 1,
                     avatar: 1,
                   },
+                  trading_histories: 1,
                 },
               },
             ],
