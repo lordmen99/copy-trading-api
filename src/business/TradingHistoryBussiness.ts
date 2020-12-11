@@ -40,7 +40,13 @@ export default class TradingHistoryBussiness {
     }
   }
 
-  public async getListTradingHistoriesByUser(id_user: Schema.Types.ObjectId, page: number, size: number): Promise<any> {
+  public async getListTradingHistoriesByUser(
+    id_user: Schema.Types.ObjectId,
+    page: number,
+    size: number,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<any> {
     try {
       const result = this._tradingHistoryRepository.findWithPagingByUserWithAggregate(
         {id_user} as ITradingHistoryModel,
@@ -50,6 +56,8 @@ export default class TradingHistoryBussiness {
         '_id',
         'expert',
         'cp_experts',
+        fromDate,
+        toDate,
       );
       if (result) {
         return result;
@@ -100,11 +108,23 @@ export default class TradingHistoryBussiness {
     id_expert: Schema.Types.ObjectId,
     page: number,
     size: number,
+    fromDate: Date,
+    toDate: Date,
   ): Promise<any> {
     try {
       const expert = await this._expertRepository.findOneWithSelect({_id: id_expert}, 'fullname');
       if (expert) {
-        const result = await this._tradingHistoryRepository.findWithPagingById({id_expert, id_user: null}, page, size);
+        const result = await this._tradingHistoryRepository.getListTradingHistoriesByExpert(
+          {
+            id_expert,
+            id_user: null,
+          } as ITradingHistoryModel,
+          page,
+          size,
+          fromDate,
+          toDate,
+        );
+
         result.result.expert_name = expert.fullname;
         if (result) {
           return result;
