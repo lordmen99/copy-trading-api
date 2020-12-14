@@ -152,4 +152,20 @@ export default class ExpertController {
       next(err);
     }
   }
+
+  public async getProfitForExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.getProfitForExpert(
+        params.id_expert,
+        params.fromDate,
+        params.toDate,
+        params.type,
+      );
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
 }
