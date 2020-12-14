@@ -173,6 +173,7 @@ export default class TradingCopyBussiness {
             });
             const resultCopy = await this._tradingCopyRepository.update(copy._id, {
               status: contants.STATUS.STOP,
+              updatedAt: new Date(),
             });
 
             const tradingWithdrawBussiness = new TradingWithdrawBussiness();
@@ -309,6 +310,30 @@ export default class TradingCopyBussiness {
         parseInt(page.toString()),
         parseInt(size.toString()),
         [contants.STATUS.ACTIVE, contants.STATUS.PAUSE],
+      );
+      const temp = {
+        result: null,
+        count: 0,
+      };
+      temp.count = copy.count;
+      temp.result = {...copy.result[0]};
+      if (copy) {
+        return temp;
+      } else {
+        return null;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListStopTradingCopies(params: GetTradingCopyOfUser, page: number, size: number): Promise<any> {
+    try {
+      const copy = await this._tradingCopyRepository.getListCopies(
+        {id_user: params.id_user} as ITradingCopyModel,
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+        [contants.STATUS.STOP],
       );
       const temp = {
         result: null,

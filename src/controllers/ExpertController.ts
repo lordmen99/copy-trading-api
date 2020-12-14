@@ -9,7 +9,7 @@ export default class ExpertController {
     try {
       const params = req.body;
       const expertBusiness = new ExpertBussiness();
-      const result = await expertBusiness.getListExpertsPaging(params.page, params.size);
+      const result = await expertBusiness.getListExpertsPaging(params.username, params.page, params.size);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
