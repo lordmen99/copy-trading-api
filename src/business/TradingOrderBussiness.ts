@@ -9,7 +9,11 @@ import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import {contants} from '@src/utils';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
-import {CreateTradingOrder, EditTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
+import {
+  CreateTradingOrder,
+  DeleteTradingOrder,
+  EditTradingOrder,
+} from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
 import moment from 'moment';
 import {Schema} from 'mongoose';
@@ -149,6 +153,31 @@ export default class TradingOrderBussiness {
           tradingOrderEntity.type_of_order = tradingOrder.type_of_order;
           tradingOrderEntity.threshold_percent = tradingOrder.threshold_percent;
           tradingOrderEntity.timeSetup = tradingOrder.timeSetup;
+
+          const result = await this._tradingOrderRepository.update(order._id, tradingOrderEntity);
+          return result ? true : false;
+        } else {
+          throw new Error('Order is not exist!');
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async deleteTradingOrder(tradingOrder: DeleteTradingOrder): Promise<boolean> {
+    try {
+      const errors = await validate(tradingOrder);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const order = await this._tradingOrderRepository.findOne({
+          _id: tradingOrder.id_order,
+          status: contants.STATUS.PENDING,
+        });
+        if (order) {
+          const tradingOrderEntity = tradingOrder as ITradingOrderModel;
+          tradingOrderEntity.status = contants.STATUS.DELETE;
 
           const result = await this._tradingOrderRepository.update(order._id, tradingOrderEntity);
           return result ? true : false;
