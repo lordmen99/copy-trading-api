@@ -286,13 +286,13 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
 
       const list = [];
       if (result) {
-        const info = {
-          gain_rate_last_month: 0,
-          gain_rate_months: 0,
-          copier: 0,
-          removed_copier: 0,
-        };
         for (const expert of result[0].data) {
+          const info = {
+            gain_rate_last_month: 0,
+            gain_rate_months: 0,
+            copier: 0,
+            removed_copier: 0,
+          };
           if (expert.gain_every_months.length > 0) {
             info.copier = expert.gain_every_months[0].copier;
             info.removed_copier = expert.gain_every_months[0].removed_copier;
