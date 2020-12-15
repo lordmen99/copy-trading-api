@@ -2,7 +2,11 @@ import TradingOrderBussiness from '@src/business/TradingOrderBussiness';
 import IAdminModel from '@src/models/cpAdmin/IAdminModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import {contants} from '@src/utils';
-import {CreateTradingOrder, EditTradingOrder} from '@src/validator/trading_orders/trading_orders.validator';
+import {
+  CreateTradingOrder,
+  DeleteTradingOrder,
+  EditTradingOrder,
+} from '@src/validator/trading_orders/trading_orders.validator';
 import {NextFunction, Request, Response} from 'express';
 
 export default class TradingOrderController {
@@ -92,6 +96,21 @@ export default class TradingOrderController {
 
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.editTradingOrder(data);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async deleteTradingOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new DeleteTradingOrder();
+      data.id_order = params.id_order;
+
+      const tradingOrderBusiness = new TradingOrderBussiness();
+      const result = await tradingOrderBusiness.deleteTradingOrder(data);
 
       res.status(200).send({data: result});
     } catch (err) {

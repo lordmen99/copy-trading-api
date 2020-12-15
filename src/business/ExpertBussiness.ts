@@ -4,6 +4,7 @@ import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITr
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
+import TradingGainRepository from '@src/repository/TradingGainRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
 import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
@@ -16,12 +17,14 @@ export default class ExpertBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
   private _tradingGainEveryMonthRepository: TradingGainEveryMonthRepository;
+  private _tradingGainRepository: TradingGainRepository;
 
   constructor() {
     this._expertRepository = new ExpertRepository();
     this._userRepository = new UserRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
     this._tradingGainEveryMonthRepository = new TradingGainEveryMonthRepository();
+    this._tradingGainRepository = new TradingGainRepository();
   }
 
   public async getListExperts(): Promise<IExpertModel[]> {
@@ -78,6 +81,7 @@ export default class ExpertBussiness {
       if (dataRandomExpert.length > 0) {
         const result = await this._expertRepository.insertManyExpert(dataRandomExpert);
         const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
+        // const dataRandomTradingGain: ITradingGainModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
         if (result.length <= 0) return true;
         result.map((item: IExpertModel) => {
@@ -89,9 +93,18 @@ export default class ExpertBussiness {
             createdAt: new Date(),
             updatedAt: new Date(),
           } as ITradingGainEveryMonthModel);
+          // for (let i = 0; i < 7; i++) {
+          //   dataRandomTradingGain.push({
+          //     id_expert: item._id,
+          //     total_gain: Math.floor(Math.random() * (20 - 1)) + 1,
+          //     createdAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
+          //     updatedAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
+          //   } as ITradingGainModel);
+          // }
         });
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
         await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
+        // await this._tradingGainRepository.insertManyTradingGain(dataRandomTradingGain);
       }
       return true;
     } catch (err) {
@@ -226,6 +239,43 @@ export default class ExpertBussiness {
       const result = await this._expertRepository.getUserCopyByExpert({_id: id_expert} as IExpertModel, page, size);
       if (result) {
         return result.user;
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getProfitForExpert(
+    id_expert: Schema.Types.ObjectId,
+    fromDate: Date,
+    toDate: Date,
+    type: string,
+  ): Promise<any> {
+    try {
+      if (type === contants.TYPE_OF_TIME.MONTH) {
+        const result = await this._tradingGainEveryMonthRepository.findWhere({
+          id_expert,
+          createdAt: {
+            $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+            $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+          },
+        });
+        if (result) {
+          return result;
+        } else return null;
+      } else if (type === contants.TYPE_OF_TIME.DAY) {
+        const result = await this._tradingGainRepository.findWhere({
+          id_expert,
+          createdAt: {
+            $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+            $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+          },
+        });
+        if (result) {
+          return result;
+        } else return null;
+      } else {
+        throw new Error('Type is not valid');
       }
     } catch (err) {
       throw err;

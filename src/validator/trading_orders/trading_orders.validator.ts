@@ -52,3 +52,10 @@ export class EditTradingOrder {
 
   timeSetup?: Date;
 }
+
+export class DeleteTradingOrder {
+  @IsNotEmpty({message: 'Id order is required'})
+  id_order: Schema.Types.ObjectId;
+
+  status?: string;
+}

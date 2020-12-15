@@ -31,10 +31,16 @@ enum TYPE_OF_WALLET {
   COPY_TRADE = 'COPY_TRADE',
 }
 
+enum TYPE_OF_TIME {
+  MONTH = 'MONTH',
+  DAY = 'DAY',
+}
+
 export default {
   STATUS,
   RATE,
   TYPE_OF_WITHDRAW,
   TYPE_OF_CLIENT,
   TYPE_OF_WALLET,
+  TYPE_OF_TIME,
 };
