@@ -35,32 +35,31 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           },
         },
       ]);
-      if (result) {
+      if (result.length > 0) {
         const info = {
           gain_rate_last_month: 0,
           gain_rate_months: 0,
           copier: 0,
           removed_copier: 0,
         };
-        info.copier = result[0].gain_every_months[0].copier;
-        info.removed_copier = result[0].gain_every_months[0].removed_copier;
-        info.gain_rate_last_month = result[0].gain_every_months[0].total_gain;
-        let gain = 0;
-        for (const item of result[0].gain_every_months) {
-          gain = gain + item.total_gain;
-        }
-        info.gain_rate_months = parseFloat((gain / result[0].gain_every_months.length).toFixed(2));
         const temp = {
-          result: null,
-          info: null,
+          result: result[0],
+          info,
         };
-        temp.result = result[0];
-        temp.info = info;
-        if (temp.result && temp.info) {
-          return temp;
-        } else {
-          return null;
+        if (result[0].gain_every_months.length > 0) {
+          info.copier = result[0].gain_every_months[0].copier;
+          info.removed_copier = result[0].gain_every_months[0].removed_copier;
+          info.gain_rate_last_month = result[0].gain_every_months[0].total_gain;
+          let gain = 0;
+          for (const item of result[0].gain_every_months) {
+            gain = gain + item.total_gain;
+          }
+          info.gain_rate_months = parseFloat((gain / result[0].gain_every_months.length).toFixed(2));
+
+          temp.result = result[0];
+          temp.info = info;
         }
+        return temp;
       }
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
@@ -273,6 +272,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   username: 1,
                   avatar: 1,
                   gain_every_months: 1,
+                  trading_histories: 1,
                 },
               },
             ],
@@ -301,7 +301,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             for (const item of expert.gain_every_months) {
               gain = gain + item.total_gain;
             }
-            info.gain_rate_months = parseFloat((gain / expert.gain_every_months.length).toFixed(2));
           }
           const temp = {
             expert,

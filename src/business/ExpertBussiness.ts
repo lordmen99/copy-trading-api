@@ -52,14 +52,6 @@ export default class ExpertBussiness {
         expertEntity.salt = securityPass.salt;
 
         const result = await this._expertRepository.create(expertEntity);
-        await this._tradingGainEveryMonthRepository.create({
-          id_expert: result._id,
-          total_gain: 0,
-          copier: 0,
-          removed_copier: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as ITradingGainEveryMonthModel);
         if (result) {
           return result;
         }
