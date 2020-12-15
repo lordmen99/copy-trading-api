@@ -21,12 +21,34 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           },
         },
         {
+          $lookup: {
+            from: 'cp_trading_gains',
+            let: {
+              id_expert: '$_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {$eq: ['$id_expert', '$$id_expert']},
+                  createdAt: {
+                    $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                    $lt: new Date(),
+                  },
+                },
+              },
+            ],
+            as: 'trading_gains',
+          },
+        },
+
+        {
           $project: {
             _id: 1,
             fullname: 1,
             username: 1,
             avatar: 1,
             gain_every_months: 1,
+            trading_gains: 1,
           },
         },
         {
@@ -50,15 +72,22 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           info.copier = result[0].gain_every_months[0].copier;
           info.removed_copier = result[0].gain_every_months[0].removed_copier;
           info.gain_rate_last_month = result[0].gain_every_months[0].total_gain;
-          let gain = 0;
-          for (const item of result[0].gain_every_months) {
+          // let gain = 0;
+          // for (const item of result[0].gain_every_months) {
+          //   gain = gain + item.total_gain;
+          // }
+          // info.gain_rate_months = parseFloat((gain / result[0].gain_every_months.length).toFixed(2));
+        }
+        let gain = 0;
+
+        if (result[0].trading_gains.length > 0) {
+          for (const item of result[0].trading_gains) {
             gain = gain + item.total_gain;
           }
-          info.gain_rate_months = parseFloat((gain / result[0].gain_every_months.length).toFixed(2));
-
-          temp.result = result[0];
-          temp.info = info;
+          info.gain_rate_months = parseFloat((gain / result[0].trading_gains.length).toFixed(2));
         }
+        temp.result = result[0];
+        temp.info = info;
         return temp;
       }
     } catch (err) {
@@ -266,6 +295,26 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                 },
               },
               {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  let: {
+                    id_expert: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        createdAt: {
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $lt: new Date(),
+                        },
+                      },
+                    },
+                  ],
+                  as: 'trading_gains',
+                },
+              },
+              {
                 $project: {
                   _id: 1,
                   fullname: 1,
@@ -273,6 +322,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   avatar: 1,
                   gain_every_months: 1,
                   trading_histories: 1,
+                  trading_gains: 1,
                 },
               },
             ],
@@ -297,10 +347,14 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             info.copier = expert.gain_every_months[0].copier;
             info.removed_copier = expert.gain_every_months[0].removed_copier;
             info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
-            let gain = 0;
-            for (const item of expert.gain_every_months) {
+          }
+          let gain = 0;
+
+          if (expert.trading_gains.length > 0) {
+            for (const item of expert.trading_gains) {
               gain = gain + item.total_gain;
             }
+            info.gain_rate_months = parseFloat((gain / expert.trading_gains.length).toFixed(2));
           }
           const temp = {
             expert,
