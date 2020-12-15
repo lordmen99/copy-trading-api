@@ -38,7 +38,7 @@ server.on('listening', () => {
     );
 
     /** get user from trading */
-    RealUserSchema.find({main_acc_id: null}).then((result) => {
+    RealUserSchema.find({is_fake_user: false, main_acc_id: null}).then((result) => {
       result.map((item) => {
         UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
           if (!rs) {
@@ -49,7 +49,7 @@ server.on('listening', () => {
               fullname: item.full_name,
               phone: item.phone,
               is_virtual: false,
-              total_amount: item.amount,
+              total_amount: 0,
             });
           }
         });
