@@ -1,6 +1,5 @@
 import IExpertModel from '@src/models/cpExpert/IExpertModel';
 import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
-import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
 import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
@@ -53,6 +52,14 @@ export default class ExpertBussiness {
         expertEntity.salt = securityPass.salt;
 
         const result = await this._expertRepository.create(expertEntity);
+        await this._tradingGainEveryMonthRepository.create({
+          id_expert: result._id,
+          total_gain: 0,
+          copier: 0,
+          removed_copier: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as ITradingGainEveryMonthModel);
         if (result) {
           return result;
         }
@@ -82,7 +89,7 @@ export default class ExpertBussiness {
       if (dataRandomExpert.length > 0) {
         const result = await this._expertRepository.insertManyExpert(dataRandomExpert);
         const dataRandomTradingGainEveryMonth: ITradingGainEveryMonthModel[] = [];
-        const dataRandomTradingGain: ITradingGainModel[] = [];
+        // const dataRandomTradingGain: ITradingGainModel[] = [];
         const dataRandomTradingCopy: ITradingCopyModel[] = [];
         if (result.length <= 0) return true;
         result.map((item: IExpertModel) => {
@@ -94,18 +101,18 @@ export default class ExpertBussiness {
             createdAt: new Date(),
             updatedAt: new Date(),
           } as ITradingGainEveryMonthModel);
-          for (let i = 0; i < 7; i++) {
-            dataRandomTradingGain.push({
-              id_expert: item._id,
-              total_gain: Math.floor(Math.random() * (20 - 1)) + 1,
-              createdAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
-              updatedAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
-            } as ITradingGainModel);
-          }
+          // for (let i = 0; i < 7; i++) {
+          //   dataRandomTradingGain.push({
+          //     id_expert: item._id,
+          //     total_gain: Math.floor(Math.random() * (20 - 1)) + 1,
+          //     createdAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
+          //     updatedAt: new Date(new Date().setDate(new Date().getDate() - i - 1)),
+          //   } as ITradingGainModel);
+          // }
         });
         await this._tradingCopyRepository.insertManyTradingCopy(dataRandomTradingCopy);
         await this._tradingGainEveryMonthRepository.insertManyTradingGain(dataRandomTradingGainEveryMonth);
-        await this._tradingGainRepository.insertManyTradingGain(dataRandomTradingGain);
+        // await this._tradingGainRepository.insertManyTradingGain(dataRandomTradingGain);
       }
       return true;
     } catch (err) {
