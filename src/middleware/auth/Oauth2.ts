@@ -92,7 +92,7 @@ server.exchange(
       try {
         if (body.type === contants.TYPE_OF_CLIENT.ADMIN) {
           const _adminRepository = new AdminRepository();
-          const admin = await _adminRepository.findOne({username});
+          const admin = await _adminRepository.findOne({username: username.toLowerCase()});
           if (!admin) return issused(new Error('The account or password is incorrect!'));
           if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
             return issused(new Error('Password is incorrect!'));
@@ -104,7 +104,7 @@ server.exchange(
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.USER) {
           const _expertRepository = new ExpertRepository();
-          const expert = await _expertRepository.findOne({username});
+          const expert = await _expertRepository.findOne({username: username.toLowerCase()});
           if (expert) {
             if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
               return issused(new Error('Password is incorrect!'));
@@ -117,7 +117,7 @@ server.exchange(
           } else {
             const _userRepository = new UserRepository();
             const _realUserRepository = new RealUserRepository();
-            const real = await _realUserRepository.findOne({username});
+            const real = await _realUserRepository.findOne({username: username.toLowerCase()});
             if (real) {
               const isValid = bcrypt.compareSync(password, real.password);
               if (!isValid) {
@@ -128,7 +128,7 @@ server.exchange(
                 initToken(client, user, body.type, issused);
               }
             } else {
-              const user = await _userRepository.findOne({username});
+              const user = await _userRepository.findOne({username: username.toLowerCase()});
               if (!user) return issused(new Error('The account or password is incorrect!'));
               if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
                 return issused(new Error('Password is incorrect!'));
