@@ -41,37 +41,15 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           },
         },
         {
-          $lookup: {
-            from: 'cp_trading_copies',
-            let: {
-              id_expert: '$_id',
-            },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {$eq: ['$id_expert', '$$id_expert']},
-                  status: {$ne: contants.STATUS.STOP},
-                },
-              },
-              {
-                $group: {
-                  _id: null,
-                  copier: {$sum: 1},
-                },
-              },
-            ],
-            as: 'copier',
-          },
-        },
-        {
           $project: {
             _id: 1,
             fullname: 1,
             username: 1,
             avatar: 1,
+            real_copier: 1,
+            virtual_copier: 1,
             gain_every_months: 1,
             trading_gains: 1,
-            copier: 1,
           },
         },
         {
@@ -100,9 +78,14 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           // }
           // info.gain_rate_months = parseInt((gain / result[0].gain_every_months.length).toString());
         }
-        if (result[0].copier.length > 0) {
-          info.copier = result[0].copier[0].copier;
+        if (!result[0].real_copier) {
+          result[0].real_copier = 0;
         }
+        if (!result[0].real_copier) {
+          result[0].real_copier = 0;
+        }
+        info.copier = result[0].real_copier + result[0].real_copier;
+
         let gain = 0;
 
         if (result[0].trading_gains.length > 0) {
@@ -366,29 +349,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                 },
               },
               {
-                $lookup: {
-                  from: 'cp_trading_copies',
-                  let: {
-                    id_expert: '$_id',
-                  },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {$eq: ['$id_expert', '$$id_expert']},
-                        status: {$ne: contants.STATUS.STOP},
-                      },
-                    },
-                    {
-                      $group: {
-                        _id: null,
-                        copier: {$sum: 1},
-                      },
-                    },
-                  ],
-                  as: 'copier',
-                },
-              },
-              {
                 $sort: {total_gain: 1},
               },
               {
@@ -397,11 +357,12 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   fullname: 1,
                   username: 1,
                   avatar: 1,
+                  real_copier: 1,
+                  virtual_copier: 1,
                   gain_every_months: 1,
                   trading_histories: 1,
                   trading_gains: 1,
                   total_gain: 1,
-                  copier: 1,
                 },
               },
             ],
@@ -426,10 +387,14 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             info.removed_copier = expert.gain_every_months[0].removed_copier;
             info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
           }
-          let gain = 0;
-          if (expert.copier.length > 0) {
-            info.copier = expert.copier[0].copier;
+          if (!expert.real_copier) {
+            expert.real_copier = 0;
           }
+          if (!expert.virtual_copier) {
+            expert.virtual_copier = 0;
+          }
+          info.copier = expert.real_copier + expert.virtual_copier;
+          let gain = 0;
           if (expert.trading_gains.length > 0) {
             for (const item of expert.trading_gains) {
               gain = gain + item.total_gain;
@@ -443,16 +408,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           list.push({...temp});
         }
       }
-
-      // for (let i = 0; i < list.length - 1; i++) {
-      //   for (let j = list.length - 1; j > i; j--) {
-      //     if (list[j].info.gain_rate_months > list[j - 1].info.gain_rate_months) {
-      //       let t = list[j];
-      //       list[j] = list[j - 1];
-      //       list[j - 1] = t;
-      //     }
-      //   }
-      // }
 
       const res = {
         result: list,
@@ -547,6 +502,20 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
     try {
       const result = await CPExpertSchema.insertMany(arrExpert);
       return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async findAndUpdateExpert(id_expert, real_copier, status) {
+    try {
+      if (status === contants.STATUS.ACTIVE) {
+        const result = await CPExpertSchema.findOneAndUpdate({_id: id_expert}, {real_copier: real_copier + 1});
+        return result;
+      } else if (status === contants.STATUS.STOP && real_copier > 0) {
+        const result = await CPExpertSchema.findOneAndUpdate({_id: id_expert}, {real_copier: real_copier - 1});
+        return result;
+      }
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
     }

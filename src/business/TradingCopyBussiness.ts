@@ -110,6 +110,12 @@ export default class TradingCopyBussiness {
               const updateUser = await this._userRepository.update(tradingCopyEntity.id_user, {
                 total_amount: user.total_amount - tradingCopyEntity.base_amount,
               });
+              const expert = await this._expertRepository.findById(tradingCopyEntity.id_expert.toString());
+              await this._expertRepository.findAndUpdateExpert(
+                tradingCopyEntity.id_expert,
+                expert.real_copier,
+                contants.STATUS.ACTIVE,
+              );
               const result = await this._tradingCopyRepository.create(tradingCopyEntity);
 
               if (updateUser) {
@@ -171,6 +177,12 @@ export default class TradingCopyBussiness {
               status_trading_copy: contants.STATUS.BLOCK,
               total_amount: user.total_amount + copy.investment_amount - keep_amount,
             });
+            const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+            const resultExpert = await this._expertRepository.findAndUpdateExpert(
+              copy.id_expert,
+              expert.real_copier,
+              contants.STATUS.STOP,
+            );
             const resultCopy = await this._tradingCopyRepository.update(copy._id, {
               status: contants.STATUS.STOP,
               updatedAt: new Date(),
@@ -190,7 +202,7 @@ export default class TradingCopyBussiness {
               paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             } as ITradingWithdrawModel);
 
-            if (resultUser && resultCopy) {
+            if (resultUser && resultCopy && resultExpert) {
               return true;
             }
             return false;
@@ -201,10 +213,16 @@ export default class TradingCopyBussiness {
               status_trading_copy: contants.STATUS.BLOCK,
               total_amount: user.total_amount + copy.investment_amount,
             });
+            const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+            const resultExpert = await this._expertRepository.findAndUpdateExpert(
+              copy.id_expert,
+              expert.real_copier,
+              contants.STATUS.STOP,
+            );
             const resultCopy = await this._tradingCopyRepository.update(copy._id, {
               status: contants.STATUS.STOP,
             });
-            if (resultUser && resultCopy) {
+            if (resultUser && resultCopy && resultExpert) {
               return true;
             }
             return false;
