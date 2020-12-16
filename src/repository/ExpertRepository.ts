@@ -50,6 +50,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
               {
                 $match: {
                   $expr: {$eq: ['$id_expert', '$$id_expert']},
+                  status: {$ne: contants.STATUS.STOP},
                 },
               },
               {
@@ -374,6 +375,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                     {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        status: {$ne: contants.STATUS.STOP},
                       },
                     },
                     {
