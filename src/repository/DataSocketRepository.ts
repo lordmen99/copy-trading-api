@@ -22,7 +22,7 @@ export default class DataSocketRepository extends RepositoryBase<IDataSocketMode
     try {
       await CPDataSocketSchema.deleteMany({
         date: {
-          $lt: new Date(date),
+          $lt: new Date(new Date().getTime() - 60 * 5 * 1000),
         },
       });
     } catch (err) {
