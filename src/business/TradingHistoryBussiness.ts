@@ -247,7 +247,7 @@ export default class TradingHistoryBussiness {
           }
           await this._tradingGainRepository.create({
             id_expert: expert._id,
-            total_gain: parseFloat(((profit / expert.total_amount) * 100).toFixed(2)),
+            total_gain: parseInt(((profit / expert.total_amount) * 100).toString()),
             createdAt: new Date(date),
             updatedAt: new Date(date),
           } as ITradingGainModel);
