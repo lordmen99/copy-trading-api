@@ -79,23 +79,28 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       ]);
 
       const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
-      let gain = 0;
+      const list = [];
+
       if (result.length > 0) {
         if (result[0].data.length > 0)
-          if (result[0].data[0].trading_orders.length > 0) {
-            for (const order of result[0].data[0].trading_orders) {
-              if (order.type_of_order === 'WIN') {
-                gain += order.threshold_percent - 0.05; // trừ phí sàn 5%
-              } else {
-                gain -= order.threshold_percent;
+          for (const copy of result[0].data) {
+            let gain = 0;
+
+            if (result[0].data[0].trading_orders.length > 0) {
+              for (const order of result[0].data[0].trading_orders) {
+                if (order.type_of_order === 'WIN') {
+                  gain += order.threshold_percent - 0.05; // trừ phí sàn 5%
+                } else {
+                  gain -= order.threshold_percent;
+                }
               }
             }
+            copy.gain = gain;
           }
       }
       return {
-        result,
+        result: result[0].data,
         count,
-        gain,
       };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
