@@ -33,22 +33,19 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
               },
               {
                 $lookup: {
-                  from: 'cp_trading_histories',
+                  from: 'cp_trading_orders',
                   let: {
-                    id_copy: '$_id',
+                    id_expert: '$id_expert',
                   },
                   pipeline: [
                     {
-                      $match: {$expr: {$eq: ['$id_copy', '$$id_copy']}},
-                    },
-                    {
-                      $sort: {closing_time: -1},
-                    },
-                    {
-                      $limit: 1,
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        status: contants.STATUS.FINISH,
+                      },
                     },
                   ],
-                  as: 'trading_histories',
+                  as: 'trading_orders',
                 },
               },
               {
@@ -72,7 +69,7 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
                     username: 1,
                     avatar: 1,
                   },
-                  trading_histories: 1,
+                  trading_orders: 1,
                 },
               },
             ],
@@ -82,9 +79,22 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       ]);
 
       const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
+      let gain = 0;
+      if (result.length > 0) {
+        if (result[0].data[0].trading_orders.length > 0) {
+          for (const order of result[0].data[0].trading_orders) {
+            if (order.type_of_order === 'WIN') {
+              gain += order.threshold_percent - 0.05; // trừ phí sàn 5%
+            } else {
+              gain -= order.threshold_percent;
+            }
+          }
+        }
+      }
       return {
         result,
         count,
+        gain,
       };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

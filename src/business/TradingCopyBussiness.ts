@@ -314,8 +314,10 @@ export default class TradingCopyBussiness {
       const temp = {
         result: null,
         count: 0,
+        gain: 0,
       };
       temp.count = copy.count;
+      temp.gain = parseFloat(copy.gain.toFixed(2));
       temp.result = {...copy.result[0]};
       if (copy) {
         return temp;
