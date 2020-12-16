@@ -93,18 +93,42 @@ server.exchange(
         if (body.type === contants.TYPE_OF_CLIENT.ADMIN) {
           const _adminRepository = new AdminRepository();
           const admin = await _adminRepository.findOne({username: username.toLowerCase()});
-          if (!admin) return issused(new Error('The account or password is incorrect!'));
-          if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
-            return issused(new Error('Password is incorrect!'));
-          else {
-            if (admin.status === contants.STATUS.ACTIVE) {
-              initToken(client, admin, body.type, issused);
-            } else if (admin.status === contants.STATUS.DELETE) return issused(new Error('The account is deleted'));
-            else return issused(new Error('The account not active'));
+          if (!admin) {
+            const emailAdmin = await _adminRepository.findOne({email: username.toLowerCase()});
+            if (!emailAdmin) {
+              return issused(new Error('The account or password is incorrect!'));
+            } else {
+              if (
+                !security.checkPassword(
+                  password.toString(),
+                  emailAdmin.salt.toString(),
+                  emailAdmin.hashed_password.toString(),
+                )
+              )
+                return issused(new Error('Password is incorrect!'));
+              else {
+                if (emailAdmin.status === contants.STATUS.ACTIVE) {
+                  initToken(client, emailAdmin, body.type, issused);
+                } else if (emailAdmin.status === contants.STATUS.DELETE)
+                  return issused(new Error('The account is deleted'));
+                else return issused(new Error('The account not active'));
+              }
+            }
+          } else {
+            if (!security.checkPassword(password.toString(), admin.salt.toString(), admin.hashed_password.toString()))
+              return issused(new Error('Password is incorrect!'));
+            else {
+              if (admin.status === contants.STATUS.ACTIVE) {
+                initToken(client, admin, body.type, issused);
+              } else if (admin.status === contants.STATUS.DELETE) return issused(new Error('The account is deleted'));
+              else return issused(new Error('The account not active'));
+            }
           }
         } else if (body.type === contants.TYPE_OF_CLIENT.USER) {
           const _expertRepository = new ExpertRepository();
           const expert = await _expertRepository.findOne({username: username.toLowerCase()});
+          const emailExpert = await _expertRepository.findOne({email: username.toLowerCase()});
+
           if (expert) {
             if (!security.checkPassword(password.toString(), expert.salt.toString(), expert.hashed_password.toString()))
               return issused(new Error('Password is incorrect!'));
@@ -114,10 +138,28 @@ server.exchange(
               } else if (expert.status === contants.STATUS.DELETE) return issused(new Error('The account is deleted'));
               else return issused(new Error('ExpertT_ACTIVE'));
             }
+          } else if (emailExpert) {
+            if (
+              !security.checkPassword(
+                password.toString(),
+                emailExpert.salt.toString(),
+                emailExpert.hashed_password.toString(),
+              )
+            )
+              return issused(new Error('Password is incorrect!'));
+            else {
+              if (emailExpert.status === contants.STATUS.ACTIVE) {
+                initToken(client, emailExpert, body.type, issused);
+              } else if (emailExpert.status === contants.STATUS.DELETE)
+                return issused(new Error('The account is deleted'));
+              else return issused(new Error('ExpertT_ACTIVE'));
+            }
           } else {
             const _userRepository = new UserRepository();
             const _realUserRepository = new RealUserRepository();
             const real = await _realUserRepository.findOne({username: username.toLowerCase()});
+            const emailReal = await _realUserRepository.findOne({email: username.toLowerCase()});
+
             if (real) {
               const isValid = bcrypt.compareSync(password, real.password);
               if (!isValid) {
@@ -127,16 +169,47 @@ server.exchange(
 
                 initToken(client, user, body.type, issused);
               }
+            } else if (emailReal) {
+              const isValid = bcrypt.compareSync(password, emailReal.password);
+              if (!isValid) {
+                return issused(new Error('Password is incorrect!'));
+              } else {
+                const user = await _userRepository.findOne({id_user_trading: emailReal._id});
+
+                initToken(client, user, body.type, issused);
+              }
             } else {
               const user = await _userRepository.findOne({username: username.toLowerCase()});
-              if (!user) return issused(new Error('The account or password is incorrect!'));
-              if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
-                return issused(new Error('Password is incorrect!'));
-              else {
-                if (user.status === contants.STATUS.ACTIVE) {
-                  initToken(client, user, body.type, issused);
-                } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
-                else return issused(new Error('The account not active'));
+              if (!user) {
+                const emailUser = await _userRepository.findOne({email: username.toLowerCase()});
+                if (!emailUser) {
+                  return issused(new Error('The account or password is incorrect!'));
+                } else {
+                  if (
+                    !security.checkPassword(
+                      password.toString(),
+                      emailUser.salt.toString(),
+                      emailUser.hashed_password.toString(),
+                    )
+                  ) {
+                    return issused(new Error('Password is incorrect!'));
+                  } else {
+                    if (emailUser.status === contants.STATUS.ACTIVE) {
+                      initToken(client, emailUser, body.type, issused);
+                    } else if (emailUser.status === contants.STATUS.DELETE)
+                      return issused(new Error('UseUserEEN_DELETED'));
+                    else return issused(new Error('The account not active'));
+                  }
+                }
+              } else {
+                if (!security.checkPassword(password.toString(), user.salt.toString(), user.hashed_password.toString()))
+                  return issused(new Error('Password is incorrect!'));
+                else {
+                  if (user.status === contants.STATUS.ACTIVE) {
+                    initToken(client, user, body.type, issused);
+                  } else if (user.status === contants.STATUS.DELETE) return issused(new Error('UseUserEEN_DELETED'));
+                  else return issused(new Error('The account not active'));
+                }
               }
             }
           }
