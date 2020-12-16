@@ -42,6 +42,14 @@ class CPExpertSchema {
         required: true,
         default: 0,
       },
+      virtual_copier: {
+        type: Number,
+        default: 0,
+      },
+      real_copier: {
+        type: Number,
+        default: 0,
+      },
       status: {
         type: String,
         required: true,

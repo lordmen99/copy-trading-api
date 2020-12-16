@@ -79,3 +79,10 @@ export class GetExpertByName {
   // @IsNotEmpty({message: 'Name is required'})
   username: string;
 }
+
+export class UpdateVirtualCopier {
+  id_expert: Schema.Types.ObjectId;
+
+  @IsNotEmpty({message: 'Number of copier is required'})
+  number: number;
+}

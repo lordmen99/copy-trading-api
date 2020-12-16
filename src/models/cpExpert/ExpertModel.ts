@@ -37,4 +37,12 @@ export default class ExpertModel {
   get status(): string {
     return this._expertModel.status;
   }
+
+  get virtual_copier(): number {
+    return this._expertModel.virtual_copier;
+  }
+
+  get real_copier(): number {
+    return this._expertModel.real_copier;
+  }
 }

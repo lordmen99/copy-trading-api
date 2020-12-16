@@ -8,7 +8,13 @@ import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMon
 import TradingGainRepository from '@src/repository/TradingGainRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants, security} from '@src/utils';
-import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
+import {
+  AddExpert,
+  EditExpert,
+  GetExpert,
+  GetExpertByName,
+  UpdateVirtualCopier,
+} from '@src/validator/experts/experts.validator';
 import {validate} from 'class-validator';
 import faker from 'faker';
 import {Schema} from 'mongoose';
@@ -130,6 +136,27 @@ export default class ExpertBussiness {
           expertEntity.total_amount = params.total_amount;
           expertEntity.is_virtual = params.is_virtual;
           const result = await this._expertRepository.update(params._id, expertEntity);
+          if (result) {
+            return result ? true : false;
+          }
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async updateVirtualCopier(params: UpdateVirtualCopier): Promise<boolean> {
+    try {
+      const errors = await validate(params);
+      if (errors.length > 0) {
+        throw new Error(Object.values(errors[0].constraints)[0]);
+      } else {
+        const expert = await this._expertRepository.findById(params.id_expert.toString());
+        if (expert) {
+          const expertEntity = expert;
+          expertEntity.virtual_copier = params.number;
+          const result = await this._expertRepository.update(params.id_expert, expertEntity);
           if (result) {
             return result ? true : false;
           }
