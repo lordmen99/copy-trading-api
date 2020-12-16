@@ -87,7 +87,7 @@ export default class UserController {
       const data = new TransferMoneyUser();
       data.id_user = (req.user as IUserModel).id;
       data.source = params.source;
-      data.amount = parseFloat(params.amount.toString());
+      data.amount = parseInt(params.amount.toString());
       const userBusiness = new UserBussiness();
       const result = await userBusiness.transferMoney(data);
 

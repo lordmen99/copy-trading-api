@@ -30,7 +30,7 @@ export default class TradingCopyController {
       // data.id_user = params.id_user; // change token
       data.id_user = (req.user as IUserModel).id;
       data.id_expert = params.id_expert;
-      data.investment_amount = parseFloat(params.investment_amount.toString());
+      data.investment_amount = parseInt(params.investment_amount.toString());
       data.maximum_rate = params.maximum_rate;
       data.has_maximum_rate = params.has_maximum_rate;
       data.has_stop_loss = params.has_stop_loss;
