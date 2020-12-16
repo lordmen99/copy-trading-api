@@ -40,7 +40,28 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             as: 'trading_gains',
           },
         },
-
+        {
+          $lookup: {
+            from: 'cp_trading_copies',
+            let: {
+              id_expert: '$_id',
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {$eq: ['$id_expert', '$$id_expert']},
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  copier: {$sum: 1},
+                },
+              },
+            ],
+            as: 'copier',
+          },
+        },
         {
           $project: {
             _id: 1,
@@ -49,6 +70,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             avatar: 1,
             gain_every_months: 1,
             trading_gains: 1,
+            copier: 1,
           },
         },
         {
@@ -69,7 +91,6 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           info,
         };
         if (result[0].gain_every_months.length > 0) {
-          info.copier = result[0].gain_every_months[0].copier;
           info.removed_copier = result[0].gain_every_months[0].removed_copier;
           info.gain_rate_last_month = result[0].gain_every_months[0].total_gain;
           // let gain = 0;
@@ -77,6 +98,9 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           //   gain = gain + item.total_gain;
           // }
           // info.gain_rate_months = parseFloat((gain / result[0].gain_every_months.length).toFixed(2));
+        }
+        if (result[0].copier.length > 0) {
+          info.copier = result[0].copier[0].copier;
         }
         let gain = 0;
 
