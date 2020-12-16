@@ -354,7 +354,6 @@ export default class TradingCopyBussiness {
       };
       temp.count = copy.count;
       temp.result = {...copy.result[0]};
-      temp.gain = parseFloat(copy.gain.toFixed(2));
       if (copy) {
         return temp;
       } else {
