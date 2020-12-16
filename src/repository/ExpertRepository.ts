@@ -315,6 +315,35 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                 },
               },
               {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  let: {
+                    id_expert: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        createdAt: {
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $lt: new Date(),
+                        },
+                      },
+                    },
+                    {
+                      $group: {
+                        _id: null,
+                        total_gain: {$sum: '$total_gain'},
+                      },
+                    },
+                  ],
+                  as: 'total_gain',
+                },
+              },
+              {
+                $sort: {total_gain: 1},
+              },
+              {
                 $project: {
                   _id: 1,
                   fullname: 1,
@@ -323,6 +352,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   gain_every_months: 1,
                   trading_histories: 1,
                   trading_gains: 1,
+                  total_gain: 1,
                 },
               },
             ],
@@ -363,6 +393,16 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           list.push({...temp});
         }
       }
+
+      // for (let i = 0; i < list.length - 1; i++) {
+      //   for (let j = list.length - 1; j > i; j--) {
+      //     if (list[j].info.gain_rate_months > list[j - 1].info.gain_rate_months) {
+      //       let t = list[j];
+      //       list[j] = list[j - 1];
+      //       list[j - 1] = t;
+      //     }
+      //   }
+      // }
 
       const res = {
         result: list,
