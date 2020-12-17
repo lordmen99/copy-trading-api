@@ -48,9 +48,15 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async getListOrders(page: number, size: number): Promise<ITradingOrderModel[]> {
+  public async getListOrders(
+    status: string,
+    page: number,
+    size: number,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findWithPaging(page, size);
+      const result = await this._tradingOrderRepository.getListOrders(status, page, size, fromDate, toDate);
       if (result) {
         return result;
       }

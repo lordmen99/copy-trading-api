@@ -25,7 +25,13 @@ export default class TradingOrderController {
     try {
       const params = req.body;
       const tradingOrderBusiness = new TradingOrderBussiness();
-      const result = await tradingOrderBusiness.getListOrders(params.page, params.size);
+      const result = await tradingOrderBusiness.getListOrders(
+        params.status,
+        params.page,
+        params.size,
+        params.fromDate,
+        params.toDate,
+      );
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
