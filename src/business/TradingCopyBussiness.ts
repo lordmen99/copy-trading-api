@@ -194,7 +194,7 @@ export default class TradingCopyBussiness {
               id_user: copy.id_user,
               id_expert: null,
               id_copy: copy._id,
-              amount: parseInt(keep_amount.toString()),
+              amount: parseFloat(keep_amount.toFixed(2)),
               type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
               status: contants.STATUS.PENDING,
               createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
@@ -460,24 +460,20 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async updateUserCopier(withdraw: ITradingWithdrawModel): Promise<void> {
+  public async updateUserCopier(date): Promise<void> {
     try {
-      const copy = await this._tradingCopyRepository.findOne({
-        _id: withdraw.id_copy,
-      });
-      await this._tradingCopyRepository.update(copy._id, {
-        investment_amount: copy.investment_amount - withdraw.amount,
-      });
-      const user = await this._userRepository.findOne({
-        _id: withdraw.id_user,
-      });
-      await this._userRepository.update(user._id, {
-        total_amount: user.total_amount + withdraw.amount,
-      });
-      await this._tradingWithdrawRepository.update(withdraw._id, {
-        status: contants.STATUS.FINISH,
-        updatedAt: new Date(),
-      });
+      const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
+      for (const expert of experts) {
+        const count_trading_copies = await this._tradingCopyRepository.count({
+          id_expert: expert._id,
+          createdAt: {
+            $lt: new Date(date),
+          } as any,
+        } as ITradingCopyModel);
+        await this._expertRepository.update(expert._id, {
+          real_copier: count_trading_copies,
+        });
+      }
     } catch (err) {
       throw err;
     }

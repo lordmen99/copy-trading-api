@@ -139,12 +139,12 @@ export default class UserBussiness {
           const wallet = await this._realUserRepository.findOne({_id: result.id_user_trading});
           if (wallet) {
             if (params.source === contants.TYPE_OF_WALLET.WALLET) {
-              if (parseInt(wallet.amount.toString()) > parseInt(params.amount.toString())) {
+              if (parseFloat(wallet.amount.toFixed(2)) >= parseFloat(params.amount.toFixed(2))) {
                 const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseInt(wallet.amount.toString()) - parseInt(params.amount.toString()),
+                  amount: parseFloat(wallet.amount.toFixed(2)) - parseFloat(params.amount.toFixed(2)),
                 });
                 const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseInt(result.total_amount.toString()) + parseInt(params.amount.toString()),
+                  total_amount: parseFloat(result.total_amount.toFixed(2)) + parseFloat(params.amount.toFixed(2)),
                 });
                 const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                 const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
@@ -152,7 +152,7 @@ export default class UserBussiness {
                   id_expert: null,
                   id_copy: null,
                   id_order: null,
-                  amount: parseInt(params.amount.toString()),
+                  amount: parseFloat(params.amount.toFixed(2)),
                   type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
                   status: contants.STATUS.FINISH,
                   createdAt: new Date(),
@@ -164,12 +164,12 @@ export default class UserBussiness {
                 throw new Error('Money in wallet is not enough');
               }
             } else if (params.source === contants.TYPE_OF_WALLET.COPY_TRADE) {
-              if (parseInt(result.total_amount.toString()) > parseInt(params.amount.toString())) {
+              if (parseFloat(result.total_amount.toFixed(2)) >= parseFloat(params.amount.toFixed(2))) {
                 const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseInt(wallet.amount.toString()) + parseInt(params.amount.toString()),
+                  amount: parseFloat(wallet.amount.toFixed(2)) + parseFloat(params.amount.toFixed(2)),
                 });
                 const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseInt(result.total_amount.toString()) - parseInt(params.amount.toString()),
+                  total_amount: parseFloat(result.total_amount.toFixed(2)) - parseFloat(params.amount.toFixed(2)),
                 });
                 const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                 const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
@@ -177,7 +177,7 @@ export default class UserBussiness {
                   id_expert: null,
                   id_copy: null,
                   id_order: null,
-                  amount: parseInt(params.amount.toString()),
+                  amount: parseFloat(params.amount.toFixed(2)),
                   type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
                   status: contants.STATUS.FINISH,
                   createdAt: new Date(),
