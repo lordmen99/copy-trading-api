@@ -53,7 +53,7 @@ export default class TradingWithdrawBussiness {
         const user = await this._userRepository.findOne({_id: id_user});
         if (user) {
           const result = await this._realUserRepository.findOne({_id: user.id_user_trading});
-          return parseInt(result.amount.toString());
+          return parseFloat(result.amount.toFixed(2));
         }
       } else if (source === contants.TYPE_OF_WALLET.COPY_TRADE) {
         const result = await this._userRepository.findOne({_id: id_user});

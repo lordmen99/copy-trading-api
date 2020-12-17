@@ -215,7 +215,7 @@ export default class TradingOrderBussiness {
         tradingHistoryEntity.profit = order.type_of_order === 'WIN' ? order_amount : 0;
         tradingHistoryEntity.fee_to_trading =
           order.type_of_order === 'WIN'
-            ? parseInt((tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toString())
+            ? parseFloat((tradingHistoryEntity.profit * contants.RATE.FEE_TO_TRADING).toFixed(2))
             : 0;
         await tradingCopyBussiness.calculateMoney(
           null,
@@ -274,7 +274,7 @@ export default class TradingOrderBussiness {
         const threshold_percent_amount = Number(
           (historyModel.investment_amount * (order.threshold_percent / 100)).toString(),
         );
-        const maximum_rate_amount = Number((historyModel.investment_amount * (copy.maximum_rate / 100)).toString());
+        const maximum_rate_amount = parseFloat((historyModel.investment_amount * (copy.maximum_rate / 100)).toFixed(2));
 
         let money = 0;
         if (order.type_of_order === 'WIN') {
@@ -286,13 +286,13 @@ export default class TradingOrderBussiness {
               historyModel.order_amount = maximum_rate_amount;
               historyModel.profit = maximum_rate_amount;
             }
-            historyModel.fee_to_expert = parseInt((historyModel.profit * 0.05).toString());
-            historyModel.fee_to_trading = parseInt((historyModel.profit * 0.05).toString());
+            historyModel.fee_to_expert = parseFloat((historyModel.profit * 0.05).toFixed(2));
+            historyModel.fee_to_trading = parseFloat((historyModel.profit * 0.05).toFixed(2));
           } else {
             historyModel.order_amount = threshold_percent_amount;
             historyModel.profit = threshold_percent_amount;
-            historyModel.fee_to_expert = parseInt((historyModel.profit * 0.05).toString());
-            historyModel.fee_to_trading = parseInt((historyModel.profit * 0.05).toString());
+            historyModel.fee_to_expert = parseFloat((historyModel.profit * 0.05).toFixed(2));
+            historyModel.fee_to_trading = parseFloat((historyModel.profit * 0.05).toFixed(2));
           }
           /** thêm vào tính toán tiền lãi */
           money = historyModel.profit - historyModel.fee_to_trading - historyModel.fee_to_expert;
