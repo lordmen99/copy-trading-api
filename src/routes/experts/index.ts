@@ -9,6 +9,7 @@ import GetExpertDetailById from './GetExpertDetailById';
 import getListExperts from './GetListExperts';
 import getListExpertsForUser from './GetListExpertsForUser';
 import getProfitForExpert from './GetProfitForExpert';
+import updateVirtualCopierForExpert from './UpdateVirtualCopierForExpert';
 
 export default class ExpertRouter {
   public router: Router = Router();
@@ -24,5 +25,6 @@ export default class ExpertRouter {
     GetExpertDetailById(this.router);
     getListExpertsForUser(this.router);
     getProfitForExpert(this.router);
+    updateVirtualCopierForExpert(this.router);
   }
 }

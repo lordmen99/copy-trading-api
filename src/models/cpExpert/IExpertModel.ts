@@ -12,4 +12,6 @@ export default interface IExpertModel extends mongoose.Document {
   total_amount?: number;
   is_virtual?: boolean;
   status?: string;
+  virtual_copier: number;
+  real_copier: number;
 }

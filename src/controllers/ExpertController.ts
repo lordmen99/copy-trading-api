@@ -1,6 +1,12 @@
 import ExpertBussiness from '@src/business/ExpertBussiness';
 import {contants} from '@src/utils';
-import {AddExpert, EditExpert, GetExpert, GetExpertByName} from '@src/validator/experts/experts.validator';
+import {
+  AddExpert,
+  EditExpert,
+  GetExpert,
+  GetExpertByName,
+  UpdateVirtualCopier,
+} from '@src/validator/experts/experts.validator';
 import {NextFunction, Request, Response} from 'express';
 import {Error} from 'mongoose';
 
@@ -163,6 +169,21 @@ export default class ExpertController {
         params.toDate,
         params.type,
       );
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async updateVirtualCopier(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new UpdateVirtualCopier();
+      data.id_expert = params.id_expert;
+      data.number = params.number;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.updateVirtualCopier(data);
+
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
