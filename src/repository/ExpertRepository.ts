@@ -81,10 +81,10 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
         if (!result[0].real_copier) {
           result[0].real_copier = 0;
         }
-        if (!result[0].real_copier) {
-          result[0].real_copier = 0;
+        if (!result[0].virtual_copier) {
+          result[0].virtual_copier = 0;
         }
-        info.copier = result[0].real_copier + result[0].real_copier;
+        info.copier = result[0].real_copier + result[0].virtual_copier;
 
         let gain = 0;
 
