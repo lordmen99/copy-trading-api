@@ -22,7 +22,7 @@ export default class TradingCopyBussiness {
     this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
-  public async updateTradingGain(date): Promise<void> {
+  public async updateTradingGain(date): Promise<boolean> {
     try {
       const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       for (const expert of experts) {
@@ -57,6 +57,7 @@ export default class TradingCopyBussiness {
           } as ITradingGainModel);
         }
       }
+      return true;
     } catch (err) {
       throw err;
     }
