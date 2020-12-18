@@ -93,6 +93,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
         },
       ]);
 
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
+
       return {
         result,
         count,
@@ -186,6 +195,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
           },
         },
       ]);
+
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
 
       const count = await CPTradingHistorySchema.countDocuments({
         id_expert: item.id_expert,
@@ -283,6 +301,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
           $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
         },
       });
+
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
 
       return {
         result,
