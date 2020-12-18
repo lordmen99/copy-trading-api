@@ -50,6 +50,10 @@ class CPExpertSchema {
         type: Number,
         default: 0,
       },
+      base_amount: {
+        type: Number,
+        required: true,
+      },
       status: {
         type: String,
         required: true,

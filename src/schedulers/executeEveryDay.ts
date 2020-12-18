@@ -6,10 +6,10 @@ export default (date: Date) => {
   try {
     // tính profit cho expert hàng ngày
     const tradingHistoryBussiness = new TradingHistoryBussiness();
-    const tradingCopyBussiness = new TradingCopyBussiness();
+    tradingHistoryBussiness.calculateProfitForExpertEveryDay(date);
 
     // cập nhật copier cho expert hàng ngày
-    tradingHistoryBussiness.calculateProfitForExpertEveryDay(date);
+    const tradingCopyBussiness = new TradingCopyBussiness();
     tradingCopyBussiness.updateUserCopier(date);
   } catch (error) {
     logger.error(`\nSCHEDULER ERROR: `);

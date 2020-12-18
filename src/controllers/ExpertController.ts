@@ -98,6 +98,7 @@ export default class ExpertController {
       data.phone = params.phone;
       data.avatar = params.avatar;
       data.total_amount = params.total_amount;
+      data.base_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
       data.status = contants.STATUS.ACTIVE;
       const expertBusiness = new ExpertBussiness();

@@ -73,13 +73,15 @@ export default class ExpertBussiness {
     try {
       const dataRandomExpert: IExpertModel[] = [];
       for (let i = 0; i < number; i++) {
+        const total_amount = parseInt((Math.random() * (30000 - 10000) + 10000).toString());
         const data = {
           fullname: faker.name.findName(),
           username: faker.internet.userName().toLowerCase(),
           email: faker.internet.email().toLowerCase(),
           phone: faker.phone.phoneNumber(),
           avatar: faker.image.avatar(),
-          total_amount: parseInt((Math.random() * (30000 - 10000) + 10000).toString()),
+          total_amount,
+          base_amount: total_amount,
           is_virtual: true,
           status: contants.STATUS.ACTIVE,
         };
