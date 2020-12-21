@@ -20,7 +20,8 @@ import {Router} from 'express';
  * @apiParam {String} id_admin Id của admin thực hiện đánh trong bản cp_admins
  * @apiParam {String} type_of_order Loại đánh lệnh (WIN/LOSE)
  * @apiParam {Number} threshold_percent Ngưỡng % của total_amount
- * @apiParam {Number} orderedAt Thời gian setup lệnh chạy
+ * @apiParam {Number} orderedAt Thời gian thiết lập lệnh
+ * @apiParam {String} time_zone TimeZone của người cài đặt lệnh
  *
  * @apiSuccess {Object} data
  *

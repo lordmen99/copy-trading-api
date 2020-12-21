@@ -8,6 +8,7 @@ import {
   EditTradingOrder,
 } from '@src/validator/trading_orders/trading_orders.validator';
 import {NextFunction, Request, Response} from 'express';
+import moment from 'moment-timezone';
 
 export default class TradingOrderController {
   public async getTradingOrderById(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -46,36 +47,24 @@ export default class TradingOrderController {
   public async createTradingOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
+      /** timezone của người đặt lệnh */
+      const timeZone = params.time_zone;
+      /** chuyển time start lệnh sang định dạng utc */
+      const orderTime = new Date(moment.tz(params.orderedAt, timeZone).toString());
+      /** chuyển cuối ngày theo timezone người đặt lệnh sang utc */
+      const endTime = new Date(moment.tz(params.orderedAt, timeZone).endOf('day').toString());
       const data = new CreateTradingOrder();
       data.id_expert = params.id_expert;
       data.id_admin = (req.user as IAdminModel)._id;
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
       data.status = contants.STATUS.PENDING;
-      const utc = new Date(params.orderedAt).toUTCString();
-      data.orderedAt = new Date(utc);
-      data.createdAt = new Date(new Date().toUTCString());
-
-      const start = new Date(params.orderedAt);
-
-      if (
-        new Date(data.orderedAt).getDate() !== data.createdAt.getDate() ||
-        new Date(data.orderedAt).getMonth() !== data.createdAt.getMonth() ||
-        new Date(data.orderedAt).getFullYear() !== data.createdAt.getFullYear()
-      ) {
-        start.setHours(0, 0, 0);
-      }
-
-      const end = new Date(params.orderedAt);
-
-      end.setHours(23, 59, 59);
-      const diff = (end.getTime() - start.getTime()) * Math.random();
-
-      data.timeSetup = new Date(start.getTime() + diff);
-
+      data.orderedAt = orderTime;
+      data.createdAt = orderTime;
+      const diff = Math.round((endTime.getTime() - orderTime.getTime()) * Math.random());
+      data.timeSetup = new Date(orderTime.getTime() + diff);
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.createTradingOrder(data);
-
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -85,6 +74,9 @@ export default class TradingOrderController {
   public async editTradingOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
+      /** timezone của người đặt lệnh */
+      const timeZone = params.time_zone;
+
       const data = new EditTradingOrder();
       data.id_order = params.id_order;
       data.id_expert = params.id_expert;
@@ -92,7 +84,7 @@ export default class TradingOrderController {
       data.type_of_order = params.type_of_order;
       data.threshold_percent = params.threshold_percent;
       data.status = contants.STATUS.PENDING;
-      data.timeSetup = new Date(params.timeSetup);
+      data.timeSetup = new Date(moment.tz(params.timeSetup, timeZone).toString());
 
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.editTradingOrder(data);
