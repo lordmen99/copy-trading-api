@@ -2,6 +2,7 @@ import TradingCopyBussiness from '@src/business/TradingCopyBussiness';
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
+import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 
 export default (date: Date) => {
   try {
@@ -21,9 +22,9 @@ export default (date: Date) => {
 
     // trả 5% cho expert vào 23h59 cùng ngày
 
-    tradingWithdrawBussiness.getListPendingTradingWithdraw(date).then((listWithdraws) => {
-      listWithdraws.map((withdraw) => {
-        tradingCopyBussiness.transferMoneyToExpert(withdraw);
+    tradingWithdrawBussiness.getListPendingTradingWithdraw(date).then((listWithdraws: ITradingWithdrawModel[]) => {
+      listWithdraws.map(async (withdraw: ITradingWithdrawModel) => {
+        await tradingCopyBussiness.transferMoneyToExpert(withdraw);
       });
     });
   } catch (error) {
