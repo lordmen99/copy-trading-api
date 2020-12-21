@@ -22,6 +22,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
     try {
       const result = await CPTradingHistorySchema.aggregate([
         {
+          $sort: {closing_time: -1},
+        },
+        {
           $match: {
             id_user: new mongoose.Types.ObjectId(item.id_user),
             closing_time: {
@@ -125,6 +128,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   ): Promise<any> {
     try {
       const result = await CPTradingHistorySchema.aggregate([
+        {
+          $sort: {closing_time: -1},
+        },
         {
           $match: {
             id_expert: new mongoose.Types.ObjectId(item.id_expert),
@@ -233,6 +239,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   ): Promise<any> {
     try {
       const result = await CPTradingHistorySchema.aggregate([
+        {
+          $sort: {closing_time: -1},
+        },
         {
           $match: {
             id_expert: new mongoose.Types.ObjectId(item.id_expert),
