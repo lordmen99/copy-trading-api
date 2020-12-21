@@ -1,4 +1,5 @@
 import TradingHistoryBussiness from '@src/business/TradingHistoryBussiness';
+import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import IUserModel from '@src/models/cpUser/IUserModel';
 import {NextFunction, Request, Response} from 'express';
 
@@ -84,6 +85,16 @@ export default class TradingHistoryController {
         params.toDate,
       );
       res.status(200).send({data: result.result[0].data, count: result.count, profit: result.profit});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async hotfix_status(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+      await tradingWithdrawBussiness.hotfixStatus();
+      res.status(200).send(true);
     } catch (err) {
       next(err);
     }

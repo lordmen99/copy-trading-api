@@ -1,6 +1,6 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import CPTradingHistorySchema from '@src/schemas/CPTradingHistorySchema';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class TradingHistoryRepository extends RepositoryBase<ITradingHistoryModel> {
@@ -333,6 +333,20 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   public async insertManyTradingHistory(arrTradingHistory: ITradingHistoryModel[]) {
     try {
       const result = await CPTradingHistorySchema.insertMany(arrTradingHistory);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async hotfixUpdateStatus(
+    id_user: Schema.Types.ObjectId,
+    id_expert: Schema.Types.ObjectId,
+    id_order: Schema.Types.ObjectId,
+    id_copy: Schema.Types.ObjectId,
+  ) {
+    try {
+      const result = await CPTradingHistorySchema.update({id_user, id_expert, id_order, id_copy}, {status: true});
       return result;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

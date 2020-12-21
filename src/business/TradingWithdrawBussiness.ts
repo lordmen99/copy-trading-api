@@ -1,5 +1,6 @@
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import RealUserRepository from '@src/repository/RealUserRepository';
+import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
@@ -10,11 +11,13 @@ export default class TradingWithdrawBussiness {
   private _tradingWithdrawRepository: TradingWithdrawRepository;
   private _userRepository: UserRepository;
   private _realUserRepository: RealUserRepository;
+  private _tradingHistoryRepository: TradingHistoryRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
     this._userRepository = new UserRepository();
     this._realUserRepository = new RealUserRepository();
+    this._tradingHistoryRepository = new TradingHistoryRepository();
   }
 
   public async createTradingWithdraw(tradingWithdraw: CreateTradingWithdraw): Promise<ITradingWithdrawModel> {
@@ -99,6 +102,23 @@ export default class TradingWithdrawBussiness {
         return result;
       }
       return [];
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async hotfixStatus(): Promise<any> {
+    try {
+      const result = await this._tradingWithdrawRepository.findWhere({
+        type_of_withdraw: 'TRANSFER',
+        status: 'FINISH',
+      });
+      if (result.length > 0) {
+        result.map((item) => {
+          this._tradingHistoryRepository.hotfixUpdateStatus(item.id_user, item.id_expert, item.id_order, item.id_copy);
+        });
+      }
+      return true;
     } catch (err) {
       throw err;
     }
