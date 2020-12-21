@@ -387,22 +387,20 @@ export default class TradingCopyBussiness {
         id_copy: withdraw.id_copy,
       });
       if (history) {
-        const result = await this._tradingHistoryRepository.update(history._id, {
-          status: true,
+        const expert = await this._expertRepository.findOne({
+          _id: withdraw.id_expert,
         });
-        if (result) {
-          const expert = await this._expertRepository.findOne({
-            _id: withdraw.id_expert,
+        if (expert) {
+          await this._tradingWithdrawRepository.update(withdraw._id, {
+            status: contants.STATUS.FINISH,
+            updatedAt: new Date(),
           });
-          if (expert) {
-            await this._tradingWithdrawRepository.update(withdraw._id, {
-              status: contants.STATUS.FINISH,
-              updatedAt: new Date(),
-            });
-            await this._expertRepository.update(expert._id, {
-              total_amount: expert.total_amount + withdraw.amount,
-            });
-          }
+          await this._expertRepository.update(expert._id, {
+            total_amount: expert.total_amount + withdraw.amount,
+          });
+          await this._tradingHistoryRepository.update(history._id, {
+            status: true,
+          });
         }
       }
     } catch (err) {
