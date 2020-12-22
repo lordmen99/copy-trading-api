@@ -54,9 +54,10 @@ export default class TradingOrderBussiness {
     size: number,
     fromDate: Date,
     toDate: Date,
+    action: string,
   ): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.getListOrders(status, page, size, fromDate, toDate);
+      const result = await this._tradingOrderRepository.getListOrders(status, page, size, fromDate, toDate, action);
       if (result) {
         return result;
       }

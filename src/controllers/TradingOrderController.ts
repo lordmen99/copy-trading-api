@@ -32,6 +32,7 @@ export default class TradingOrderController {
         params.size,
         params.fromDate,
         params.toDate,
+        params.action,
       );
       res.status(200).send({data: result});
     } catch (err) {
