@@ -73,9 +73,48 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         },
         type_of_order: {$regex: '.*' + action + '.*'},
       });
+      const win = await CPTradingOrderSchema.aggregate([
+        {
+          $match: {
+            type_of_order: 'WIN',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            win: {$sum: '$threshold_percent'},
+          },
+        },
+      ]);
+      const lose = await CPTradingOrderSchema.aggregate([
+        {
+          $match: {
+            type_of_order: 'LOSE',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            lose: {$sum: '$threshold_percent'},
+          },
+        },
+      ]);
+
+      const diff = {
+        win: 0,
+        lose: 0,
+      };
+      if (win.length > 0) {
+        diff.win = win[0].win;
+      }
+      if (lose.length > 0) {
+        diff.lose = lose[0].lose;
+      }
+
       return {
         result,
         count,
+        diff,
       };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
