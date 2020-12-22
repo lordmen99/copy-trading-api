@@ -1,5 +1,6 @@
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import CPTradingOrderSchema from '@src/schemas/CPTradingOrderSchema';
+import mongoose from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class TradingOrderRepository extends RepositoryBase<ITradingOrderModel> {
@@ -77,7 +78,7 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         {
           $match: {
             type_of_order: 'WIN',
-            id_expert,
+            id_expert: new mongoose.Types.ObjectId(id_expert),
           },
         },
         {
@@ -91,7 +92,7 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         {
           $match: {
             type_of_order: 'LOSE',
-            id_expert,
+            id_expert: new mongoose.Types.ObjectId(id_expert),
           },
         },
         {
