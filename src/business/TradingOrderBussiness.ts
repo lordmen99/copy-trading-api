@@ -2,7 +2,9 @@ import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
+import BlockRepository from '@src/repository/BlockRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import SymbolRepository from '@src/repository/SymbolRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
@@ -26,6 +28,8 @@ export default class TradingOrderBussiness {
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
+  private _blockRepository: BlockRepository;
+  private _symbolRepository: SymbolRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -33,6 +37,8 @@ export default class TradingOrderBussiness {
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._expertRepository = new ExpertRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
+    this._blockRepository = new BlockRepository();
+    this._symbolRepository = new SymbolRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -75,9 +81,7 @@ export default class TradingOrderBussiness {
       const result = await this._tradingOrderRepository.findWhereSortByField(
         {
           status: contants.STATUS.PENDING,
-          timeSetup: {
-            $lt: date,
-          },
+          timeSetup: {$lt: date},
         },
         'timeSetup',
       );
@@ -99,28 +103,49 @@ export default class TradingOrderBussiness {
             });
           }
         } else {
-          // db.getCollection('blocks').find({
-          //   createdAt:{$gt: ISODate("2020-12-21T09:20:00.000Z"), $lt: ISODate("2020-12-21T09:21:30.000Z")}
-          //   })
-
-          // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
-          this._tradingOrderRepository.update(item._id, {status: contants.STATUS.FINISH});
-
-          /** khởi tạo time vào lệnh cho cả chuyên gia và user */
-          let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
-          secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
-          const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
-
-          // tạo history cho expert
-          const expert = await this._expertRepository.findById(item.id_expert.toString());
-          if (expert) this.createHistoryForExpert(item, dataSocket, expert, timeOpening);
-
-          // tạo histories cho user copy
-          const tradingCopy = await this._tradingCopyRepository.findWhere({
-            status: contants.STATUS.ACTIVE,
-            id_expert: item.id_expert,
+          const timeSetup = moment(item.timeSetup).format('YYYY-MM-DD HH:mm:00');
+          const fromTime = moment(timeSetup).subtract(2, 'minutes').format('YYYY-MM-DD HH:mm:00');
+          const toDate = moment(timeSetup).subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:30');
+          const blocks = await this._blockRepository.findWhere({
+            createdAt: {
+              $gt: new Date(fromTime),
+              $lt: new Date(toDate),
+            },
           });
-          if (tradingCopy) this.createHistoryForUserCopy(item, dataSocket, tradingCopy, timeOpening);
+          if (blocks.length === 3) {
+            const blockIds = blocks.map((item) => item.block_id);
+            const symbols = await this._symbolRepository.getListSymbols(blockIds);
+            if (symbols === 3) {
+              const dataSocket = {
+                date: symbols[1].createdAt,
+                open: symbols[0].close_price,
+                close: symbols[0].open_price,
+                high: symbols[1].high_price,
+                low: symbols[1].low_price,
+                volume: symbols[1].volume,
+                is_open: symbols[1].open,
+              };
+
+              // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
+              this._tradingOrderRepository.update(item._id, {status: contants.STATUS.FINISH});
+
+              /** khởi tạo time vào lệnh cho cả chuyên gia và user */
+              let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
+              secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
+              const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
+
+              // tạo history cho expert
+              const expert = await this._expertRepository.findById(item.id_expert.toString());
+              if (expert) this.createHistoryForExpert(item, dataSocket, expert, timeOpening);
+
+              // tạo histories cho user copy
+              const tradingCopy = await this._tradingCopyRepository.findWhere({
+                status: contants.STATUS.ACTIVE,
+                id_expert: item.id_expert,
+              });
+              if (tradingCopy) this.createHistoryForUserCopy(item, dataSocket, tradingCopy, timeOpening);
+            }
+          }
         }
       }
     } catch (err) {
