@@ -277,7 +277,7 @@ export default class TradingOrderBussiness {
           historyModel.investment_amount = copy.base_amount;
         else historyModel.investment_amount = copy.investment_amount;
 
-        const threshold_percent_amount = Number(
+        const threshold_percent_amount = parseInt(
           (historyModel.investment_amount * (order.threshold_percent / 100)).toString(),
         );
         const maximum_rate_amount = parseFloat((historyModel.investment_amount * (copy.maximum_rate / 100)).toFixed(2));

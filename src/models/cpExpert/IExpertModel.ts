@@ -10,6 +10,7 @@ export default interface IExpertModel extends mongoose.Document {
   phone?: string;
   avatar?: string;
   total_amount?: number;
+  base_amount?: number;
   is_virtual?: boolean;
   status?: string;
   virtual_copier: number;

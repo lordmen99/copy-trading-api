@@ -1,6 +1,6 @@
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import CPTradingHistorySchema from '@src/schemas/CPTradingHistorySchema';
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class TradingHistoryRepository extends RepositoryBase<ITradingHistoryModel> {
@@ -21,6 +21,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   ): Promise<any> {
     try {
       const result = await CPTradingHistorySchema.aggregate([
+        {
+          $sort: {closing_time: -1},
+        },
         {
           $match: {
             id_user: new mongoose.Types.ObjectId(item.id_user),
@@ -93,6 +96,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
         },
       ]);
 
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
+
       return {
         result,
         count,
@@ -116,6 +128,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   ): Promise<any> {
     try {
       const result = await CPTradingHistorySchema.aggregate([
+        {
+          $sort: {closing_time: -1},
+        },
         {
           $match: {
             id_expert: new mongoose.Types.ObjectId(item.id_expert),
@@ -187,6 +202,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
         },
       ]);
 
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
+
       const count = await CPTradingHistorySchema.countDocuments({
         id_expert: item.id_expert,
         id_user: {$ne: null},
@@ -215,6 +239,9 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   ): Promise<any> {
     try {
       const result = await CPTradingHistorySchema.aggregate([
+        {
+          $sort: {closing_time: -1},
+        },
         {
           $match: {
             id_expert: new mongoose.Types.ObjectId(item.id_expert),
@@ -284,6 +311,15 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
         },
       });
 
+      if (result.length > 0) {
+        if (result[0].data.length > 0)
+          for (const history of result[0].data) {
+            if (history.profit === 0) {
+              if (profit.length > 0) profit[0].profit -= history.order_amount;
+            }
+          }
+      }
+
       return {
         result,
         count,
@@ -297,6 +333,20 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
   public async insertManyTradingHistory(arrTradingHistory: ITradingHistoryModel[]) {
     try {
       const result = await CPTradingHistorySchema.insertMany(arrTradingHistory);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async hotfixUpdateStatus(
+    id_user: Schema.Types.ObjectId,
+    id_expert: Schema.Types.ObjectId,
+    id_order: Schema.Types.ObjectId,
+    id_copy: Schema.Types.ObjectId,
+  ) {
+    try {
+      const result = await CPTradingHistorySchema.update({id_user, id_expert, id_order, id_copy}, {status: true});
       return result;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

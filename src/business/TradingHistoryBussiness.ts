@@ -194,8 +194,8 @@ export default class TradingHistoryBussiness {
             total_gain: profit,
             copier: count_trading_copies,
             removed_copier,
-            createdAt: new Date(date),
-            updatedAt: new Date(date),
+            createdAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
+            updatedAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
           } as ITradingGainEveryMonthModel);
         } else {
           profit = 0;
@@ -239,15 +239,21 @@ export default class TradingHistoryBussiness {
         if (result?.length > 0) {
           let profit = 0;
           for (const history of result) {
-            if (history.id_user) {
-              profit = profit + history.fee_to_expert;
+            if (history.profit === 0) {
+              if (!history.id_user) {
+                profit = profit - history.order_amount;
+              }
             } else {
-              profit = profit + history.profit - history.fee_to_trading;
+              if (history.id_user) {
+                profit = profit + history.fee_to_expert;
+              } else {
+                profit = profit + history.profit - history.fee_to_trading;
+              }
             }
           }
           await this._tradingGainRepository.create({
             id_expert: expert._id,
-            total_gain: parseFloat(((profit / expert.total_amount) * 100).toString()),
+            total_gain: parseFloat(((profit / expert.base_amount) * 100).toFixed(2)),
             createdAt: new Date(date),
             updatedAt: new Date(date),
           } as ITradingGainModel);

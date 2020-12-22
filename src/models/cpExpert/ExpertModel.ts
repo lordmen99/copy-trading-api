@@ -30,6 +30,10 @@ export default class ExpertModel {
     return this._expertModel.total_amount;
   }
 
+  get base_amount(): number {
+    return this._expertModel.base_amount;
+  }
+
   get is_virtual(): boolean {
     return this._expertModel.is_virtual;
   }

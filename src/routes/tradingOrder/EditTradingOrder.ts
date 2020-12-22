@@ -22,6 +22,7 @@ import {Router} from 'express';
  * @apiParam {String} type_of_order Loại đánh lệnh (WIN/LOSE)
  * @apiParam {Number} threshold_percent Ngưỡng % của total_amount
  * @apiParam {Number} orderedAt Thời gian setup lệnh chạy
+ * @apiParam {String} time_zone TimeZone của người cài đặt lệnh
  *
  * @apiSuccess {Object} data
  *

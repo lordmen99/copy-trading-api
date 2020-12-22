@@ -1,11 +1,11 @@
-import TradingOrderController from '@src/controllers/TradingOrderController';
+import TradingGainController from '@src/controllers/TradingGainController';
 import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading_order/create_trading_order 1. Create trading order
+ * @api {post} /trading_gain/update_trading_gain 1. Update trading gain
  * @apiVersion 0.1.0
- * @apiGroup VI. Trading Order
+ * @apiGroup VII. Trading Gain
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -16,12 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_expert Id của expert trong bản cp_experts
- * @apiParam {String} id_admin Id của admin thực hiện đánh trong bản cp_admins
- * @apiParam {String} type_of_order Loại đánh lệnh (WIN/LOSE)
- * @apiParam {Number} threshold_percent Ngưỡng % của total_amount
- * @apiParam {Number} orderedAt Thời gian thiết lập lệnh
- * @apiParam {String} time_zone TimeZone của người cài đặt lệnh
+ * @apiParam {Date} date Ngày cần tổng hợp % lãi lỗ
  *
  * @apiSuccess {Object} data
  *
@@ -30,14 +25,17 @@ import {Router} from 'express';
  *  {
  *      "data": [
  *            {
- *              "_id": "5fbff8e935df029b281f06fe",
- *              "id_expert": "5fbf0a869fd1920a2f5de2f9",
- *              "type_of_order": "WIN",
- *              "threshold_percent": 10,
  *              "status": "ACTIVE",
- *              "createdAt": "2020-11-26T18:50:17.262Z",
- *              "ordereddAt": "2020-11-26T18:50:17.262Z",
- *              "timeSetup": "2020-11-26T18:50:17.262Z",
+ *              "_id": "5fbf39160e4c24344ffe6cb4",
+ *              "id_user": "5fbf350b93a52d31f0b426a1",
+ *              "id_expert": "5fbf0a869fd1920a2f5de2ff",
+ *              "investment_amount": 500,
+ *              "maximum_rate": 15,
+ *              "has_maximum_rate": true,
+ *              "stop_loss": 50,
+ *              "has_stop_loss": true,
+ *              "taken_profit": 1000,
+ *              "has_taken_profit": true,
  *              "__v": 0
  *            }
  *        ]
@@ -55,4 +53,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/create_trading_order', isAuthenticated, new TradingOrderController().createTradingOrder);
+  route.post('/update_trading_gain', isAuthenticated, new TradingGainController().updateTradingGain);

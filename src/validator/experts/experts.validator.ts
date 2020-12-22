@@ -33,6 +33,8 @@ export class AddExpert {
   @IsNotEmpty({message: 'Total amount is required'})
   total_amount?: number;
 
+  base_amount?: number;
+
   @IsNotEmpty({message: 'Status is required'})
   is_virtual?: boolean;
 

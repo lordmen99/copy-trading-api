@@ -2,6 +2,7 @@ import {Router} from 'express';
 import AdminsRouter from './admins';
 import ExpertsRouter from './experts';
 import TradingCopyRouter from './tradingCopy';
+import TradingGainRouter from './tradingGain';
 import TradingHistoryRouter from './tradingHistory';
 import TradingOrderRouter from './tradingOrder';
 import UsersRouter from './users';
@@ -21,6 +22,7 @@ class MainRoutes {
     this.routers.use('/trading_order', new TradingOrderRouter().router);
     this.routers.use('/experts', new ExpertsRouter().router);
     this.routers.use('/admins', new AdminsRouter().router);
+    this.routers.use('/trading_gain', new TradingGainRouter().router);
   }
 }
 
