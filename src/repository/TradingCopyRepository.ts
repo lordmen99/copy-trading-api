@@ -157,9 +157,27 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       ]);
 
       const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
+
+      const finance = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            // status: {$in: orArray},
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total_investment_amount: {$sum: '$investment_amount'},
+            total_base_amount: {$sum: '$base_amount'},
+          },
+        },
+      ]);
+
       return {
         result,
         count,
+        finance,
       };
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
