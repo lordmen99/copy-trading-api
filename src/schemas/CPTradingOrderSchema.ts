@@ -13,26 +13,32 @@ class CPTradingOrderSchema {
         required: true,
       },
       type_of_order: {
-        type: String,
+        type: Schema.Types.String,
         required: true,
       },
       threshold_percent: {
-        type: Number,
+        type: Schema.Types.Number,
         required: true,
       },
       status: {
-        type: String,
+        type: Schema.Types.String,
         required: true,
       },
       createdAt: {
-        type: Date,
+        type: Schema.Types.Date,
       },
       orderedAt: {
-        type: Date,
+        type: Schema.Types.Date,
       },
       timeSetup: {
-        type: Date,
+        type: Schema.Types.Date,
         required: true,
+      },
+      timeZone: {
+        type: Schema.Types.String,
+      },
+      endDate: {
+        type: Schema.Types.Date,
       },
     });
     return schema;

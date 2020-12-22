@@ -39,4 +39,12 @@ export default class TradingOrderModel {
   get timeSetup(): Date {
     return this._tradingOrderModel.timeSetup;
   }
+
+  get timeZone(): string {
+    return this._tradingOrderModel.timeZone;
+  }
+
+  get endDate(): Date {
+    return this._tradingOrderModel.endDate;
+  }
 }
