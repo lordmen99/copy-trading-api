@@ -49,4 +49,48 @@ export default class TradingWithdrawRepository extends RepositoryBase<ITradingWi
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async calculateWithdrawCopyTrade() {
+    try {
+      const result = await CPTradingWithdrawSchema.aggregate([
+        {
+          $match: {
+            type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
+            status: contants.STATUS.FINISH,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            amount: {$sum: '$amount'},
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async calculateWithdrawWallet() {
+    try {
+      const result = await CPTradingWithdrawSchema.aggregate([
+        {
+          $match: {
+            type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
+            status: contants.STATUS.FINISH,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            amount: {$sum: '$amount'},
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }

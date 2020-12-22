@@ -6,6 +6,7 @@ import TradingGainRouter from './tradingGain';
 import TradingHistoryRouter from './tradingHistory';
 import TradingOrderRouter from './tradingOrder';
 import UsersRouter from './users';
+import WalletRouter from './wallet';
 
 class MainRoutes {
   public routers: Router;
@@ -23,6 +24,7 @@ class MainRoutes {
     this.routers.use('/experts', new ExpertsRouter().router);
     this.routers.use('/admins', new AdminsRouter().router);
     this.routers.use('/trading_gain', new TradingGainRouter().router);
+    this.routers.use('/wallet', new WalletRouter().router);
   }
 }
 

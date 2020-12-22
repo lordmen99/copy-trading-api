@@ -283,4 +283,21 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async calculateCopyAmount() {
+    try {
+      const result = await CPTradingCopySchema.aggregate([
+        {
+          $group: {
+            _id: null,
+            investment_amount: {$sum: '$investment_amount'},
+            base_amount: {$sum: '$base_amount'},
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
