@@ -161,7 +161,7 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       const finance = await CPTradingCopySchema.aggregate([
         {
           $match: {
-            // status: {$in: orArray},
+            status: {$in: orArray},
             id_expert: new mongoose.Types.ObjectId(item.id_expert),
           },
         },
