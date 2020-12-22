@@ -77,6 +77,7 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         {
           $match: {
             type_of_order: 'WIN',
+            id_expert,
           },
         },
         {
@@ -90,6 +91,7 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         {
           $match: {
             type_of_order: 'LOSE',
+            id_expert,
           },
         },
         {
