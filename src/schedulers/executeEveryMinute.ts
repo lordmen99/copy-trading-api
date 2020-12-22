@@ -22,11 +22,15 @@ export default (date: Date) => {
 
     // trả 5% cho expert vào 23h59 cùng ngày
 
-    tradingWithdrawBussiness.getListPendingTradingWithdraw(date).then((listWithdraws: ITradingWithdrawModel[]) => {
-      listWithdraws.map(async (withdraw: ITradingWithdrawModel) => {
-        await tradingCopyBussiness.transferMoneyToExpert(withdraw);
+    tradingWithdrawBussiness
+      .getListPendingTradingWithdraw(date)
+      .then(async (listWithdraws: ITradingWithdrawModel[]) => {
+        // listWithdraws.map(async (withdraw: ITradingWithdrawModel) => {
+        // });
+        for (const withdraw of listWithdraws) {
+          await tradingCopyBussiness.transferMoneyToExpert(withdraw);
+        }
       });
-    });
   } catch (error) {
     logger.error(`\nSCHEDULER ERROR: `);
     logger.error(`${error.message}\n`);
