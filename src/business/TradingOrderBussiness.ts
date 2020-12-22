@@ -67,9 +67,25 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async getListOrdersByExpert(id_expert: Schema.Types.ObjectId, page, size): Promise<ITradingOrderModel[]> {
+  public async getListOrdersByExpert(
+    id_expert: Schema.Types.ObjectId,
+    status: string,
+    page: number,
+    size: number,
+    fromDate: Date,
+    toDate: Date,
+    action: string,
+  ): Promise<ITradingOrderModel[]> {
     try {
-      const result = await this._tradingOrderRepository.findWithPagingById({id_expert}, page, size);
+      const result = await this._tradingOrderRepository.getListOrdersByExpert(
+        id_expert,
+        status,
+        page,
+        size,
+        fromDate,
+        toDate,
+        action,
+      );
       if (result) return result;
       return [];
     } catch (err) {
