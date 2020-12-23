@@ -18,6 +18,10 @@ import {Router} from 'express';
  *
  * @apiParam {Number} page
  * @apiParam {Number} size
+ * @apiParam {Date} fromDate
+ * @apiParam {Date} toDate
+ * @apiParam {String} action
+ * @apiParam {String} status
  *
  * @apiSuccess {Object} data
  *

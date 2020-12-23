@@ -26,7 +26,14 @@ export default class TradingOrderController {
     try {
       const params = req.body;
       const tradingOrderBusiness = new TradingOrderBussiness();
-      const result = await tradingOrderBusiness.getListOrders(params.page, params.size);
+      const result = await tradingOrderBusiness.getListOrders(
+        params.status,
+        params.page,
+        params.size,
+        params.fromDate,
+        params.toDate,
+        params.action,
+      );
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
@@ -37,7 +44,15 @@ export default class TradingOrderController {
     try {
       const params = req.body;
       const tradingOrderBusiness = new TradingOrderBussiness();
-      const result = await tradingOrderBusiness.getListOrdersByExpert(params.id_expert, params.page, params.size);
+      const result = await tradingOrderBusiness.getListOrdersByExpert(
+        params.id_expert,
+        params.status,
+        params.page,
+        params.size,
+        params.fromDate,
+        params.toDate,
+        params.action,
+      );
       res.status(200).send({data: result});
     } catch (err) {
       next(err);

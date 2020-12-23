@@ -1,5 +1,6 @@
 import IUserModel from '@src/models/cpUser/IUserModel';
 import CPUserSchema from '@src/schemas/CPUserSchema';
+import {contants} from '@src/utils';
 import {RepositoryBase} from './base';
 
 export default class UserRepository extends RepositoryBase<IUserModel> {
@@ -26,6 +27,28 @@ export default class UserRepository extends RepositoryBase<IUserModel> {
         {$sample: {size: randomNumber}},
         {$match: {status: 'ACTIVE', is_virtual: true}},
         {$project: {_id: 1, total_amount: 1}},
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async calculateUserAmount() {
+    try {
+      const result = await CPUserSchema.aggregate([
+        {
+          $match: {
+            is_virtual: false,
+            status: {$ne: contants.STATUS.DELETE},
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total_amount: {$sum: '$total_amount'},
+          },
+        },
       ]);
       return result;
     } catch (err) {
