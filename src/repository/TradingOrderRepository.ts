@@ -79,6 +79,11 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
           $match: {
             type_of_order: 'WIN',
             id_expert: new mongoose.Types.ObjectId(id_expert),
+            status: {$regex: '.*' + status + '.*'},
+            createdAt: {
+              $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+              $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+            },
           },
         },
         {
@@ -93,6 +98,11 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
           $match: {
             type_of_order: 'LOSE',
             id_expert: new mongoose.Types.ObjectId(id_expert),
+            status: {$regex: '.*' + status + '.*'},
+            createdAt: {
+              $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+              $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+            },
           },
         },
         {
@@ -108,10 +118,14 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         lose: 0,
       };
       if (win.length > 0) {
-        diff.win = win[0].win;
+        if (action === 'LOSE') {
+          diff.win = 0;
+        } else diff.win = win[0].win;
       }
       if (lose.length > 0) {
-        diff.lose = lose[0].lose;
+        if (action === 'WIN') {
+          diff.lose = 0;
+        } else diff.lose = lose[0].lose;
       }
 
       return {
