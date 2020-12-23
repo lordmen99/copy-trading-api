@@ -23,6 +23,10 @@ export class CreateTradingOrder {
   orderedAt?: Date;
 
   timeSetup?: Date;
+
+  timeZone?: string;
+
+  endDate?: Date;
 }
 
 export class EditTradingOrder {

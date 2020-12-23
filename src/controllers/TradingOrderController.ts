@@ -76,6 +76,8 @@ export default class TradingOrderController {
       data.status = contants.STATUS.PENDING;
       data.orderedAt = orderTime;
       data.createdAt = orderTime;
+      data.timeZone = timeZone;
+      data.endDate = endTime;
       const diff = Math.round((endTime.getTime() - orderTime.getTime()) * Math.random());
       data.timeSetup = new Date(orderTime.getTime() + diff);
       const tradingOrderBusiness = new TradingOrderBussiness();

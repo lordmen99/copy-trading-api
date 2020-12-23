@@ -10,4 +10,6 @@ export default interface ITradingOrderModel extends mongoose.Document {
   createdAt: Date;
   orderedAt: Date;
   timeSetup: Date;
+  timeZone: string;
+  endDate: Date;
 }

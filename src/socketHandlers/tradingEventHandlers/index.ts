@@ -10,8 +10,7 @@ export default (io: any) => {
       io.on('commit', async (data: any) => {
         /** lọc ra nến kết quả */
         if (data.ticking === 1 && data.data[0].is_open === true && data.data[0].open !== data.data[0].close) {
-          // const tradingOrderBussiness = new TradingOrderBussiness();
-          // tradingOrderBussiness.executeListPendingOrders(data.data[0]);
+          console.log(`open: ${data.data[0].open} - close: ${data.data[0].close}`);
           const _dataSocketRepository = new DataSocketRepository();
           await _dataSocketRepository.create({
             absoluteChange: data.data[0].absoluteChange,

@@ -2,7 +2,9 @@ import ITradingCopyModel from '@src/models/cpTradingCopy/ITradingCopyModel';
 import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
+import BlockRepository from '@src/repository/BlockRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import SymbolRepository from '@src/repository/SymbolRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
@@ -26,6 +28,8 @@ export default class TradingOrderBussiness {
   private _expertRepository: ExpertRepository;
   private _tradingCopyRepository: TradingCopyRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
+  private _blockRepository: BlockRepository;
+  private _symbolRepository: SymbolRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -33,6 +37,8 @@ export default class TradingOrderBussiness {
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._expertRepository = new ExpertRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
+    this._blockRepository = new BlockRepository();
+    this._symbolRepository = new SymbolRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -93,48 +99,76 @@ export default class TradingOrderBussiness {
     }
   }
 
-  public async executeListPendingOrders(dataSocket: any): Promise<void> {
+  public async executeListPendingOrders(date: Date): Promise<void> {
     try {
       const result = await this._tradingOrderRepository.findWhereSortByField(
         {
           status: contants.STATUS.PENDING,
-          timeSetup: {
-            $lt: new Date(),
-          },
+          timeSetup: {$lt: date},
         },
         'timeSetup',
       );
       if (result.length <= 0) return;
       for (let i = 0; i <= result.length - 1; i++) {
+        const item = result[i];
         if (i !== result.length - 1) {
+          /** nếu có nhiều lệnh thì di chuyển các lệnh khác lệnh cuối cùng sang một thời gian khác */
           const start = new Date();
-          const end = new Date();
-          end.setHours(23, 59, 59);
-          const diffES = (end.getTime() - start.getTime()) * Math.random();
-          this._tradingOrderRepository.update(result[i]._id, {
-            timeSetup: new Date(start.getTime() + diffES),
-          });
+          const end = item.endDate;
+          /** compare time giữa ngày start và end */
+          const compareTime = moment(start).diff(moment(end), 'seconds');
+          /** nếu ngày start nhỏ hơn ngày kết thúc thì tăng thêm giờ trong khoảng thời gian đến hết ngày */
+          if (compareTime <= 0) {
+            const diffES = Math.round((end.getTime() - start.getTime()) * Math.random());
+            const newDate = new Date(start.getTime() + diffES);
+            this._tradingOrderRepository.update(item._id, {
+              timeSetup: newDate,
+            });
+          }
         } else {
-          // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
-          this._tradingOrderRepository.update(result[i]._id, {
-            status: contants.STATUS.FINISH,
+          const timeSetup = moment(item.timeSetup).format('YYYY-MM-DD HH:mm:00');
+          const fromTime = moment(timeSetup).subtract(2, 'minutes').format('YYYY-MM-DD HH:mm:00');
+          const toDate = moment(timeSetup).subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:30');
+          const blocks = await this._blockRepository.findWhere({
+            createdAt: {
+              $gt: new Date(fromTime),
+              $lt: new Date(toDate),
+            },
           });
+          if (blocks.length === 3) {
+            const blockIds = blocks.map((item) => item.block_id);
+            const symbols = await this._symbolRepository.getListSymbols(blockIds);
+            if (symbols === 3) {
+              const dataSocket = {
+                date: symbols[1].createdAt,
+                open: symbols[0].close_price,
+                close: symbols[0].open_price,
+                high: symbols[1].high_price,
+                low: symbols[1].low_price,
+                volume: symbols[1].volume,
+                is_open: symbols[1].open,
+              };
 
-          /** khởi tạo time vào lệnh cho cả chuyên gia và user */
-          let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
-          secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
-          const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
+              // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
+              this._tradingOrderRepository.update(item._id, {status: contants.STATUS.FINISH});
 
-          // tạo history cho expert
-          const expert = await this._expertRepository.findById(result[i].id_expert.toString());
-          if (expert) this.createHistoryForExpert(result[i], dataSocket, expert, timeOpening);
+              /** khởi tạo time vào lệnh cho cả chuyên gia và user */
+              let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
+              secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
+              const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
 
-          // tạo histories cho user copy
-          const tradingCopy = await this._tradingCopyRepository.findWhere({
-            status: contants.STATUS.ACTIVE,
-            id_expert: result[i].id_expert,
-          });
-          if (tradingCopy) this.createHistoryForUserCopy(result[i], dataSocket, tradingCopy, timeOpening);
+              // tạo history cho expert
+              const expert = await this._expertRepository.findById(item.id_expert.toString());
+              if (expert) this.createHistoryForExpert(item, dataSocket, expert, timeOpening);
+
+              // tạo histories cho user copy
+              const tradingCopy = await this._tradingCopyRepository.findWhere({
+                status: contants.STATUS.ACTIVE,
+                id_expert: item.id_expert,
+              });
+              if (tradingCopy) this.createHistoryForUserCopy(item, dataSocket, tradingCopy, timeOpening);
+            }
+          }
         }
       }
     } catch (err) {
