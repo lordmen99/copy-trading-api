@@ -54,6 +54,16 @@ class CPExpertSchema {
         type: Number,
         required: true,
       },
+      auto_gen_copier: {
+        type: Boolean,
+        default: 0,
+      },
+      from_copier: {
+        type: Number,
+      },
+      to_copier: {
+        type: Number,
+      },
       status: {
         type: String,
         required: true,

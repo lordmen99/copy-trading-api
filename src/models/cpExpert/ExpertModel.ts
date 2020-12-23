@@ -49,4 +49,16 @@ export default class ExpertModel {
   get real_copier(): number {
     return this._expertModel.real_copier;
   }
+
+  get from_copier(): number {
+    return this._expertModel.from_copier;
+  }
+
+  get to_copier(): number {
+    return this._expertModel.to_copier;
+  }
+
+  get auto_gen_copier(): boolean {
+    return this._expertModel.auto_gen_copier;
+  }
 }

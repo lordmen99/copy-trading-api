@@ -84,6 +84,7 @@ export default class ExpertBussiness {
           base_amount: total_amount,
           is_virtual: true,
           status: contants.STATUS.ACTIVE,
+          auto_gen_copier: false,
         };
         dataRandomExpert.push(data as IExpertModel);
       }
@@ -163,6 +164,70 @@ export default class ExpertBussiness {
             return result ? true : false;
           }
         }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async updateRangeAutoCopier(id_expert, from_copier: number, to_copier: number): Promise<boolean> {
+    try {
+      const expert = await this._expertRepository.findById(id_expert.toString());
+      if (expert) {
+        const expertEntity = expert;
+        expertEntity.from_copier = from_copier;
+        expertEntity.to_copier = to_copier;
+        const result = await this._expertRepository.update(id_expert.toString(), expertEntity);
+        if (result) {
+          return result ? true : false;
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async enableAutoCopier(id_expert, auto_gen_copier: boolean): Promise<boolean> {
+    try {
+      const expert = await this._expertRepository.findById(id_expert.toString());
+      if (expert) {
+        const expertEntity = expert;
+        expertEntity.auto_gen_copier = auto_gen_copier;
+        const result = await this._expertRepository.update(id_expert.toString(), expertEntity);
+        if (result) {
+          return result ? true : false;
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getListExpertAutoCopier(): Promise<IExpertModel[]> {
+    try {
+      const experts = await this._expertRepository.findWhere({
+        auto_gen_copier: true,
+        status: contants.STATUS.ACTIVE,
+      });
+      if (experts) {
+        return experts;
+      } else {
+        return [];
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async autoGenCopier(expert: IExpertModel): Promise<void> {
+    try {
+      const result = await this._expertRepository.findById(expert._id.toString());
+      if (result) {
+        const auto_gen_copier =
+          Math.floor(Math.random() * (expert.to_copier - expert.from_copier)) + expert.from_copier;
+        await this._expertRepository.update(expert._id, {
+          virtual_copier: expert.virtual_copier + auto_gen_copier,
+        });
       }
     } catch (err) {
       throw err;
