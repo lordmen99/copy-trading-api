@@ -12,4 +12,5 @@ export default interface ISymbolModel extends mongoose.Document {
   low_price: Schema.Types.Decimal128;
   volume: Schema.Types.Number;
   open: Schema.Types.Boolean;
+  createdAt: Schema.Types.Date;
 }
