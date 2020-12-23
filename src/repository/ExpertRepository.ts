@@ -418,7 +418,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             trading_gains: expert.gain_every_months,
           };
           const temp = {
-            exp,
+            expert: exp,
             info: {...info},
           };
           list.push({...temp});
