@@ -101,6 +101,7 @@ export default class ExpertController {
       data.base_amount = params.total_amount;
       data.is_virtual = params.is_virtual;
       data.status = contants.STATUS.ACTIVE;
+      data.auto_gen_copier = false;
       const expertBusiness = new ExpertBussiness();
       const result = await expertBusiness.addExpert(data);
 
@@ -185,6 +186,33 @@ export default class ExpertController {
       const expertBusiness = new ExpertBussiness();
       const result = await expertBusiness.updateVirtualCopier(data);
 
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async updateRangeAutoCopier(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.updateRangeAutoCopier(
+        params.id_expert,
+        params.from_copier,
+        params.to_copier,
+        params.auto_gen_copier,
+      );
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async enableAutoCopier(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const expertBusiness = new ExpertBussiness();
+      const result = await expertBusiness.enableAutoCopier(params.id_expert, params.auto_gen_copier);
       res.status(200).send({data: result});
     } catch (err) {
       next(err);

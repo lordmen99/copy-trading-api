@@ -39,6 +39,8 @@ export class AddExpert {
   is_virtual?: boolean;
 
   status?: string;
+
+  auto_gen_copier?: boolean;
 }
 
 export class EditExpert {
