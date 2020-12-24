@@ -33,6 +33,23 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
               },
               {
                 $lookup: {
+                  from: 'cp_trading_withdraws',
+                  let: {
+                    id_copy: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_copy', '$$id_copy']},
+                        type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+                      },
+                    },
+                  ],
+                  as: 'trading_withdraws',
+                },
+              },
+              {
+                $lookup: {
                   from: 'cp_trading_orders',
                   let: {
                     id_expert: '$id_expert',
@@ -70,6 +87,7 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
                     avatar: 1,
                   },
                   trading_orders: 1,
+                  trading_withdraws: 1,
                 },
               },
             ],
