@@ -47,4 +47,8 @@ export default class SymbolModel {
   get open(): Schema.Types.Boolean {
     return this._symbolModel.open;
   }
+
+  get createdAt(): Schema.Types.Date {
+    return this._symbolModel.createdAt;
+  }
 }

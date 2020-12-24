@@ -138,11 +138,11 @@ export default class TradingOrderBussiness {
           if (blocks.length === 3) {
             const blockIds = blocks.map((item) => item.block_id);
             const symbols = await this._symbolRepository.getListSymbols(blockIds);
-            if (symbols === 3) {
+            if (symbols.length === 3) {
               const dataSocket = {
                 date: symbols[1].createdAt,
                 open: symbols[0].close_price,
-                close: symbols[0].open_price,
+                close: symbols[2].open_price,
                 high: symbols[1].high_price,
                 low: symbols[1].low_price,
                 volume: symbols[1].volume,
@@ -155,7 +155,9 @@ export default class TradingOrderBussiness {
               /** khởi tạo time vào lệnh cho cả chuyên gia và user */
               let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
               secondOpen = secondOpen.length === 1 ? `0${secondOpen}` : secondOpen;
-              const timeOpening = new Date(moment().subtract(1, 'minutes').format(`YYYY-MM-DD HH:mm:${secondOpen}`));
+              console.log(dataSocket.date, ': dataSocket.date');
+              const timeOpening = new Date(moment(dataSocket.date).format(`YYYY-MM-DD HH:mm:${secondOpen}`));
+              console.log(timeOpening.toString(), ': timeOpening.toString()');
 
               // tạo history cho expert
               const expert = await this._expertRepository.findById(item.id_expert.toString());
