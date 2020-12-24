@@ -18,6 +18,8 @@ import {Router} from 'express';
  * @apiParam {String} id_expert
  * @apiParam {Number} from_copier
  * @apiParam {Number} to_copier
+ * @apiParam {Boolean} auto_gen_copier
+ *
  *
  * @apiSuccess {Object} data
  *

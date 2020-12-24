@@ -170,13 +170,19 @@ export default class ExpertBussiness {
     }
   }
 
-  public async updateRangeAutoCopier(id_expert, from_copier: number, to_copier: number): Promise<boolean> {
+  public async updateRangeAutoCopier(
+    id_expert,
+    from_copier: number,
+    to_copier: number,
+    auto_gen_copier: boolean,
+  ): Promise<boolean> {
     try {
       const expert = await this._expertRepository.findById(id_expert.toString());
       if (expert) {
         const expertEntity = expert;
         expertEntity.from_copier = from_copier;
         expertEntity.to_copier = to_copier;
+        expertEntity.auto_gen_copier = auto_gen_copier;
         const result = await this._expertRepository.update(id_expert.toString(), expertEntity);
         if (result) {
           return result ? true : false;

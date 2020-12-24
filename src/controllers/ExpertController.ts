@@ -196,7 +196,12 @@ export default class ExpertController {
     try {
       const params = req.body;
       const expertBusiness = new ExpertBussiness();
-      const result = await expertBusiness.updateRangeAutoCopier(params.id_expert, params.from_copier, params.to_copier);
+      const result = await expertBusiness.updateRangeAutoCopier(
+        params.id_expert,
+        params.from_copier,
+        params.to_copier,
+        params.auto_gen_copier,
+      );
       res.status(200).send({data: result});
     } catch (err) {
       next(err);
