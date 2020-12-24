@@ -100,7 +100,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           username: result[0].username,
           avatar: result[0].avatar,
           gain_every_months: result[0].gain_every_months,
-          trading_gains: result[0].gain_every_months,
+          trading_gains: result[0].trading_gains,
         };
         temp.result = expert;
         temp.info = info;
@@ -415,7 +415,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             username: expert.username,
             avatar: expert.avatar,
             gain_every_months: expert.gain_every_months,
-            trading_gains: expert.gain_every_months,
+            trading_gains: expert.trading_gains,
           };
           const temp = {
             expert: exp,
@@ -494,7 +494,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             for (const item of expert.gain_every_months) {
               gain = gain + item.total_gain;
             }
-            info.gain_rate_months = parseFloat((gain / expert.gain_every_months.length).toFixed(2));
+            info.gain_rate_months = parseFloat(gain.toFixed(2));
           }
           const temp = {
             expert,

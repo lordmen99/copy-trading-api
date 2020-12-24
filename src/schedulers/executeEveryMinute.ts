@@ -14,10 +14,11 @@ export default (date: Date) => {
     userBussiness.executeUnblockUser(date);
 
     // trả tiền lãi cho user sau 24h kể từ khi ngừng copy
-    tradingWithdrawBussiness.getListPendingWithdraw(date).then((listWithdraws) => {
-      listWithdraws.map((withdraw) => {
-        tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
-      });
+    tradingWithdrawBussiness.getListPendingWithdraw(date).then(async (listWithdraws) => {
+      // listWithdraws.map((withdraw) => {});
+      for (const withdraw of listWithdraws) {
+        await tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
+      }
     });
 
     // trả 5% cho expert vào 23h59 cùng ngày

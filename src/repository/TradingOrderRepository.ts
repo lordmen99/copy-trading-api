@@ -59,7 +59,7 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
       const result = await CPTradingOrderSchema.find({
         id_expert,
         status: {$regex: '.*' + status + '.*'},
-        createdAt: {
+        timeSetup: {
           // new Date(moment.tz(fromDate, time_zone).toString());
           $gte: new Date(new Date(new Date(moment.tz(fromDate, time_zone).toString())).setHours(0, 0, 0)),
           $lt: new Date(new Date(new Date(moment.tz(toDate, time_zone).toString())).setHours(23, 59, 59)),
