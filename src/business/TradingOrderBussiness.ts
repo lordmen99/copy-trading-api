@@ -114,7 +114,7 @@ export default class TradingOrderBussiness {
         if (i !== result.length - 1) {
           /** nếu có nhiều lệnh thì di chuyển các lệnh khác lệnh cuối cùng sang một thời gian khác */
           const start = new Date();
-          const end = item.endDate;
+          const end = new Date(item.endDate);
           /** compare time giữa ngày start và end */
           const compareTime = moment(start).diff(moment(end), 'seconds');
           /** nếu ngày start nhỏ hơn ngày kết thúc thì tăng thêm giờ trong khoảng thời gian đến hết ngày */
