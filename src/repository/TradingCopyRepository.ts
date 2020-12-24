@@ -318,4 +318,27 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async calculateCopyAmountByUser(id_user) {
+    try {
+      const result = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            status: {$in: [contants.STATUS.ACTIVE, contants.STATUS.PAUSE]},
+            id_user,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            investment_amount: {$sum: '$investment_amount'},
+            base_amount: {$sum: '$base_amount'},
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }

@@ -442,24 +442,28 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async transferMoneyAfterStopCopy(withdraw: ITradingWithdrawModel): Promise<void> {
+  public async transferMoneyAfterStopCopy(withdraws: ITradingWithdrawModel[]): Promise<void> {
     try {
-      const copy = await this._tradingCopyRepository.findOne({
-        _id: withdraw.id_copy,
-      });
-      await this._tradingCopyRepository.update(copy._id, {
-        investment_amount: copy.investment_amount - withdraw.amount,
-      });
-      const user = await this._userRepository.findOne({
-        _id: withdraw.id_user,
-      });
-      await this._userRepository.update(user._id, {
-        total_amount: user.total_amount + withdraw.amount,
-      });
-      await this._tradingWithdrawRepository.update(withdraw._id, {
-        status: contants.STATUS.FINISH,
-        updatedAt: new Date(),
-      });
+      Promise.all(
+        withdraws.map(async (withdraw) => {
+          // const copy = await this._tradingCopyRepository.findOne({
+          //   _id: withdraw.id_copy,
+          // });
+          // await this._tradingCopyRepository.update(copy._id, {
+          //   investment_amount: copy.investment_amount - withdraw.amount,
+          // });
+          const user = await this._userRepository.findOne({
+            _id: withdraw.id_user,
+          });
+          await this._userRepository.update(user._id, {
+            total_amount: user.total_amount + withdraw.amount,
+          });
+          await this._tradingWithdrawRepository.update(withdraw._id, {
+            status: contants.STATUS.FINISH,
+            updatedAt: new Date(),
+          });
+        }),
+      );
     } catch (err) {
       throw err;
     }
