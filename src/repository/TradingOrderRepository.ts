@@ -1,5 +1,6 @@
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import CPTradingOrderSchema from '@src/schemas/CPTradingOrderSchema';
+import moment from 'moment-timezone';
 import mongoose from 'mongoose';
 import {RepositoryBase} from './base';
 
@@ -52,14 +53,16 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
     fromDate: Date,
     toDate: Date,
     action: string,
+    time_zone: string,
   ): Promise<any> {
     try {
       const result = await CPTradingOrderSchema.find({
         id_expert,
         status: {$regex: '.*' + status + '.*'},
         createdAt: {
-          $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
-          $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+          // new Date(moment.tz(fromDate, time_zone).toString());
+          $gte: new Date(new Date(new Date(moment.tz(fromDate, time_zone).toString())).setHours(0, 0, 0)),
+          $lt: new Date(new Date(new Date(moment.tz(toDate, time_zone).toString())).setHours(23, 59, 59)),
         },
         type_of_order: {$regex: '.*' + action + '.*'},
       })
@@ -69,8 +72,8 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         id_expert,
         status: {$regex: '.*' + status + '.*'},
         createdAt: {
-          $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
-          $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+          $gte: new Date(new Date(new Date(moment.tz(fromDate, time_zone).toString())).setHours(0, 0, 0)),
+          $lt: new Date(new Date(new Date(moment.tz(toDate, time_zone).toString())).setHours(23, 59, 59)),
         },
         type_of_order: {$regex: '.*' + action + '.*'},
       });
