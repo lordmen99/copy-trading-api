@@ -94,7 +94,15 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           }
           info.gain_rate_months = parseFloat(gain.toFixed(2));
         }
-        temp.result = result[0];
+        const expert = {
+          _id: result[0]._id,
+          fullname: result[0].fullname,
+          username: result[0].username,
+          avatar: result[0].avatar,
+          gain_every_months: result[0].gain_every_months,
+          trading_gains: result[0].gain_every_months,
+        };
+        temp.result = expert;
         temp.info = info;
         return temp;
       }
@@ -401,8 +409,16 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             }
             info.gain_rate_months = parseFloat(gain.toFixed(2));
           }
+          const exp = {
+            _id: expert._id,
+            fullname: expert.fullname,
+            username: expert.username,
+            avatar: expert.avatar,
+            gain_every_months: expert.gain_every_months,
+            trading_gains: expert.gain_every_months,
+          };
           const temp = {
-            expert,
+            expert: exp,
             info: {...info},
           };
           list.push({...temp});

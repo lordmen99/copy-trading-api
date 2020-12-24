@@ -171,6 +171,9 @@ export default class TradingCopyBussiness {
                 }
               }
             }
+            if (keep_amount < 0) {
+              keep_amount = 0;
+            }
             const user = await this._userRepository.findOne({_id: copy.id_user});
             const resultUser = await this._userRepository.update(copy.id_user, {
               blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
@@ -189,18 +192,19 @@ export default class TradingCopyBussiness {
             });
 
             const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-
-            await tradingWithdrawBussiness.createTradingWithdraw({
-              id_user: copy.id_user,
-              id_expert: null,
-              id_copy: copy._id,
-              amount: parseFloat(keep_amount.toFixed(2)),
-              type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
-              status: contants.STATUS.PENDING,
-              createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-              updatedAt: new Date(),
-              paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            } as ITradingWithdrawModel);
+            if (keep_amount !== 0) {
+              await tradingWithdrawBussiness.createTradingWithdraw({
+                id_user: copy.id_user,
+                id_expert: null,
+                id_copy: copy._id,
+                amount: parseFloat(keep_amount.toFixed(2)),
+                type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+                status: contants.STATUS.PENDING,
+                createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+                updatedAt: new Date(),
+                paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+              } as ITradingWithdrawModel);
+            }
 
             if (resultUser && resultCopy && resultExpert) {
               return true;

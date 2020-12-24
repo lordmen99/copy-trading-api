@@ -43,6 +43,7 @@ export default class TradingOrderController {
   public async getListTradingOrdersByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
+      const headers = req.headers;
       const tradingOrderBusiness = new TradingOrderBussiness();
       const result = await tradingOrderBusiness.getListOrdersByExpert(
         params.id_expert,
@@ -52,6 +53,7 @@ export default class TradingOrderController {
         params.fromDate,
         params.toDate,
         params.action,
+        headers.time_zone.toString(),
       );
       res.status(200).send({data: result});
     } catch (err) {

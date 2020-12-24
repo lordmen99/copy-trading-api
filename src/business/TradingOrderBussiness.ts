@@ -81,6 +81,7 @@ export default class TradingOrderBussiness {
     fromDate: Date,
     toDate: Date,
     action: string,
+    time_zone: string,
   ): Promise<ITradingOrderModel[]> {
     try {
       const result = await this._tradingOrderRepository.getListOrdersByExpert(
@@ -91,6 +92,7 @@ export default class TradingOrderBussiness {
         fromDate,
         toDate,
         action,
+        time_zone,
       );
       if (result) return result;
       return [];
