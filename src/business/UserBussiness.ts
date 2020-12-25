@@ -207,7 +207,7 @@ export default class UserBussiness {
     }
   }
 
-  public async hotfixTransferMoney(): Promise<boolean> {
+  public async hotfixTransferMoney(): Promise<void> {
     try {
       const listUsers = await this._userRepository.findWhere({
         status: contants.STATUS.ACTIVE,
@@ -238,12 +238,13 @@ export default class UserBussiness {
           // const update = await this._userRepository.update(user._id, {
           //   total_amount: user.total_amount + parseFloat(result.toFixed(2)),
           // });
-          const update = await this._logTransferRepository.create({
-            username: user.username,
-            id_user: user._id,
-            amount: parseFloat(result.toFixed(2)),
-          } as ILogTransferModel);
-          return update ? true : false;
+          if (result !== 0)
+            await this._logTransferRepository.create({
+              username: user.username,
+              id_user: user._id,
+              amount: parseFloat(result.toFixed(2)),
+            } as ILogTransferModel);
+          // return update ? true : false;
         }
       }
     } catch (err) {
