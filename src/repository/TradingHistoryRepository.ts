@@ -352,4 +352,42 @@ export default class TradingHistoryRepository extends RepositoryBase<ITradingHis
       throw err.errors ? err.errors.shift() : err;
     }
   }
+  public async calculateProfitHistory(id_user) {
+    try {
+      const result = await CPTradingHistorySchema.aggregate([
+        {
+          $match: {
+            id_user,
+          },
+        },
+      ]);
+
+      const profit = await CPTradingHistorySchema.aggregate([
+        {
+          $match: {
+            id_user,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            profit: {$sum: '$profit'},
+            fee_to_trading: {$sum: '$fee_to_trading'},
+            fee_to_expert: {$sum: '$fee_to_expert'},
+          },
+        },
+      ]);
+
+      if (result.length > 0) {
+        for (const history of result) {
+          if (history.profit === 0) {
+            if (profit.length > 0) profit[0].profit -= history.order_amount;
+          }
+        }
+      }
+      return profit;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
