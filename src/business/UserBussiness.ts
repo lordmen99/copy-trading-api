@@ -1,6 +1,8 @@
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
+import ILogTransferModel from '@src/models/cpLogTransfer/ILogTransferModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
+import LogTransferRepository from '@src/repository/LogTransferRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
@@ -18,6 +20,7 @@ export default class UserBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
+  private _logTransferRepository: LogTransferRepository;
 
   constructor() {
     this._userRepository = new UserRepository();
@@ -25,6 +28,7 @@ export default class UserBussiness {
     this._tradingCopyRepository = new TradingCopyRepository();
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
+    this._logTransferRepository = new LogTransferRepository();
   }
 
   public async findById(params: GetUser): Promise<any> {
@@ -143,51 +147,74 @@ export default class UserBussiness {
           if (wallet) {
             if (params.source === contants.TYPE_OF_WALLET.WALLET) {
               if (parseFloat(wallet.amount.toString()) >= parseFloat(params.amount.toString())) {
-                const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
-                });
-                const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
-                });
-                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
-                  id_user: result._id,
-                  id_expert: null,
-                  id_copy: null,
-                  id_order: null,
-                  amount: parseFloat(params.amount.toString()),
-                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
-                  status: contants.STATUS.FINISH,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  paidAt: new Date(),
-                } as ITradingWithdrawModel);
-                return resultWallet && resultCopy && resultWithdraw ? true : false;
+                await this._realUserRepository
+                  .update(wallet._id, {
+                    amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
+                  })
+                  .then(async (res) => {
+                    if ((res as any).nModified !== 0) {
+                      await this._userRepository
+                        .update(result._id, {
+                          total_amount:
+                            parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
+                        })
+                        .then(async (res) => {
+                          if ((res as any).nModified !== 0) {
+                            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                            const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                              id_user: result._id,
+                              id_expert: null,
+                              id_copy: null,
+                              id_order: null,
+                              amount: parseFloat(params.amount.toString()),
+                              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
+                              status: contants.STATUS.FINISH,
+                              createdAt: new Date(),
+                              updatedAt: new Date(),
+                              paidAt: new Date(),
+                            } as ITradingWithdrawModel);
+                          }
+                          return true;
+                        });
+                    }
+                  });
+                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
             } else if (params.source === contants.TYPE_OF_WALLET.COPY_TRADE) {
               if (parseFloat(result.total_amount.toString()) >= parseFloat(params.amount.toString())) {
-                const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
-                });
-                const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
-                });
-                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
-                  id_user: result._id,
-                  id_expert: null,
-                  id_copy: null,
-                  id_order: null,
-                  amount: parseFloat(params.amount.toString()),
-                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
-                  status: contants.STATUS.FINISH,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  paidAt: new Date(),
-                } as ITradingWithdrawModel);
-                return resultWallet && resultCopy && resultWithdraw ? true : false;
+                await this._userRepository
+                  .update(result._id, {
+                    total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
+                  })
+                  .then(async (res) => {
+                    if ((res as any).nModified !== 0) {
+                      await this._realUserRepository
+                        .update(wallet._id, {
+                          amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
+                        })
+                        .then(async (res) => {
+                          if ((res as any).nModified !== 0) {
+                            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                            const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                              id_user: result._id,
+                              id_expert: null,
+                              id_copy: null,
+                              id_order: null,
+                              amount: parseFloat(params.amount.toString()),
+                              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
+                              status: contants.STATUS.FINISH,
+                              createdAt: new Date(),
+                              updatedAt: new Date(),
+                              paidAt: new Date(),
+                            } as ITradingWithdrawModel);
+                          }
+                          return true;
+                        });
+                    }
+                  });
+                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
@@ -203,7 +230,7 @@ export default class UserBussiness {
     }
   }
 
-  public async hotfixTransferMoney(): Promise<boolean> {
+  public async hotfixTransferMoney(): Promise<void> {
     try {
       const listUsers = await this._userRepository.findWhere({
         status: contants.STATUS.ACTIVE,
@@ -231,10 +258,17 @@ export default class UserBussiness {
           parseFloat(amountCopy.toFixed(2)) +
           parseFloat(amountHistory.toFixed(2));
         if (result) {
-          const update = await this._userRepository.update(user._id, {
-            total_amount: user.total_amount + parseFloat(result.toFixed(2)),
-          });
-          return update ? true : false;
+          // const update = await this._userRepository.update(user._id, {
+          //   total_amount: user.total_amount + parseFloat(result.toFixed(2)),
+          // });
+          if (result !== 0)
+            await this._logTransferRepository.create({
+              username: user.username,
+              id_user: user._id,
+              total_amount: user.total_amount,
+              amount: parseFloat(result.toFixed(2)),
+            } as ILogTransferModel);
+          // return update ? true : false;
         }
       }
     } catch (err) {

@@ -21,9 +21,26 @@ export default (date: Date) => {
       // listWithdraws.map((withdraw) => {});
       // for (const withdraw of listWithdraws) {
       Promise.all(listWithdraws).then((result) => {
+        const list = [];
         result.map(async (withdraw: ITradingWithdrawModel) => {
+          if (list.length > 0) {
+            let check = false;
+
+            for (const item of list) {
+              if (item.id_user.toString() === withdraw.id_user.toString()) {
+                check = true;
+                item.amount += withdraw.amount;
+              }
+            }
+            if (check === false) {
+              list.push(withdraw);
+            }
+          } else {
+            list.push(withdraw);
+          }
+        });
+        list.map(async (withdraw: ITradingWithdrawModel) => {
           const _userRepository = new UserRepository();
-          const _tradingWithdrawRepository = new TradingWithdrawRepository();
 
           const user = await _userRepository.findOne({
             _id: withdraw.id_user,
@@ -31,6 +48,17 @@ export default (date: Date) => {
           await _userRepository.update(user._id, {
             total_amount: user.total_amount + withdraw.amount,
           });
+        });
+        result.map(async (withdraw: ITradingWithdrawModel) => {
+          // const _userRepository = new UserRepository();
+          const _tradingWithdrawRepository = new TradingWithdrawRepository();
+
+          // const user = await _userRepository.findOne({
+          //   _id: withdraw.id_user,
+          // });
+          // await _userRepository.update(user._id, {
+          //   total_amount: user.total_amount + withdraw.amount,
+          // });
           await _tradingWithdrawRepository.update(withdraw._id, {
             status: contants.STATUS.FINISH,
             updatedAt: new Date(),
