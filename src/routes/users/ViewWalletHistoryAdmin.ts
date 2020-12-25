@@ -17,6 +17,8 @@ import {Router} from 'express';
  *      "Accept": "application/json"
  *
  * @apiParam {String} id_user
+ * @apiParam {Number} page
+ * @apiParam {Number} size
  *
  * @apiSuccess {Object} data
  *
