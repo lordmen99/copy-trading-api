@@ -240,15 +240,18 @@ export default class UserBussiness {
       for (const user of listUsers) {
         const listCopyTradeWithdraws = await this._tradingWithdrawRepository.calculateWithdrawCopyTradeByUser(user._id);
         const listWalletWithdraws = await this._tradingWithdrawRepository.calculateWithdrawWalletByUser(user._id);
+        const listPendingWithdraws = await this._tradingWithdrawRepository.calculatePendingWithdraw(user._id);
         const listHistories = await this._tradingHistoryRepository.calculateProfitHistory(user._id);
         const listCopies = await this._tradingCopyRepository.calculateCopyAmountByUser(user._id);
         let amountWallet = 0;
         let amountCopyTrade = 0;
+        let amountPendingWithdraw = 0;
         let amountHistory = 0;
         let amountCopy = 0;
 
         if (listWalletWithdraws.length > 0) amountWallet = listWalletWithdraws[0].amount;
         if (listCopyTradeWithdraws.length > 0) amountCopyTrade = listCopyTradeWithdraws[0].amount;
+        if (listPendingWithdraws.length > 0) amountPendingWithdraw = listPendingWithdraws[0].amount;
         if (listHistories.length > 0)
           amountHistory = listHistories[0].profit - listHistories[0].fee_to_expert - listHistories[0].fee_to_trading;
         if (listCopies.length > 0) amountCopy = listCopies[0].investment_amount;
@@ -256,6 +259,7 @@ export default class UserBussiness {
           parseFloat(amountCopyTrade.toFixed(2)) -
           parseFloat(amountWallet.toFixed(2)) -
           parseFloat(user.total_amount.toFixed(2)) -
+          parseFloat(amountPendingWithdraw.toFixed(2)) -
           parseFloat(amountCopy.toFixed(2)) +
           parseFloat(amountHistory.toFixed(2));
         if (result) {
