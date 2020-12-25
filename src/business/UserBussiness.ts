@@ -147,51 +147,74 @@ export default class UserBussiness {
           if (wallet) {
             if (params.source === contants.TYPE_OF_WALLET.WALLET) {
               if (parseFloat(wallet.amount.toString()) >= parseFloat(params.amount.toString())) {
-                const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
-                });
-                const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
-                });
-                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
-                  id_user: result._id,
-                  id_expert: null,
-                  id_copy: null,
-                  id_order: null,
-                  amount: parseFloat(params.amount.toString()),
-                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
-                  status: contants.STATUS.FINISH,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  paidAt: new Date(),
-                } as ITradingWithdrawModel);
-                return resultWallet && resultCopy && resultWithdraw ? true : false;
+                await this._realUserRepository
+                  .update(wallet._id, {
+                    amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
+                  })
+                  .then(async (res) => {
+                    if ((res as any).nModified !== 0) {
+                      await this._userRepository
+                        .update(result._id, {
+                          total_amount:
+                            parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
+                        })
+                        .then(async (res) => {
+                          if ((res as any).nModified !== 0) {
+                            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                            const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                              id_user: result._id,
+                              id_expert: null,
+                              id_copy: null,
+                              id_order: null,
+                              amount: parseFloat(params.amount.toString()),
+                              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_COPYTRADE,
+                              status: contants.STATUS.FINISH,
+                              createdAt: new Date(),
+                              updatedAt: new Date(),
+                              paidAt: new Date(),
+                            } as ITradingWithdrawModel);
+                          }
+                          return true;
+                        });
+                    }
+                  });
+                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
             } else if (params.source === contants.TYPE_OF_WALLET.COPY_TRADE) {
               if (parseFloat(result.total_amount.toString()) >= parseFloat(params.amount.toString())) {
-                const resultWallet = await this._realUserRepository.update(wallet._id, {
-                  amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
-                });
-                const resultCopy = await this._userRepository.update(result._id, {
-                  total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
-                });
-                const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-                const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
-                  id_user: result._id,
-                  id_expert: null,
-                  id_copy: null,
-                  id_order: null,
-                  amount: parseFloat(params.amount.toString()),
-                  type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
-                  status: contants.STATUS.FINISH,
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                  paidAt: new Date(),
-                } as ITradingWithdrawModel);
-                return resultWallet && resultCopy && resultWithdraw ? true : false;
+                await this._userRepository
+                  .update(result._id, {
+                    total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
+                  })
+                  .then(async (res) => {
+                    if ((res as any).nModified !== 0) {
+                      await this._realUserRepository
+                        .update(wallet._id, {
+                          amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
+                        })
+                        .then(async (res) => {
+                          if ((res as any).nModified !== 0) {
+                            const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+                            const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
+                              id_user: result._id,
+                              id_expert: null,
+                              id_copy: null,
+                              id_order: null,
+                              amount: parseFloat(params.amount.toString()),
+                              type_of_withdraw: contants.TYPE_OF_WITHDRAW.TRANSFER_TO_WALLET,
+                              status: contants.STATUS.FINISH,
+                              createdAt: new Date(),
+                              updatedAt: new Date(),
+                              paidAt: new Date(),
+                            } as ITradingWithdrawModel);
+                          }
+                          return true;
+                        });
+                    }
+                  });
+                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
