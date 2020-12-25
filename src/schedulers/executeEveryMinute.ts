@@ -3,6 +3,9 @@ import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
 import UserBussiness from '@src/business/UserBussiness';
 import {logger} from '@src/middleware';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
+import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
+import UserRepository from '@src/repository/UserRepository';
+import {contants} from '@src/utils';
 
 export default (date: Date) => {
   try {
@@ -16,9 +19,26 @@ export default (date: Date) => {
     // trả tiền lãi cho user sau 24h kể từ khi ngừng copy
     tradingWithdrawBussiness.getListPendingWithdraw(date).then(async (listWithdraws) => {
       // listWithdraws.map((withdraw) => {});
-      for (const withdraw of listWithdraws) {
-        await tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
-      }
+      // for (const withdraw of listWithdraws) {
+      Promise.all(listWithdraws).then((result) => {
+        result.map(async (withdraw: ITradingWithdrawModel) => {
+          const _userRepository = new UserRepository();
+          const _tradingWithdrawRepository = new TradingWithdrawRepository();
+
+          const user = await _userRepository.findOne({
+            _id: withdraw.id_user,
+          });
+          await _userRepository.update(user._id, {
+            total_amount: user.total_amount + withdraw.amount,
+          });
+          await _tradingWithdrawRepository.update(withdraw._id, {
+            status: contants.STATUS.FINISH,
+            updatedAt: new Date(),
+          });
+        });
+      });
+      // await tradingCopyBussiness.transferMoneyAfterStopCopy(withdraw);
+      // }
     });
 
     // trả 5% cho expert vào 23h59 cùng ngày
