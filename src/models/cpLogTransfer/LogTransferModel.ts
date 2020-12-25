@@ -16,6 +16,10 @@ export default class UserModel {
     return this._logTransferModel.username;
   }
 
+  get total_amount(): number {
+    return this._logTransferModel.total_amount;
+  }
+
   get amount(): number {
     return this._logTransferModel.amount;
   }

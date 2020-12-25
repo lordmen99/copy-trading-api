@@ -242,6 +242,7 @@ export default class UserBussiness {
             await this._logTransferRepository.create({
               username: user.username,
               id_user: user._id,
+              total_amount: user.total_amount,
               amount: parseFloat(result.toFixed(2)),
             } as ILogTransferModel);
           // return update ? true : false;

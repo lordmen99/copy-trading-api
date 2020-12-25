@@ -5,6 +5,7 @@ class CPLogTransferSchema {
     const schema = new mongoose.Schema({
       id_user: {type: Schema.Types.ObjectId},
       username: {type: Schema.Types.String},
+      total_amount: {type: Schema.Types.Number},
       amount: {type: Schema.Types.Number},
       createdAt: {type: Schema.Types.Date},
     });
