@@ -234,6 +234,7 @@ export default class UserBussiness {
     try {
       const listUsers = await this._userRepository.findWhere({
         status: contants.STATUS.ACTIVE,
+        is_virtual: false,
       });
 
       for (const user of listUsers) {
@@ -246,8 +247,8 @@ export default class UserBussiness {
         let amountHistory = 0;
         let amountCopy = 0;
 
-        if (listCopyTradeWithdraws.length > 0) amountWallet = listWalletWithdraws[0].amount;
-        if (listWalletWithdraws.length > 0) amountCopyTrade = listCopyTradeWithdraws[0].amount;
+        if (listWalletWithdraws.length > 0) amountWallet = listWalletWithdraws[0].amount;
+        if (listCopyTradeWithdraws.length > 0) amountCopyTrade = listCopyTradeWithdraws[0].amount;
         if (listHistories.length > 0)
           amountHistory = listHistories[0].profit - listHistories[0].fee_to_expert - listHistories[0].fee_to_trading;
         if (listCopies.length > 0) amountCopy = listCopies[0].investment_amount;
