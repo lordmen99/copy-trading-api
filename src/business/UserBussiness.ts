@@ -1,6 +1,8 @@
 import TradingWithdrawBussiness from '@src/business/TradingWithdrawBussiness';
+import ILogTransferModel from '@src/models/cpLogTransfer/ILogTransferModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import IUserModel from '@src/models/cpUser/IUserModel';
+import LogTransferRepository from '@src/repository/LogTransferRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
@@ -18,6 +20,7 @@ export default class UserBussiness {
   private _tradingCopyRepository: TradingCopyRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
   private _tradingWithdrawRepository: TradingWithdrawRepository;
+  private _logTransferRepository: LogTransferRepository;
 
   constructor() {
     this._userRepository = new UserRepository();
@@ -25,6 +28,7 @@ export default class UserBussiness {
     this._tradingCopyRepository = new TradingCopyRepository();
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
+    this._logTransferRepository = new LogTransferRepository();
   }
 
   public async findById(params: GetUser): Promise<any> {
@@ -231,9 +235,14 @@ export default class UserBussiness {
           parseFloat(amountCopy.toFixed(2)) +
           parseFloat(amountHistory.toFixed(2));
         if (result) {
-          const update = await this._userRepository.update(user._id, {
-            total_amount: user.total_amount + parseFloat(result.toFixed(2)),
-          });
+          // const update = await this._userRepository.update(user._id, {
+          //   total_amount: user.total_amount + parseFloat(result.toFixed(2)),
+          // });
+          const update = await this._logTransferRepository.create({
+            username: user.username,
+            id_user: user._id,
+            amount: parseFloat(result.toFixed(2)),
+          } as ILogTransferModel);
           return update ? true : false;
         }
       }
