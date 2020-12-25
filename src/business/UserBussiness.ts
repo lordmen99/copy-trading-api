@@ -236,6 +236,7 @@ export default class UserBussiness {
         status: contants.STATUS.ACTIVE,
         is_virtual: false,
       });
+      const dataLogTransfer: ILogTransferModel[] = [];
 
       for (const user of listUsers) {
         const listCopyTradeWithdraws = await this._tradingWithdrawRepository.calculateWithdrawCopyTradeByUser(user._id);
@@ -266,16 +267,18 @@ export default class UserBussiness {
           // const update = await this._userRepository.update(user._id, {
           //   total_amount: user.total_amount + parseFloat(result.toFixed(2)),
           // });
-          if (result !== 0)
-            await this._logTransferRepository.create({
+          if (result !== 0) {
+            const data = {
               username: user.username,
               id_user: user._id,
               total_amount: user.total_amount,
               amount: parseFloat(result.toFixed(2)),
-            } as ILogTransferModel);
-          // return update ? true : false;
+            };
+            dataLogTransfer.push(data as ILogTransferModel);
+          }
         }
       }
+      await this._logTransferRepository.insertManyLogTransfer(dataLogTransfer);
     } catch (err) {
       throw err;
     }
