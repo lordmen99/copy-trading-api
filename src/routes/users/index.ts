@@ -8,6 +8,7 @@ import getById from './GetUserById';
 import getUserByIdAdmin from './GetUserByIdAdmin';
 import getUserByName from './GetUserByName';
 import HotfixTransferMoney from './HotfixTransferMoney';
+import HotfixTransferMoneyLog from './HotfixTransferMoneyLog';
 import transferMoney from './TransferMoney';
 import ViewWalletHistory from './ViewWalletHistory';
 import ViewWalletHistoryAdmin from './ViewWalletHistoryAdmin';
@@ -28,5 +29,6 @@ export default class UserRouter {
     getUserByName(this.router);
     HotfixTransferMoney(this.router);
     ViewWalletHistoryAdmin(this.router);
+    HotfixTransferMoneyLog(this.router);
   }
 }

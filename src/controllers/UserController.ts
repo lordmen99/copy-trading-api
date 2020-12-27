@@ -209,4 +209,15 @@ export default class UserController {
       next(err);
     }
   }
+
+  public async hotfixTransferMoneyLog(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.hotfixTransferMoneyLog();
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
 }
