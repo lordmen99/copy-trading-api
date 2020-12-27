@@ -237,9 +237,10 @@ export default class UserBussiness {
           _id: log.id_user,
         });
         if (user) {
-          await this._userRepository.update(user._id, {
-            total_amount: user.total_amount + log.amount,
-          });
+          if (log.amount > 0)
+            await this._userRepository.update(user._id, {
+              total_amount: user.total_amount + log.amount,
+            });
         }
       }
     } catch (err) {
