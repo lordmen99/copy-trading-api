@@ -414,7 +414,7 @@ export default class TradingOrderBussiness {
       /** tính toán số tiền nhận được */
       dataCalculateMoney.map(async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
         const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
-        if (copy.investment_amount + item.money <= 0) {
+        if (copy.investment_amount + item.money <= 1) {
           dataStopCopy.push(copy._id);
         }
         this._tradingCopyRepository.update(copy._id, {
