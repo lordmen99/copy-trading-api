@@ -139,4 +139,27 @@ export default class TradingWithdrawRepository extends RepositoryBase<ITradingWi
       throw err.errors ? err.errors.shift() : err;
     }
   }
+
+  public async calculatePendingWithdraw(id_user) {
+    try {
+      const result = await CPTradingWithdrawSchema.aggregate([
+        {
+          $match: {
+            type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+            status: contants.STATUS.PENDING,
+            id_user,
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            amount: {$sum: '$amount'},
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }
