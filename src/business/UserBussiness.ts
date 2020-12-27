@@ -178,7 +178,6 @@ export default class UserBussiness {
                         });
                     }
                   });
-                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
@@ -214,7 +213,6 @@ export default class UserBussiness {
                         });
                     }
                   });
-                return false;
               } else {
                 throw new Error('Money in wallet is not enough');
               }
@@ -223,7 +221,7 @@ export default class UserBussiness {
             }
           }
         }
-        return null;
+        return result ? true : false;
       }
     } catch (err) {
       throw err;
@@ -297,7 +295,7 @@ export default class UserBussiness {
           const resultWithdraw = await tradingWithdrawBussiness.getWalletHistory(result._id, page, size);
           return resultWithdraw;
         } else {
-          throw new Error('Money in wallet is not enough');
+          throw new Error('User is not exist');
         }
       }
     } catch (err) {

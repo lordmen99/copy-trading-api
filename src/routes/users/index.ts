@@ -10,6 +10,7 @@ import getUserByName from './GetUserByName';
 import HotfixTransferMoney from './HotfixTransferMoney';
 import transferMoney from './TransferMoney';
 import ViewWalletHistory from './ViewWalletHistory';
+import ViewWalletHistoryAdmin from './ViewWalletHistoryAdmin';
 
 export default class UserRouter {
   public router: Router = Router();
@@ -26,5 +27,6 @@ export default class UserRouter {
     GetAvailableMoney(this.router);
     getUserByName(this.router);
     HotfixTransferMoney(this.router);
+    ViewWalletHistoryAdmin(this.router);
   }
 }
