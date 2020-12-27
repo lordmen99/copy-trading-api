@@ -293,6 +293,20 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
     }
   }
 
+  public async updateManyStopCopy(arrIds: Schema.Types.ObjectId[]) {
+    try {
+      const result = await CPTradingCopySchema.updateMany(
+        {_id: {$in: arrIds}},
+        {
+          status: contants.STATUS.STOP,
+        },
+      );
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async count(item) {
     try {
       const result = await CPTradingCopySchema.count(item);

@@ -308,6 +308,7 @@ export default class TradingOrderBussiness {
       const dataCalculateMoney: {id_copy: Schema.Types.ObjectId; money: number}[] = [];
       const dataTradingWithdraw: ITradingWithdrawModel[] = [];
       const dataPauseCopy: Schema.Types.ObjectId[] = [];
+      const dataStopCopy: Schema.Types.ObjectId[] = [];
 
       tradingCopy.map(async (copy: ITradingCopyModel) => {
         // tạo history
@@ -413,6 +414,9 @@ export default class TradingOrderBussiness {
       /** tính toán số tiền nhận được */
       dataCalculateMoney.map(async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
         const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
+        if (copy.investment_amount + item.money <= 0) {
+          dataStopCopy.push(copy._id);
+        }
         this._tradingCopyRepository.update(copy._id, {
           investment_amount: copy.investment_amount + item.money,
         });
@@ -423,6 +427,9 @@ export default class TradingOrderBussiness {
 
       /** dừng copy với những tài khoản chạm stop_loss hoặc take_profit */
       this._tradingCopyRepository.updateManyPauseCopy(dataPauseCopy);
+
+      /** dừng copy với những tài khoản bị cháy */
+      this._tradingCopyRepository.updateManyStopCopy(dataStopCopy);
 
       /** thêm vào lịch sử giao dịch */
       this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
