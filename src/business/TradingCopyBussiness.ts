@@ -375,6 +375,12 @@ export default class TradingCopyBussiness {
         });
       } else {
         const expert = await this._expertRepository.findOne({_id: id});
+        if (expert.total_amount + money < 1) {
+          /** dừng copy với những tài khoản bị cháy */
+          await this._tradingCopyRepository.update(id_copy, {
+            status: contants.STATUS.STOP,
+          });
+        }
         await this._expertRepository.update(id, {total_amount: expert.total_amount + money});
       }
     } catch (err) {
