@@ -300,6 +300,34 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           $facet: {
             total: [{$group: {_id: null, count: {$sum: 1}}}],
             data: [
+              {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  let: {
+                    id_expert: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        createdAt: {
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $lt: new Date(),
+                        },
+                      },
+                    },
+                    {
+                      $group: {
+                        _id: null,
+                        total_gain: {$sum: '$total_gain'},
+                      },
+                    },
+                  ],
+                  as: 'total_gain',
+                },
+              },
+              {$sort: {'total_gain.total_gain': -1}},
+
               {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
               {$limit: parseInt(size.toString())},
               {
@@ -330,35 +358,12 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   as: 'trading_gains',
                 },
               },
-              {
-                $lookup: {
-                  from: 'cp_trading_gains',
-                  let: {
-                    id_expert: '$_id',
-                  },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: {$eq: ['$id_expert', '$$id_expert']},
-                        createdAt: {
-                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
-                          $lt: new Date(),
-                        },
-                      },
-                    },
-                    {
-                      $group: {
-                        _id: null,
-                        total_gain: {$sum: '$total_gain'},
-                      },
-                    },
-                  ],
-                  as: 'total_gain',
-                },
-              },
-              {
-                $sort: {total_gain: 1},
-              },
+              // {
+              //   $sort: {total_gain: 1},
+              // },
+
+              {$unwind: '$total_gain'},
+
               {
                 $project: {
                   _id: 1,
@@ -370,12 +375,15 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                   gain_every_months: 1,
                   trading_histories: 1,
                   trading_gains: 1,
-                  total_gain: 1,
+                  total_gain: {
+                    total_gain: 1,
+                  },
                 },
               },
             ],
           },
         },
+
         {$unwind: '$total'},
         {$project: {count: '$total.count', data: '$data'}},
       ]);
@@ -416,6 +424,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             avatar: expert.avatar,
             gain_every_months: expert.gain_every_months,
             trading_gains: expert.trading_gains,
+            total_gain: expert.total_gain,
           };
           const temp = {
             expert: exp,
