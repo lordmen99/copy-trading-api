@@ -183,7 +183,12 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
         {$project: {data: '$data'}},
       ]);
 
-      const count = await CPTradingCopySchema.countDocuments().or([{status: {$in: orArray}}]);
+      const count = await CPTradingCopySchema.countDocuments({
+        updatedAt: {
+          $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+          $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+        },
+      }).or([{status: {$in: orArray}}]);
 
       const finance = await CPTradingCopySchema.aggregate([
         {
