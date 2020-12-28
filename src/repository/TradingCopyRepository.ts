@@ -126,7 +126,6 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
   }
 
   public async getListUserStopCopiesByExpert(
-    item: any,
     page: number,
     size: number,
     orArray,
@@ -138,7 +137,6 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
         {
           $match: {
             status: {$in: orArray},
-            id_expert: new mongoose.Types.ObjectId(item.id_expert),
             updatedAt: {
               $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
               $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
@@ -185,13 +183,12 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
         {$project: {data: '$data'}},
       ]);
 
-      const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
+      const count = await CPTradingCopySchema.countDocuments().or([{status: {$in: orArray}}]);
 
       const finance = await CPTradingCopySchema.aggregate([
         {
           $match: {
             status: {$in: orArray},
-            id_expert: new mongoose.Types.ObjectId(item.id_expert),
             updatedAt: {
               $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
               $lt: new Date(new Date(toDate).setHours(23, 59, 59)),

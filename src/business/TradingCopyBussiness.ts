@@ -73,16 +73,9 @@ export default class TradingCopyBussiness {
     }
   }
 
-  public async findUserStopCopyByExpert(
-    id_expert: Schema.Types.ObjectId,
-    page: number,
-    size: number,
-    fromDate: Date,
-    toDate: Date,
-  ): Promise<any> {
+  public async findUserStopCopyByExpert(page: number, size: number, fromDate: Date, toDate: Date): Promise<any> {
     try {
       const result = await this._tradingCopyRepository.getListUserStopCopiesByExpert(
-        {id_expert} as ITradingCopyModel,
         parseInt(page.toString()),
         parseInt(size.toString()),
         [contants.STATUS.STOP],

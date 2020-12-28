@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading-copy/get_user_stop_copy_by_expert 11. Get user stop copy by expert
+ * @api {post} /trading_copy/get_user_stop_copy_by_expert 11. Get user stop copy by expert
  * @apiVersion 0.1.0
  * @apiGroup III. Trading Copy
  *
@@ -16,7 +16,6 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_expert Id của expert trong bản cp_experts
  * @apiParam {String} page
  * @apiParam {String} size
  * @apiParam {Date} fromDate

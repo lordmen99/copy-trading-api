@@ -28,7 +28,6 @@ export default class TradingCopyController {
       const params = req.body;
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.findUserStopCopyByExpert(
-        params.id_expert,
         params.page,
         params.size,
         params.fromDate,
