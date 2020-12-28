@@ -125,6 +125,98 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
     }
   }
 
+  public async getListUserStopCopiesByExpert(
+    item: any,
+    page: number,
+    size: number,
+    orArray,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<any> {
+    try {
+      const result = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            status: {$in: orArray},
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+            updatedAt: {
+              $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+              $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+            },
+          },
+        },
+        {
+          $facet: {
+            data: [
+              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
+              {$limit: parseInt(size.toString())},
+              {
+                $lookup: {
+                  from: 'cp_users',
+                  localField: 'id_user',
+                  foreignField: '_id',
+                  as: 'user',
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  status: 1,
+                  id_user: 1,
+                  id_expert: 1,
+                  investment_amount: 1,
+                  maximum_rate: 1,
+                  has_maximum_rate: 1,
+                  has_stop_loss: 1,
+                  has_taken_profit: 1,
+                  stop_loss: 1,
+                  taken_profit: 1,
+                  createdAt: 1,
+                  updatedAt: 1,
+                  base_amount: 1,
+                  user: {
+                    username: 1,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {$project: {data: '$data'}},
+      ]);
+
+      const count = await CPTradingCopySchema.countDocuments(item).or([{status: {$in: orArray}}]);
+
+      const finance = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            status: {$in: orArray},
+            id_expert: new mongoose.Types.ObjectId(item.id_expert),
+            updatedAt: {
+              $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
+              $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total_investment_amount: {$sum: '$investment_amount'},
+            total_base_amount: {$sum: '$base_amount'},
+          },
+        },
+      ]);
+
+      return {
+        result,
+        count,
+        finance,
+      };
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
   public async getListCopiesByExpert(item: any, page: number, size: number, orArray): Promise<any> {
     try {
       const result = await CPTradingCopySchema.aggregate([
@@ -319,6 +411,11 @@ export default class TradingCopyRepository extends RepositoryBase<ITradingCopyMo
   public async calculateCopyAmount() {
     try {
       const result = await CPTradingCopySchema.aggregate([
+        {
+          $match: {
+            status: {$in: [contants.STATUS.ACTIVE, contants.STATUS.PAUSE]},
+          },
+        },
         {
           $group: {
             _id: null,

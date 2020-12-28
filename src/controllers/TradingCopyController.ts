@@ -23,6 +23,24 @@ export default class TradingCopyController {
     }
   }
 
+  public async getUserStopCopyByExpert(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const tradingCopyBusiness = new TradingCopyBussiness();
+      const result = await tradingCopyBusiness.findUserStopCopyByExpert(
+        params.id_expert,
+        params.page,
+        params.size,
+        params.fromDate,
+        params.toDate,
+      );
+
+      res.status(200).send({data: result.result[0].data, count: result.count, finance: result.finance});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async createTradingCopy(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
