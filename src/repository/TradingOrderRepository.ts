@@ -26,6 +26,9 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         },
         type_of_order: {$regex: '.*' + action + '.*'},
       })
+        .sort({
+          timeSetup: -1,
+        })
         .limit(parseInt(size.toString()))
         .skip((parseInt(page.toString()) - 1) * parseInt(size.toString()));
       const count = await CPTradingOrderSchema.countDocuments({
@@ -66,6 +69,9 @@ export default class TradingOrderRepository extends RepositoryBase<ITradingOrder
         },
         type_of_order: {$regex: '.*' + action + '.*'},
       })
+        .sort({
+          timeSetup: -1,
+        })
         .limit(parseInt(size.toString()))
         .skip((parseInt(page.toString()) - 1) * parseInt(size.toString()));
       const count = await CPTradingOrderSchema.countDocuments({
