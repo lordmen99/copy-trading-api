@@ -73,6 +73,22 @@ export default class TradingCopyBussiness {
     }
   }
 
+  public async findUserStopCopyByExpert(page: number, size: number, fromDate: Date, toDate: Date): Promise<any> {
+    try {
+      const result = await this._tradingCopyRepository.getListUserStopCopiesByExpert(
+        parseInt(page.toString()),
+        parseInt(size.toString()),
+        [contants.STATUS.STOP],
+        fromDate,
+        toDate,
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public async getTradingCopies(id_expert: Schema.Types.ObjectId): Promise<ITradingCopyModel[]> {
     try {
       const result = await this._tradingCopyRepository.findWhere({status: contants.STATUS.ACTIVE, id_expert});
