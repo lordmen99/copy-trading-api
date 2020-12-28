@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /users/view_wallet_history 8. View wallet history
+ * @api {post} /users/view_wallet_history_admin 12. View wallet history admin
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -16,6 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {String} id_user
  * @apiParam {Number} page
  * @apiParam {Number} size
  *
@@ -39,4 +40,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/view_wallet_history', isAuthenticated, new UserController().viewWalletHistory);
+  route.post('/view_wallet_history_admin', isAuthenticated, new UserController().viewWalletHistoryAdmin);

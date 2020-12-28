@@ -3,7 +3,7 @@ import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /users/view_wallet_history 8. View wallet history
+ * @api {post} /users/hotfix_transfer_money_log 12. Hotfix transfer money log
  * @apiVersion 0.1.0
  * @apiGroup I. Users
  *
@@ -15,9 +15,6 @@ import {Router} from 'express';
  *      "Authorization": "Bearer fc4262627f14ec090ebc5b2b4bc7c3d7f528de4c0ef2a8e48"
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
- *
- * @apiParam {Number} page
- * @apiParam {Number} size
  *
  * @apiSuccess {Object} data
  *
@@ -39,4 +36,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/view_wallet_history', isAuthenticated, new UserController().viewWalletHistory);
+  route.post('/hotfix_transfer_money_log', isAuthenticated, new UserController().hotfixTransferMoneyLog);

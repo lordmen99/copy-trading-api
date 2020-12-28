@@ -6,4 +6,12 @@ export default class LogTransferRepository extends RepositoryBase<ILogTransferMo
   constructor() {
     super(CPLogTransferSchema);
   }
+  public async insertManyLogTransfer(arrExpert: ILogTransferModel[]) {
+    try {
+      const result = await CPLogTransferSchema.insertMany(arrExpert);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }

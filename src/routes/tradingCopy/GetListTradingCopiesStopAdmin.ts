@@ -1,11 +1,11 @@
-import UserController from '@src/controllers/UserController';
+import TradingCopyController from '@src/controllers/TradingCopyController';
 import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
- * @api {post} /users/view_wallet_history 8. View wallet history
+ * @api {post} /trading_copy/get_list_stop_trading_copies_admin 10. Get list stop trading copies admin
  * @apiVersion 0.1.0
- * @apiGroup I. Users
+ * @apiGroup III. Trading Copy
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -16,6 +16,7 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
+ * @apiParam {String} id_user
  * @apiParam {Number} page
  * @apiParam {Number} size
  *
@@ -39,4 +40,8 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/view_wallet_history', isAuthenticated, new UserController().viewWalletHistory);
+  route.post(
+    '/get_list_stop_trading_copies_admin',
+    isAuthenticated,
+    new TradingCopyController().getListStopTradingCopiesAdmin,
+  );

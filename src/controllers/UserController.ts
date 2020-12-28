@@ -111,6 +111,20 @@ export default class UserController {
     }
   }
 
+  public async viewWalletHistoryAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = req.body;
+      const data = new WalletUser();
+      data.id_user = params.id_user;
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.viewWalletHistory(data, params.page, params.size);
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async getAvailableMoney(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const params = req.body;
@@ -189,6 +203,17 @@ export default class UserController {
     try {
       const userBusiness = new UserBussiness();
       const result = await userBusiness.hotfixTransferMoney();
+
+      res.status(200).send({data: result});
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async hotfixTransferMoneyLog(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userBusiness = new UserBussiness();
+      const result = await userBusiness.hotfixTransferMoneyLog();
 
       res.status(200).send({data: result});
     } catch (err) {

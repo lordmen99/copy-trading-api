@@ -375,6 +375,19 @@ export default class TradingCopyBussiness {
         });
       } else {
         const expert = await this._expertRepository.findOne({_id: id});
+        const dataStopCopy: Schema.Types.ObjectId[] = [];
+
+        if (expert.total_amount + money < 1) {
+          /** dừng copy với những tài khoản bị cháy */
+          const tradingCopy = await this._tradingCopyRepository.findWhere({id_expert: id});
+
+          if (tradingCopy.length > 0) {
+            tradingCopy.map(async (copy: ITradingCopyModel) => {
+              dataStopCopy.push(copy._id);
+            });
+            await this._tradingCopyRepository.updateManyStopCopy(dataStopCopy);
+          }
+        }
         await this._expertRepository.update(id, {total_amount: expert.total_amount + money});
       }
     } catch (err) {
