@@ -1,4 +1,5 @@
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
+import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
 
@@ -6,9 +7,11 @@ export default class AdminBussiness {
   private _tradingWithdrawRepository: TradingWithdrawRepository;
   private _tradingCopyRepository: TradingCopyRepository;
   private _userRepository: UserRepository;
+  private _tradingHistoryRepository: TradingHistoryRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
+    this._tradingHistoryRepository = new TradingHistoryRepository();
     this._tradingCopyRepository = new TradingCopyRepository();
     this._userRepository = new UserRepository();
   }
@@ -25,6 +28,7 @@ export default class AdminBussiness {
       const withdraws_to_copy_trade = await this._tradingWithdrawRepository.calculateWithdrawCopyTrade();
       const withdraws_to_wallet = await this._tradingWithdrawRepository.calculateWithdrawWallet();
       const copy_amount = await this._tradingCopyRepository.calculateCopyAmount();
+      const history_amount = await this._tradingHistoryRepository.calculateProfitHistoryAdmin();
       const total_amount = await this._userRepository.calculateUserAmount();
 
       if (withdraws_to_copy_trade.length > 0) {
@@ -36,8 +40,16 @@ export default class AdminBussiness {
       }
 
       if (copy_amount.length > 0) {
-        result.investment_amount = copy_amount[0].investment_amount;
+        // result.investment_amount = copy_amount[0].investment_amount;
         result.base_amount = copy_amount[0].base_amount;
+      }
+
+      if (history_amount.length > 0) {
+        result.investment_amount =
+          result.base_amount +
+          history_amount[0].profit -
+          history_amount[0].fee_to_expert -
+          history_amount[0].fee_to_trading;
       }
 
       if (total_amount.length > 0) {
