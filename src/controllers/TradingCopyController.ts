@@ -17,7 +17,12 @@ export default class TradingCopyController {
       const tradingCopyBusiness = new TradingCopyBussiness();
       const result = await tradingCopyBusiness.findUserCopyByExpert(params.id_expert, params.page, params.size);
 
-      res.status(200).send({data: result.result[0].data, count: result.count, finance: result.finance});
+      res.status(200).send({
+        data: result.result[0].data,
+        count: result.count,
+        finance: result.finance,
+        all_profit: result.all_profit,
+      });
     } catch (err) {
       next(err);
     }
