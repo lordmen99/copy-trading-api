@@ -456,6 +456,34 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
           $facet: {
             total: [{$group: {_id: null, count: {$sum: 1}}}],
             data: [
+              {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  let: {
+                    id_expert: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        createdAt: {
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $lt: new Date(),
+                        },
+                      },
+                    },
+                    {
+                      $group: {
+                        _id: null,
+                        total_gain: {$sum: '$total_gain'},
+                      },
+                    },
+                  ],
+                  as: 'total_gain',
+                },
+              },
+              {$sort: {'total_gain.total_gain': -1}},
+
               {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
               {$limit: parseInt(size.toString())},
               {
@@ -467,17 +495,51 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                 },
               },
               {
+                $lookup: {
+                  from: 'cp_trading_gains',
+                  let: {
+                    id_expert: '$_id',
+                  },
+                  pipeline: [
+                    {
+                      $match: {
+                        $expr: {$eq: ['$id_expert', '$$id_expert']},
+                        createdAt: {
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $lt: new Date(),
+                        },
+                      },
+                    },
+                  ],
+                  as: 'trading_gains',
+                },
+              },
+              // {
+              //   $sort: {total_gain: 1},
+              // },
+
+              {$unwind: '$total_gain'},
+
+              {
                 $project: {
                   _id: 1,
                   fullname: 1,
                   username: 1,
                   avatar: 1,
+                  real_copier: 1,
+                  virtual_copier: 1,
                   gain_every_months: 1,
+                  trading_histories: 1,
+                  trading_gains: 1,
+                  total_gain: {
+                    total_gain: 1,
+                  },
                 },
               },
             ],
           },
         },
+
         {$unwind: '$total'},
         {$project: {count: '$total.count', data: '$data'}},
       ]);
@@ -488,25 +550,42 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
 
       const list = [];
       if (result) {
-        const info = {
-          gain_rate_last_month: 0,
-          gain_rate_months: 0,
-          copier: 0,
-          removed_copier: 0,
-        };
         for (const expert of result[0].data) {
+          const info = {
+            gain_rate_last_month: 0,
+            gain_rate_months: 0,
+            copier: 0,
+            removed_copier: 0,
+          };
           if (expert.gain_every_months.length > 0) {
-            info.copier = expert.gain_every_months[0].copier;
             info.removed_copier = expert.gain_every_months[0].removed_copier;
             info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
-            let gain = 0;
-            for (const item of expert.gain_every_months) {
+          }
+          if (!expert.real_copier) {
+            expert.real_copier = 0;
+          }
+          if (!expert.virtual_copier) {
+            expert.virtual_copier = 0;
+          }
+          info.copier = expert.real_copier + expert.virtual_copier;
+          let gain = 0;
+          if (expert.trading_gains.length > 0) {
+            for (const item of expert.trading_gains) {
               gain = gain + item.total_gain;
             }
             info.gain_rate_months = parseFloat(gain.toFixed(2));
           }
+          const exp = {
+            _id: expert._id,
+            fullname: expert.fullname,
+            username: expert.username,
+            avatar: expert.avatar,
+            gain_every_months: expert.gain_every_months,
+            trading_gains: expert.trading_gains,
+            total_gain: expert.total_gain,
+          };
           const temp = {
-            expert,
+            expert: exp,
             info: {...info},
           };
           list.push({...temp});
