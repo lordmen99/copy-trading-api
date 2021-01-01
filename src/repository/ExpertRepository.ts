@@ -311,7 +311,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
                           $lt: new Date(),
                         },
                       },
@@ -349,7 +349,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
                           $lt: new Date(),
                         },
                       },
@@ -362,7 +362,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
               //   $sort: {total_gain: 1},
               // },
 
-              {$unwind: '$total_gain'},
+              {$unwind: {path: '$total_gain', preserveNullAndEmptyArrays: true}},
 
               {
                 $project: {
@@ -467,7 +467,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
                           $lt: new Date(),
                         },
                       },
@@ -505,7 +505,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
+                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
                           $lt: new Date(),
                         },
                       },
@@ -518,7 +518,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
               //   $sort: {total_gain: 1},
               // },
 
-              {$unwind: '$total_gain'},
+              {$unwind: {path: '$total_gain', preserveNullAndEmptyArrays: true}},
 
               {
                 $project: {
