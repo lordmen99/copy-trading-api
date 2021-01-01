@@ -311,7 +311,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
                           $lt: new Date(),
                         },
                       },
@@ -400,8 +400,8 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             removed_copier: 0,
           };
           if (expert.gain_every_months.length > 0) {
-            info.removed_copier = expert.gain_every_months[0].removed_copier;
-            info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
+            info.removed_copier = expert.gain_every_months[expert.gain_every_months.length - 1].removed_copier;
+            info.gain_rate_last_month = expert.gain_every_months[expert.gain_every_months.length - 1].total_gain;
           }
           if (!expert.real_copier) {
             expert.real_copier = 0;
@@ -410,13 +410,13 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             expert.virtual_copier = 0;
           }
           info.copier = expert.real_copier + expert.virtual_copier;
-          let gain = 0;
-          if (expert.trading_gains.length > 0) {
-            for (const item of expert.trading_gains) {
-              gain = gain + item.total_gain;
-            }
-            info.gain_rate_months = parseFloat(gain.toFixed(2));
-          }
+          const gain = 0;
+          // if (expert.trading_gains.length > 0) {
+          //   for (const item of expert.trading_gains) {
+          //     gain = gain + item.total_gain;
+          //   }
+          if (expert.total_gain) info.gain_rate_months = parseFloat(expert.total_gain.total_gain.toFixed(2));
+          // }
           const exp = {
             _id: expert._id,
             fullname: expert.fullname,
@@ -467,7 +467,7 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
                       $match: {
                         $expr: {$eq: ['$id_expert', '$$id_expert']},
                         createdAt: {
-                          $gte: new Date(new Date().getTime() - 30 * 60 * 60 * 24 * 1000),
+                          $gte: new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0)),
                           $lt: new Date(),
                         },
                       },
@@ -558,8 +558,8 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             removed_copier: 0,
           };
           if (expert.gain_every_months.length > 0) {
-            info.removed_copier = expert.gain_every_months[0].removed_copier;
-            info.gain_rate_last_month = expert.gain_every_months[0].total_gain;
+            info.removed_copier = expert.gain_every_months[expert.gain_every_months.length - 1].removed_copier;
+            info.gain_rate_last_month = expert.gain_every_months[expert.gain_every_months.length - 1].total_gain;
           }
           if (!expert.real_copier) {
             expert.real_copier = 0;
@@ -568,13 +568,15 @@ export default class ExpertRepository extends RepositoryBase<IExpertModel> {
             expert.virtual_copier = 0;
           }
           info.copier = expert.real_copier + expert.virtual_copier;
-          let gain = 0;
-          if (expert.trading_gains.length > 0) {
-            for (const item of expert.trading_gains) {
-              gain = gain + item.total_gain;
-            }
-            info.gain_rate_months = parseFloat(gain.toFixed(2));
-          }
+          const gain = 0;
+          // if (expert.trading_gains.length > 0) {
+          //   for (const item of expert.trading_gains) {
+          //     gain = gain + item.total_gain;
+          //   }
+          //   info.gain_rate_months = parseFloat(gain.toFixed(2));
+          // }
+          if (expert.total_gain) info.gain_rate_months = parseFloat(expert.total_gain.total_gain.toFixed(2));
+
           const exp = {
             _id: expert._id,
             fullname: expert.fullname,

@@ -167,50 +167,93 @@ export default class TradingHistoryBussiness {
         const trading_gain_every_month = await this._tradingGainEveryMonthRepository.findOneSort({
           id_expert: expert._id,
         } as ITradingGainEveryMonthModel);
-        const trading_gains = await this._tradingGainRepository.findWhere({
-          id_expert: expert._id,
-          createdAt: {
-            $gte: new Date(trading_gain_every_month.createdAt),
-            $lt: date,
-          },
-        });
+        if (trading_gain_every_month) {
+          const trading_gains = await this._tradingGainRepository.findWhere({
+            id_expert: expert._id,
+            createdAt: {
+              $gte: new Date(trading_gain_every_month.createdAt),
+              $lt: date,
+            },
+          });
 
-        const count_trading_copies = await this._tradingCopyRepository.count({
-          id_expert: expert._id,
-          createdAt: {
-            $gte: moment(new Date(trading_gain_every_month.createdAt)),
-            $lt: moment(date),
-          } as any,
-        } as ITradingCopyModel);
+          const count_trading_copies = await this._tradingCopyRepository.count({
+            id_expert: expert._id,
+            createdAt: {
+              $gte: moment(new Date(trading_gain_every_month.createdAt)),
+              $lt: moment(date),
+            } as any,
+          } as ITradingCopyModel);
 
-        let profit = 0;
-        const removed_copier =
-          trading_gain_every_month.copier > count_trading_copies
-            ? trading_gain_every_month.copier - count_trading_copies
-            : 0;
-        if (trading_gains.length > 0) {
-          for (const trading_gain of trading_gains) {
-            profit = profit + trading_gain.total_gain;
+          let profit = 0;
+          const removed_copier =
+            trading_gain_every_month.copier > count_trading_copies
+              ? trading_gain_every_month.copier - count_trading_copies
+              : 0;
+          if (trading_gains.length > 0) {
+            for (const trading_gain of trading_gains) {
+              profit = profit + trading_gain.total_gain;
+            }
+
+            await this._tradingGainEveryMonthRepository.create({
+              id_expert: expert._id,
+              total_gain: profit,
+              copier: count_trading_copies,
+              removed_copier,
+              createdAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
+              updatedAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
+            } as ITradingGainEveryMonthModel);
+          } else {
+            profit = 0;
+            await this._tradingGainEveryMonthRepository.create({
+              id_expert: expert._id,
+              total_gain: profit,
+              copier: count_trading_copies,
+              removed_copier,
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainEveryMonthModel);
           }
-
-          await this._tradingGainEveryMonthRepository.create({
-            id_expert: expert._id,
-            total_gain: profit,
-            copier: count_trading_copies,
-            removed_copier,
-            createdAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
-            updatedAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
-          } as ITradingGainEveryMonthModel);
         } else {
-          profit = 0;
-          await this._tradingGainEveryMonthRepository.create({
+          const trading_gains = await this._tradingGainRepository.findWhere({
             id_expert: expert._id,
-            total_gain: profit,
-            copier: count_trading_copies,
-            removed_copier,
-            createdAt: new Date(date),
-            updatedAt: new Date(date),
-          } as ITradingGainEveryMonthModel);
+            createdAt: {
+              $lt: date,
+            },
+          });
+
+          const count_trading_copies = await this._tradingCopyRepository.count({
+            id_expert: expert._id,
+            createdAt: {
+              $lt: moment(date),
+            } as any,
+          } as ITradingCopyModel);
+
+          let profit = 0;
+          const removed_copier = 0;
+          if (trading_gains.length > 0) {
+            for (const trading_gain of trading_gains) {
+              profit = profit + trading_gain.total_gain;
+            }
+
+            await this._tradingGainEveryMonthRepository.create({
+              id_expert: expert._id,
+              total_gain: parseFloat(profit.toFixed(2)),
+              copier: count_trading_copies,
+              removed_copier,
+              createdAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
+              updatedAt: new Date(new Date(date).getTime() - 60 * 60 * 24 * 1000),
+            } as ITradingGainEveryMonthModel);
+          } else {
+            profit = 0;
+            await this._tradingGainEveryMonthRepository.create({
+              id_expert: expert._id,
+              total_gain: parseFloat(profit.toFixed(2)),
+              copier: count_trading_copies,
+              removed_copier,
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainEveryMonthModel);
+          }
         }
       }
     } catch (err) {
