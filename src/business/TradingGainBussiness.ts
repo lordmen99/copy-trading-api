@@ -34,29 +34,64 @@ export default class TradingCopyBussiness {
       const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       for (const expert of experts) {
         let result: ITradingOrderModel[] = [];
-        result = await this._tradingOrderRepository.findWhere({
+
+        const trading_gain = await this._tradingGainRepository.findOne({
           id_expert: expert._id,
-          status: contants.STATUS.FINISH,
-          timeSetup: {
+          createdAt: {
             $gte: new Date(new Date(date).setHours(0, 0, 0)),
             $lt: new Date(new Date(date).setHours(23, 59, 59)),
           },
         });
-        if (result?.length > 0) {
-          let profit = 0;
-          for (const order of result) {
-            if (order.type_of_order === 'WIN') {
-              profit += order.threshold_percent;
-            } else if (order.type_of_order === 'LOSE') {
-              profit -= order.threshold_percent;
-            }
-          }
-          await this._tradingGainRepository.create({
+        if (trading_gain) {
+          result = await this._tradingOrderRepository.findWhere({
             id_expert: expert._id,
-            total_gain: profit,
-            createdAt: new Date(date),
-            updatedAt: new Date(date),
-          } as ITradingGainModel);
+            status: contants.STATUS.FINISH,
+            timeSetup: {
+              $gte: new Date(new Date(date).setHours(0, 0, 0)),
+              $lt: new Date(new Date(date).setHours(23, 59, 59)),
+            },
+          });
+          if (result?.length > 0) {
+            let profit = 0;
+            for (const order of result) {
+              if (order.type_of_order === 'WIN') {
+                profit += order.threshold_percent;
+              } else if (order.type_of_order === 'LOSE') {
+                profit -= order.threshold_percent;
+              }
+            }
+            await this._tradingGainRepository.update(trading_gain._id, {
+              id_expert: expert._id,
+              total_gain: profit,
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainModel);
+          }
+        } else {
+          result = await this._tradingOrderRepository.findWhere({
+            id_expert: expert._id,
+            status: contants.STATUS.FINISH,
+            timeSetup: {
+              $gte: new Date(new Date(date).setHours(0, 0, 0)),
+              $lt: new Date(new Date(date).setHours(23, 59, 59)),
+            },
+          });
+          if (result?.length > 0) {
+            let profit = 0;
+            for (const order of result) {
+              if (order.type_of_order === 'WIN') {
+                profit += order.threshold_percent;
+              } else if (order.type_of_order === 'LOSE') {
+                profit -= order.threshold_percent;
+              }
+            }
+            await this._tradingGainRepository.create({
+              id_expert: expert._id,
+              total_gain: profit,
+              createdAt: new Date(date),
+              updatedAt: new Date(date),
+            } as ITradingGainModel);
+          }
         }
       }
       return true;
