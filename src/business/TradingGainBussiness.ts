@@ -1,10 +1,11 @@
 import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
 import ITradingGainEveryMonthModel from '@src/models/cpTradingGainEveryMonth/ITradingGainEveryMonthModel';
-import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryModel';
+import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import TradingGainEveryMonthRepository from '@src/repository/TradingGainEveryMonthRepository';
 import TradingGainRepository from '@src/repository/TradingGainRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
+import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
@@ -16,6 +17,7 @@ export default class TradingCopyBussiness {
   private _tradingWithdrawRepository: TradingWithdrawRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
   private _tradingGainEveryMonthRepository: TradingGainEveryMonthRepository;
+  private _tradingOrderRepository: TradingOrderRepository;
 
   constructor() {
     this._tradingGainRepository = new TradingGainRepository();
@@ -24,38 +26,34 @@ export default class TradingCopyBussiness {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
     this._tradingHistoryRepository = new TradingHistoryRepository();
     this._tradingGainEveryMonthRepository = new TradingGainEveryMonthRepository();
+    this._tradingOrderRepository = new TradingOrderRepository();
   }
 
   public async updateTradingGain(date): Promise<boolean> {
     try {
       const experts = await this._expertRepository.findWhere({status: contants.STATUS.ACTIVE});
       for (const expert of experts) {
-        let result: ITradingHistoryModel[] = [];
-        result = await this._tradingHistoryRepository.findWhere({
+        let result: ITradingOrderModel[] = [];
+        result = await this._tradingOrderRepository.findWhere({
           id_expert: expert._id,
-          closing_time: {
+          status: contants.STATUS.FINISH,
+          timeSetup: {
             $gte: new Date(new Date(date).setHours(0, 0, 0)),
             $lt: new Date(new Date(date).setHours(23, 59, 59)),
           },
         });
         if (result?.length > 0) {
           let profit = 0;
-          for (const history of result) {
-            if (history.profit === 0) {
-              if (!history.id_user) {
-                profit = profit - history.order_amount;
-              }
-            } else {
-              if (history.id_user) {
-                profit = profit + history.fee_to_expert;
-              } else {
-                profit = profit + history.profit - history.fee_to_trading;
-              }
+          for (const order of result) {
+            if (order.type_of_order === 'WIN') {
+              profit += order.threshold_percent;
+            } else if (order.type_of_order === 'LOSE') {
+              profit -= order.threshold_percent;
             }
           }
           await this._tradingGainRepository.create({
             id_expert: expert._id,
-            total_gain: parseFloat(((profit / expert.base_amount) * 100).toFixed(2)),
+            total_gain: profit,
             createdAt: new Date(date),
             updatedAt: new Date(date),
           } as ITradingGainModel);
