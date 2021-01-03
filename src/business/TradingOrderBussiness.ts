@@ -9,6 +9,7 @@ import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
+import UserRepository from '@src/repository/UserRepository';
 import {contants} from '@src/utils';
 import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
 import {
@@ -21,6 +22,7 @@ import moment from 'moment';
 import {Schema} from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
+import TradingWithdrawBussiness from './TradingWithdrawBussiness';
 
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
@@ -30,6 +32,7 @@ export default class TradingOrderBussiness {
   private _tradingWithdrawRepository: TradingWithdrawRepository;
   private _blockRepository: BlockRepository;
   private _symbolRepository: SymbolRepository;
+  private _userRepository: UserRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -39,6 +42,7 @@ export default class TradingOrderBussiness {
     this._tradingCopyRepository = new TradingCopyRepository();
     this._blockRepository = new BlockRepository();
     this._symbolRepository = new SymbolRepository();
+    this._userRepository = new UserRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -307,7 +311,7 @@ export default class TradingOrderBussiness {
       const dataTradingHistory: ITradingHistoryModel[] = [];
       const dataCalculateMoney: {id_copy: Schema.Types.ObjectId; money: number}[] = [];
       const dataTradingWithdraw: ITradingWithdrawModel[] = [];
-      const dataPauseCopy: Schema.Types.ObjectId[] = [];
+      const dataPauseCopy: ITradingCopyModel[] = [];
 
       tradingCopy.map(async (copy: ITradingCopyModel) => {
         // tạo history
@@ -400,12 +404,12 @@ export default class TradingOrderBussiness {
         /** chạm đến take profit khi copy */
         const take_profit =
           copy.investment_amount + money > copy.base_amount &&
-          copy.investment_amount + money - copy.base_amount > copy.taken_profit * copy.base_amount &&
+          copy.investment_amount + money > (copy.taken_profit / 100) * copy.base_amount &&
           copy.has_taken_profit === true;
 
         /** thì sẽ tạm dừng copy */
         if (stop_loss || take_profit) {
-          dataPauseCopy.push(copy._id);
+          dataPauseCopy.push(copy);
         }
         dataTradingHistory.push(historyModel);
       });
@@ -421,13 +425,143 @@ export default class TradingOrderBussiness {
       /** số tiền để sau trả lại chuyên gia nếu thắng */
       this._tradingWithdrawRepository.insertManyTradingWithdraw(dataTradingWithdraw);
 
-      /** dừng copy với những tài khoản chạm stop_loss hoặc take_profit */
-      this._tradingCopyRepository.updateManyPauseCopy(dataPauseCopy);
-
       /** thêm vào lịch sử giao dịch */
       this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
+
+      /** dừng copy với những tài khoản chạm stop_loss hoặc take_profit */
+      this.stopAll(dataPauseCopy);
     } catch (err) {
       throw err;
     }
+  }
+  private async stopAll(dataPauseCopy: ITradingCopyModel[]): Promise<void> {
+    Promise.all(dataPauseCopy).then((result) => {
+      const listInvestment = [];
+      const listBase = [];
+      const listKeep = [];
+      result.map(async (copy: ITradingCopyModel) => {
+        if (copy.investment_amount > copy.base_amount) {
+          const histories = await this._tradingHistoryRepository.findWhere({
+            id_copy: copy._id,
+            id_user: copy.id_user,
+            closing_time: {
+              $gte: new Date(new Date().setHours(0, 0, 0)),
+              $lt: new Date(new Date().setHours(23, 59, 59)),
+            },
+          });
+          let keep_amount = 0;
+          if (histories.length > 0) {
+            for (const history of histories) {
+              if (history.profit === 0) {
+                keep_amount = keep_amount - history.order_amount;
+              } else {
+                keep_amount = keep_amount + history.profit - history.fee_to_expert - history.fee_to_trading;
+              }
+            }
+          }
+          if (keep_amount < 0) {
+            keep_amount = 0;
+          }
+          const keep = {
+            id_user: copy.id_user,
+            keep_amount,
+          };
+          if (listKeep.length > 0) {
+            let check = false;
+
+            for (const item of listKeep) {
+              if (item.id_user.toString() === copy.id_user.toString()) {
+                check = true;
+                item.keep_amount += keep.keep_amount;
+              }
+            }
+            if (check === false) {
+              listKeep.push(keep);
+            }
+          } else {
+            listKeep.push(keep);
+          }
+          if (listBase.length > 0) {
+            let check = false;
+
+            for (const item of listBase) {
+              if (item.id_user.toString() === copy.id_user.toString()) {
+                check = true;
+                item.investment_amount += copy.investment_amount;
+              }
+            }
+            if (check === false) {
+              listBase.push(copy);
+            }
+          } else {
+            listBase.push(copy);
+          }
+
+          const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+          await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
+          await this._tradingCopyRepository.update(copy._id, {
+            status: contants.STATUS.STOP,
+            updatedAt: new Date(),
+          });
+
+          const tradingWithdrawBussiness = new TradingWithdrawBussiness();
+          if (keep_amount !== 0) {
+            await tradingWithdrawBussiness.createTradingWithdraw({
+              id_user: copy.id_user,
+              id_expert: null,
+              id_copy: copy._id,
+              amount: parseFloat(keep_amount.toFixed(2)),
+              type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
+              status: contants.STATUS.PENDING,
+              createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+              updatedAt: new Date(),
+              paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+            } as ITradingWithdrawModel);
+          }
+        } else {
+          if (listInvestment.length > 0) {
+            let check = false;
+
+            for (const item of listInvestment) {
+              if (item.id_user.toString() === copy.id_user.toString()) {
+                check = true;
+                item.investment_amount += copy.investment_amount;
+              }
+            }
+            if (check === false) {
+              listInvestment.push(copy);
+            }
+          } else {
+            listInvestment.push(copy);
+          }
+          const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+          await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
+          await this._tradingCopyRepository.update(copy._id, {
+            status: contants.STATUS.STOP,
+          });
+        }
+      });
+      listInvestment.map(async (copyInvestment: ITradingCopyModel) => {
+        const user = await this._userRepository.findOne({_id: copyInvestment.id_user});
+        await this._userRepository.update(copyInvestment.id_user, {
+          blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+          status_trading_copy: contants.STATUS.BLOCK,
+          total_amount: user.total_amount + copyInvestment.investment_amount,
+        });
+      });
+      listBase.map(async (copyBase: ITradingCopyModel) => {
+        const user = await this._userRepository.findOne({_id: copyBase.id_user});
+        listKeep.map(async (copyKeep) => {
+          if (copyBase.id_expert === copyKeep.id_user) {
+            await this._userRepository.update(copyBase.id_user, {
+              blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
+              status_trading_copy: contants.STATUS.BLOCK,
+              total_amount:
+                user.total_amount + copyBase.investment_amount - parseFloat(copyKeep.keep_amount.toFixed(2)),
+            });
+          }
+        });
+      });
+    });
   }
 }
