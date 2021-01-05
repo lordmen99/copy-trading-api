@@ -18,12 +18,12 @@ import {
   EditTradingOrder,
 } from '@src/validator/trading_orders/trading_orders.validator';
 import {validate} from 'class-validator';
+import _ from 'lodash';
 import moment from 'moment';
 import {Schema} from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
-
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
@@ -434,221 +434,26 @@ export default class TradingOrderBussiness {
 
   private async autoStopOrder(dataPauseCopy: ITradingCopyModel[]): Promise<void> {
     this.getAllUserCopy(dataPauseCopy).then((result) => {
-      // debugger;
-      console.log(result);
-      this.calculatorTotalAmount(result).then((data) => {
-        console.log(data);
-        Promise.all(
-          data.map((item) => {
-            let listBase = [];
-            let listKeep = [];
-            listBase = item['listBase'];
-            listKeep = item['listKeep'];
-            Promise.all(listBase).then(async (copyBase) => {
-              const user = await this._userRepository.findOne({_id: copyBase['id_user']});
-              if (listKeep && listKeep.length > 0) {
-                listKeep.map(async (copyKeep) => {
-                  if (copyBase['id_user'] === copyKeep.id_user) {
-                    await this._userRepository.update(copyBase['id_user'], {
-                      blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-                      status_trading_copy: contants.STATUS.BLOCK,
-                      total_amount:
-                        user.total_amount + copyBase['investment_amount'] - parseFloat(copyKeep.keep_amount.toFixed(2)),
-                    });
-                  }
-                });
-              } else {
-                await this._userRepository.update(copyBase['id_user'], {
-                  blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-                  status_trading_copy: contants.STATUS.BLOCK,
-                  total_amount: user.total_amount + copyBase['investment_amount'],
-                });
+      this.calculatorTotalAmount(result).then(async (data) => {
+        const listNoDup = _.uniqBy(data, 'id_user');
+        listNoDup.forEach((noDup, index) => {
+          data.forEach((dup) => {
+            if (noDup['id_user'] === dup['id_user']) {
+              listNoDup[index].totalAmount += dup['listBase'][0].investment_amount;
+              if (dup['listKeep'] && dup['listKeep'].length > 0) {
+                listNoDup[index].totalAmount -= parseFloat(dup['listKeep'][0].keep_amount.toFixed(2));
               }
-            });
-            // listBase.map(async (copyBase: ITradingCopyModel) => {
-            //   const user = await this._userRepository.findOne({ _id: copyBase.id_user });
-            //   if (listKeep && listKeep.length > 0) {
-            //     listKeep.map(async (copyKeep) => {
-            //       if (copyBase.id_user === copyKeep.id_user) {
-            //         await this._userRepository.update(copyBase.id_user, {
-            //           blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            //           status_trading_copy: contants.STATUS.BLOCK,
-            //           total_amount:
-            //             user.total_amount + copyBase.investment_amount - parseFloat(copyKeep.keep_amount.toFixed(2)),
-            //         });
-            //       }
-            //     });
-            //   } else {
-            //     await this._userRepository.update(copyBase.id_user, {
-            //       blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            //       status_trading_copy: contants.STATUS.BLOCK,
-            //       total_amount: user.total_amount + copyBase.investment_amount,
-            //     });
-            //   }
-            // });
-          }),
-        );
-      });
-    });
-  }
-
-  private async stopAll(dataPauseCopy: ITradingCopyModel[]): Promise<void> {
-    Promise.all(dataPauseCopy).then((result) => {
-      // const listInvestment = [];
-      const listBase = [];
-      const listKeep = [];
-      result.map(async (copyData: ITradingCopyModel) => {
-        const copy = await this._tradingCopyRepository.findOne({
-          _id: copyData._id,
-          id_user: copyData.id_user,
+            }
+          });
         });
-        const isProfit = copy.investment_amount > copy.base_amount ? true : false;
-        let keep_amount = 0;
-        // if (copy.investment_amount > copy.base_amount) {
-        if (isProfit) {
-          const histories = await this._tradingHistoryRepository.findWhere({
-            id_copy: copy._id,
-            id_user: copy.id_user,
-            closing_time: {
-              $gte: new Date(new Date().setHours(0, 0, 0)),
-              $lt: new Date(new Date().setHours(23, 59, 59)),
-            },
-          });
-          if (histories.length > 0) {
-            for (const history of histories) {
-              if (history.profit === 0) {
-                keep_amount = keep_amount - history.order_amount;
-              } else {
-                keep_amount = keep_amount + history.profit - history.fee_to_expert - history.fee_to_trading;
-              }
-            }
-          }
-          if (keep_amount < 0) {
-            keep_amount = 0;
-          }
-          const keep = {
-            id_user: copy.id_user,
-            keep_amount,
-          };
-
-          if (listKeep.length > 0) {
-            let check = false;
-            for (const item of listKeep) {
-              if (item.id_user.toString() === copy.id_user.toString()) {
-                check = true;
-                item.keep_amount += keep.keep_amount;
-              }
-            }
-            if (check === false) {
-              listKeep.push(keep);
-            }
-          } else {
-            listKeep.push(keep);
-          }
-        }
-
-        if (listBase.length > 0) {
-          let check = false;
-          for (const item of listBase) {
-            if (item.id_user.toString() === copy.id_user.toString()) {
-              check = true;
-              item.investment_amount += copy.investment_amount;
-            }
-          }
-          if (check === false) {
-            listBase.push(copy);
-          }
-        } else {
-          listBase.push(copy);
-        }
-
-        const expert = await this._expertRepository.findOne({_id: copy.id_expert});
-        await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
-        if (isProfit) {
-          await this._tradingCopyRepository.update(copy._id, {
-            status: contants.STATUS.STOP,
-            updatedAt: new Date(),
-          });
-        } else {
-          await this._tradingCopyRepository.update(copy._id, {
-            status: contants.STATUS.STOP,
-          });
-        }
-        const tradingWithdrawBussiness = new TradingWithdrawBussiness();
-        if (keep_amount !== 0) {
-          await tradingWithdrawBussiness.createTradingWithdraw({
-            id_user: copy.id_user,
-            id_expert: null,
-            id_copy: copy._id,
-            amount: parseFloat(keep_amount.toFixed(2)),
-            type_of_withdraw: contants.TYPE_OF_WITHDRAW.WITHDRAW,
-            status: contants.STATUS.PENDING,
-            createdAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-            updatedAt: new Date(),
-            paidAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-          } as ITradingWithdrawModel);
-        }
-        // } else {
-        //   if (listInvestment.length > 0) {
-        //     let check = false;
-        //     for (const item of listInvestment) {
-        //       if (item.id_user.toString() === copy.id_user.toString()) {
-        //         check = true;
-        //         item.investment_amount += copy.investment_amount;
-        //       }
-        //     }
-        //     if (check === false) {
-        //       listInvestment.push(copy);
-        //     }
-        //   } else {
-        //     listInvestment.push(copy);
-        //   }
-        //   const expert = await this._expertRepository.findOne({_id: copy.id_expert});
-        //   await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
-        //   await this._tradingCopyRepository.update(copy._id, {
-        //     status: contants.STATUS.STOP,
-        //   });
-        // }
-      });
-      // if (listInvestment && listInvestment.length > 0) {
-      //   listInvestment.forEach((invest, i) => {
-      //     listBase.forEach((base, j) => {
-      //       if(invest.user_id === base.user_id){
-      //         debugger;
-      //         listBase[j].investment_amount =+ invest.investment_amount;
-      //       }
-      //     });
-      //   });
-      // }
-
-      // listInvestment.map(async (copyInvestment: ITradingCopyModel) => {
-      //   const user = await this._userRepository.findOne({ _id: copyInvestment.id_user });
-      //   await this._userRepository.update(copyInvestment.id_user, {
-      //     blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-      //     status_trading_copy: contants.STATUS.BLOCK,
-      //     total_amount: user.total_amount + copyInvestment.investment_amount,
-      //   });
-      // });
-      listBase.map(async (copyBase: ITradingCopyModel) => {
-        const user = await this._userRepository.findOne({_id: copyBase.id_user});
-        if (listKeep && listKeep.length > 0) {
-          listKeep.map(async (copyKeep) => {
-            if (copyBase.id_expert === copyKeep.id_user) {
-              await this._userRepository.update(copyBase.id_user, {
-                blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
-                status_trading_copy: contants.STATUS.BLOCK,
-                total_amount:
-                  user.total_amount + copyBase.investment_amount - parseFloat(copyKeep.keep_amount.toFixed(2)),
-              });
-            }
-          });
-        } else {
+        listNoDup.map(async (copyBase) => {
+          const user = await this._userRepository.findOne({_id: copyBase.id_user});
           await this._userRepository.update(copyBase.id_user, {
             blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
-            total_amount: user.total_amount + copyBase.investment_amount,
+            total_amount: user.total_amount + copyBase.totalAmount,
           });
-        }
+        });
       });
     });
   }
@@ -773,8 +578,10 @@ export default class TradingOrderBussiness {
     const data = {
       listBase,
       listKeep,
+      copy,
+      id_user: copy.id_user.toString(),
+      totalAmount: 0,
     };
-    // debugger;
     return Promise.resolve(data);
   };
 }
