@@ -270,13 +270,6 @@ export default class TradingHistoryBussiness {
         } as ITradingGainModel);
         let result: ITradingOrderModel[] = [];
         if (trading_gain) {
-          // result = await this._tradingHistoryRepository.findWhere({
-          //   id_expert: expert._id,
-          //   closing_time: {
-          //     $gte: new Date(trading_gain.createdAt),
-          //     $lt: date,
-          //   },
-          // });
           result = await this._tradingOrderRepository.findWhere({
             id_expert: expert._id,
             status: contants.STATUS.FINISH,
@@ -286,10 +279,6 @@ export default class TradingHistoryBussiness {
             },
           });
         } else {
-          // result = await this._tradingHistoryRepository.findWhere({
-          //   id_expert: expert._id,
-          //   closing_time: {$lt: date},
-          // });
           result = await this._tradingOrderRepository.findWhere({
             id_expert: expert._id,
             status: contants.STATUS.FINISH,
@@ -298,19 +287,6 @@ export default class TradingHistoryBussiness {
         }
         if (result?.length > 0) {
           let profit = 0;
-          // for (const history of result) {
-          //   if (history.profit === 0) {
-          //     if (!history.id_user) {
-          //       profit = profit - history.order_amount;
-          //     }
-          //   } else {
-          //     if (history.id_user) {
-          //       profit = profit + history.fee_to_expert;
-          //     } else {
-          //       profit = profit + history.profit - history.fee_to_trading;
-          //     }
-          //   }
-          // }
           for (const order of result) {
             if (order.type_of_order === 'WIN') {
               profit += order.threshold_percent;

@@ -194,7 +194,7 @@ export default class TradingCopyBussiness {
             const resultUser = await this._userRepository.update(copy.id_user, {
               blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
               status_trading_copy: contants.STATUS.BLOCK,
-              total_amount: user.total_amount + copy.investment_amount - keep_amount,
+              total_amount: user.total_amount + copy.investment_amount - parseFloat(keep_amount.toFixed(2)),
             });
             const expert = await this._expertRepository.findOne({_id: copy.id_expert});
             const resultExpert = await this._expertRepository.findAndUpdateExpert(
