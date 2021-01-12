@@ -1,16 +1,32 @@
-import ITradingGainModel from '@src/models/cpTradingGain/ITradingGainModel';
+import ICommissionRefLogModel from '@src/models/cpCommissionRefLogs/ICommissionRefLogModel';
 import mongoose, {Schema} from 'mongoose';
 
 class CpCommissionRefLogSchema {
   static get schema() {
     const schema = new mongoose.Schema(
       {
-        id_expert: {
+        id_user: {
           type: Schema.Types.ObjectId,
           required: true,
         },
-        total_gain: {
-          type: Number,
+        id_user_ref: {
+          type: Schema.Types.ObjectId,
+          required: true,
+        },
+        level: {
+          type: Schema.Types.Number,
+          required: true,
+        },
+        volume: {
+          type: Schema.Types.Decimal128,
+          required: true,
+        },
+        type: {
+          type: Schema.Types.Number,
+          required: true,
+        },
+        is_withdraw: {
+          type: Schema.Types.Boolean,
           required: true,
         },
       },
@@ -22,4 +38,4 @@ class CpCommissionRefLogSchema {
   }
 }
 
-export default mongoose.model<ITradingGainModel>('cp_commission_ref_logs', CpCommissionRefLogSchema.schema);
+export default mongoose.model<ICommissionRefLogModel>('cp_commission_ref_logs', CpCommissionRefLogSchema.schema);

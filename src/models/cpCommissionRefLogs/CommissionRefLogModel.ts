@@ -1,50 +1,38 @@
 import {Schema} from 'mongoose';
-import ITradingOrderModel from './ICommissionRefLogModel';
+import ICommissionRefLogModel from './ICommissionRefLogModel';
 
-export default class TradingOrderModel {
-  private _tradingOrderModel: ITradingOrderModel;
+export default class CommissionRefLogModel {
+  private _commissionRefLogModel: ICommissionRefLogModel;
 
-  constructor(TradingOrderModel: ITradingOrderModel) {
-    this._tradingOrderModel = TradingOrderModel;
+  constructor(CommissionRefLogModel: ICommissionRefLogModel) {
+    this._commissionRefLogModel = CommissionRefLogModel;
   }
 
-  get id_expert(): Schema.Types.ObjectId {
-    return this._tradingOrderModel.id_expert;
+  get id_user(): Schema.Types.ObjectId {
+    return this._commissionRefLogModel.id_user;
   }
 
-  get id_admin(): Schema.Types.ObjectId {
-    return this._tradingOrderModel.id_admin;
+  get id_user_ref(): Schema.Types.ObjectId {
+    return this._commissionRefLogModel.id_user_ref;
   }
 
-  get type_of_order(): string {
-    return this._tradingOrderModel.type_of_order;
+  get level(): Schema.Types.Number {
+    return this._commissionRefLogModel.level;
   }
 
-  get threshold_percent(): number {
-    return this._tradingOrderModel.threshold_percent;
+  get volume(): Schema.Types.Decimal128 {
+    return this._commissionRefLogModel.volume;
   }
 
-  get status(): string {
-    return this._tradingOrderModel.status;
+  get type(): Schema.Types.Number {
+    return this._commissionRefLogModel.type;
   }
 
-  get createdAt(): Date {
-    return this._tradingOrderModel.createdAt;
+  get is_withdraw(): Schema.Types.Boolean {
+    return this._commissionRefLogModel.is_withdraw;
   }
 
-  get orderedAt(): Date {
-    return this._tradingOrderModel.orderedAt;
-  }
-
-  get timeSetup(): Date {
-    return this._tradingOrderModel.timeSetup;
-  }
-
-  get timeZone(): string {
-    return this._tradingOrderModel.timeZone;
-  }
-
-  get endDate(): Date {
-    return this._tradingOrderModel.endDate;
+  get createdAt(): Schema.Types.Date {
+    return this._commissionRefLogModel.createdAt;
   }
 }

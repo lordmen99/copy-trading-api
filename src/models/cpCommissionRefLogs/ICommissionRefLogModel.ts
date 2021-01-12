@@ -8,5 +8,4 @@ export default interface ICommissionRefLogModel extends mongoose.Document {
   type: Schema.Types.Number; // 0: Sell - 1: Buy
   is_withdraw: Schema.Types.Boolean;
   createdAt: Schema.Types.Date;
-  orderedAt: Schema.Types.Date;
 }
