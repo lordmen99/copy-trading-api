@@ -137,8 +137,8 @@ export default class TradingOrderBussiness {
           const toDate = moment(timeSetup).subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:30');
           const blocks = await this._blockRepository.findWhere({
             createdAt: {
-              $gt: new Date(fromTime),
-              $lt: new Date(toDate),
+              $gte: new Date(fromTime),
+              $lte: new Date(toDate),
             },
           });
           if (blocks.length === 3) {
