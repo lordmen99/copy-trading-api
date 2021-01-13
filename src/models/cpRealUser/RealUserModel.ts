@@ -1,3 +1,4 @@
+import {Schema} from 'mongoose';
 import IRealUserModel from './IRealUserModel';
 
 export default class UserModel {
@@ -67,11 +68,11 @@ export default class UserModel {
     return this._UserModel.is_root_sponsor;
   }
 
-  get sponsor_id(): string {
+  get sponsor_id(): Schema.Types.ObjectId {
     return this._UserModel.sponsor_id;
   }
 
-  get sponsor_path(): string {
+  get sponsor_path(): Schema.Types.ObjectId[] {
     return this._UserModel.sponsor_path;
   }
 

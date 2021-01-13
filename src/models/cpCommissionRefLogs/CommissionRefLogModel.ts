@@ -16,16 +16,24 @@ export default class CommissionRefLogModel {
     return this._commissionRefLogModel.id_user_ref;
   }
 
+  get id_copy(): Schema.Types.ObjectId {
+    return this._commissionRefLogModel.id_copy;
+  }
+
+  get id_history(): Schema.Types.ObjectId {
+    return this._commissionRefLogModel.id_history;
+  }
+
   get level(): Schema.Types.Number {
     return this._commissionRefLogModel.level;
   }
 
-  get volume(): Schema.Types.Decimal128 {
-    return this._commissionRefLogModel.volume;
+  get investment_amount(): Schema.Types.Decimal128 {
+    return this._commissionRefLogModel.investment_amount;
   }
 
-  get type(): Schema.Types.Number {
-    return this._commissionRefLogModel.type;
+  get amount(): Schema.Types.Decimal128 {
+    return this._commissionRefLogModel.amount;
   }
 
   get is_withdraw(): Schema.Types.Boolean {

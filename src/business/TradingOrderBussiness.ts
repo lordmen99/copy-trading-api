@@ -4,6 +4,7 @@ import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import BlockRepository from '@src/repository/BlockRepository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
 import SymbolRepository from '@src/repository/SymbolRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
@@ -24,6 +25,7 @@ import {Schema} from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
+
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
@@ -33,6 +35,7 @@ export default class TradingOrderBussiness {
   private _blockRepository: BlockRepository;
   private _symbolRepository: SymbolRepository;
   private _userRepository: UserRepository;
+  private _realUserRepository: RealUserRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -43,6 +46,7 @@ export default class TradingOrderBussiness {
     this._blockRepository = new BlockRepository();
     this._symbolRepository = new SymbolRepository();
     this._userRepository = new UserRepository();
+    this._realUserRepository = new RealUserRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -418,7 +422,12 @@ export default class TradingOrderBussiness {
       this._tradingWithdrawRepository.insertManyTradingWithdraw(dataTradingWithdraw);
 
       /** thêm vào lịch sử giao dịch */
-      await this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
+      this._tradingHistoryRepository
+        .insertManyTradingHistory(dataTradingHistory)
+        .then((listTradingHistory: ITradingHistoryModel[]) => {
+          /** thêm vào bảng cp_commission_ref_log để tính hoa hồng cho các cấp */
+          this.addCommissionRefLogs(listTradingHistory);
+        });
 
       /** tính toán số tiền nhận được */
       this.calculatorAmount(dataCalculateMoney).then(() => {
@@ -458,35 +467,35 @@ export default class TradingOrderBussiness {
     });
   }
 
-  private calculatorAmount = async (dataCalculateMoney) => {
+  private async calculatorAmount(dataCalculateMoney) {
     return Promise.all(dataCalculateMoney.map((item) => this.updateAmountAsync(item)));
-  };
+  }
 
-  private updateAmountAsync = async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
+  private async updateAmountAsync(item: {id_copy: Schema.Types.ObjectId; money: number}) {
     const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
     await this._tradingCopyRepository.update(copy._id, {
       investment_amount: copy.investment_amount + item.money,
     });
     return Promise.resolve(copy);
-  };
+  }
 
-  private getAllUserCopy = async (dataPauseCopy) => {
+  private async getAllUserCopy(dataPauseCopy) {
     return Promise.all(dataPauseCopy.map((item) => this.getUserCopyAsync(item)));
-  };
+  }
 
-  private getUserCopyAsync = async (item) => {
+  private async getUserCopyAsync(item) {
     const copy = await this._tradingCopyRepository.findOne({
       _id: item._id,
       id_user: item.id_user,
     });
     return Promise.resolve(copy);
-  };
+  }
 
-  private calculatorTotalAmount = async (dataCalculateMoney) => {
+  private async calculatorTotalAmount(dataCalculateMoney) {
     return Promise.all(dataCalculateMoney.map((item) => this.countTotalAmount(item)));
-  };
+  }
 
-  private countTotalAmount = async (copy: ITradingCopyModel) => {
+  private async countTotalAmount(copy: ITradingCopyModel) {
     const listBase = [];
     const listKeep = [];
     const isProfit = copy.investment_amount > copy.base_amount ? true : false;
@@ -583,5 +592,35 @@ export default class TradingOrderBussiness {
       totalAmount: 0,
     };
     return Promise.resolve(data);
-  };
+  }
+
+  private async addCommissionRefLogs(listTradingHistory: ITradingHistoryModel[]) {
+    try {
+      if (listTradingHistory.length > 0) {
+        const commissionRefLogModel = [];
+        for (const item of listTradingHistory) {
+          const tradingCopy = await this._tradingCopyRepository.findById(item.id_copy.toString());
+          if (!tradingCopy) return;
+          const user = await this._userRepository.findById(item.id_user.toString());
+          if (!user) return;
+          const realUser = await this._realUserRepository.findById(user.id_user_trading.toString());
+          if (!realUser) return;
+          if (!realUser.sponsor_path || realUser.sponsor_path.length <= 0) return;
+          realUser.sponsor_path.map((x, index) => {
+            commissionRefLogModel.push({
+              id_user: realUser.id,
+              id_user_ref: x,
+              id_copy: item.id_copy,
+              level: index + 1,
+              investment_amount: tradingCopy.base_amount,
+              amount: item.order_amount,
+              is_withdraw: false,
+            });
+          });
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
 }

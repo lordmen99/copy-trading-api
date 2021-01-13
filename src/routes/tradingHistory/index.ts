@@ -4,7 +4,6 @@ import getListTradingHistoriesByExpert from './GetListTradingHistoriesByExpert';
 import getListTradingHistoriesByUser from './GetListTradingHistoriesByUser';
 import GetListTradingHistoriesByUserAdmin from './GetListTradingHistoriesByUserAdmin';
 import getListTradingHistoriesFollowExpert from './GetListTradingHistoriesFollowExpert';
-import HotFixStatus from './HotFixStatus';
 
 export default class TradingHistoryRouter {
   public router: Router = Router();
@@ -15,6 +14,6 @@ export default class TradingHistoryRouter {
     getListTradingHistoriesByExpert(this.router);
     getListTradingHistoriesFollowExpert(this.router);
     GetListTradingHistoriesByUserAdmin(this.router);
-    HotFixStatus(this.router);
+    // HotFixStatus(this.router);
   }
 }

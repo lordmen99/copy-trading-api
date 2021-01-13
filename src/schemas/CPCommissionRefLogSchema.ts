@@ -13,11 +13,19 @@ class CpCommissionRefLogSchema {
           type: Schema.Types.ObjectId,
           required: true,
         },
+        id_copy: {
+          type: Schema.Types.ObjectId,
+          required: true,
+        },
         level: {
           type: Schema.Types.Number,
           required: true,
         },
-        volume: {
+        investment_amount: {
+          type: Schema.Types.Decimal128,
+          required: true,
+        },
+        amount: {
           type: Schema.Types.Decimal128,
           required: true,
         },
