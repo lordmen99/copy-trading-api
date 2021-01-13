@@ -3,6 +3,7 @@ import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryMo
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import BlockRepository from '@src/repository/BlockRepository';
+import CommissionRefLogRepository from '@src/repository/CommissionRefLogRespository';
 import ExpertRepository from '@src/repository/ExpertRepository';
 import RealUserRepository from '@src/repository/RealUserRepository';
 import SymbolRepository from '@src/repository/SymbolRepository';
@@ -36,6 +37,7 @@ export default class TradingOrderBussiness {
   private _symbolRepository: SymbolRepository;
   private _userRepository: UserRepository;
   private _realUserRepository: RealUserRepository;
+  private _commissionRefLogRepository: CommissionRefLogRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -47,6 +49,7 @@ export default class TradingOrderBussiness {
     this._symbolRepository = new SymbolRepository();
     this._userRepository = new UserRepository();
     this._realUserRepository = new RealUserRepository();
+    this._commissionRefLogRepository = new CommissionRefLogRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -137,7 +140,7 @@ export default class TradingOrderBussiness {
           }
         } else {
           const timeSetup = moment(item.timeSetup).format('YYYY-MM-DD HH:mm:00');
-          const fromTime = moment(timeSetup).subtract(2, 'minutes').format('YYYY-MM-DD HH:mm:00');
+          const fromTime = moment(timeSetup).subtract(3, 'minutes').format('YYYY-MM-DD HH:mm:59');
           const toDate = moment(timeSetup).subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:30');
           const blocks = await this._blockRepository.findWhere({
             createdAt: {
@@ -611,6 +614,7 @@ export default class TradingOrderBussiness {
               id_user: realUser.id,
               id_user_ref: x,
               id_copy: item.id_copy,
+              id_history: item.id,
               level: index + 1,
               investment_amount: tradingCopy.base_amount,
               amount: item.order_amount,
@@ -618,6 +622,8 @@ export default class TradingOrderBussiness {
             });
           });
         }
+        if (commissionRefLogModel.length > 0)
+          this._commissionRefLogRepository.insertManyCommissionRefLog(commissionRefLogModel);
       }
     } catch (err) {
       throw err;

@@ -6,4 +6,13 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
   constructor() {
     super(CPCommissionRefLogSchema);
   }
+
+  public async insertManyCommissionRefLog(arrCommissionRefLog: ICommissionRefLogModel[]) {
+    try {
+      const result = await CPCommissionRefLogSchema.insertMany(arrCommissionRefLog);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
 }

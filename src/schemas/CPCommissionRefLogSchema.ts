@@ -17,6 +17,10 @@ class CpCommissionRefLogSchema {
           type: Schema.Types.ObjectId,
           required: true,
         },
+        id_history: {
+          type: Schema.Types.ObjectId,
+          required: true,
+        },
         level: {
           type: Schema.Types.Number,
           required: true,
@@ -27,10 +31,6 @@ class CpCommissionRefLogSchema {
         },
         amount: {
           type: Schema.Types.Decimal128,
-          required: true,
-        },
-        type: {
-          type: Schema.Types.Number,
           required: true,
         },
         is_withdraw: {
