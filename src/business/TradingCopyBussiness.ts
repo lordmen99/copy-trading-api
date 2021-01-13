@@ -145,7 +145,7 @@ export default class TradingCopyBussiness {
             throw new Error('User is not exits');
           }
         } else {
-          throw new Error('You are blocked in 24 hours!');
+          throw new Error('After suspending the investment package you need 24 hours later to continue!');
         }
         // } else {
         //   throw new Error('Trading copy is exist!');
