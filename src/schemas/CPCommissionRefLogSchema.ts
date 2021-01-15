@@ -1,5 +1,5 @@
 import ICommissionRefLogModel from '@src/models/cpCommissionRefLogs/ICommissionRefLogModel';
-import mongoose, {Schema} from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 class CpCommissionRefLogSchema {
   static get schema() {
@@ -30,6 +30,10 @@ class CpCommissionRefLogSchema {
           required: true,
         },
         amount: {
+          type: Schema.Types.Decimal128,
+          required: true,
+        },
+        amount_withdraw: {
           type: Schema.Types.Decimal128,
           required: true,
         },

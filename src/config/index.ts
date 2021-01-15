@@ -1,6 +1,6 @@
-import {config} from 'dotenv';
+import { config } from 'dotenv';
 
-const envFound = config({path: `./.env.${process.env.NODE_ENV || 'development'}`});
+const envFound = config({ path: `./.env.${process.env.NODE_ENV || 'development'}` });
 if (!envFound) throw new Error("Couldn't find .env file");
 
 export default {
@@ -8,7 +8,7 @@ export default {
 
   port: process.env.PORT || 5000,
 
-  logs: {level: process.env.LOG_LEVEL || 'silly'},
+  logs: { level: process.env.LOG_LEVEL || 'silly' },
 
   MONGODB_URI: process.env.MONGODB_URI,
 
@@ -24,5 +24,5 @@ export default {
 
   SCHEDULE_EXECUTE_DATA_SOCKET: process.env.SCHEDULE_EXECUTE_DATA_SOCKET,
 
-  SCHEDULE_EXECUTE_CLEAR_DATA_SOCKET: process.env.SCHEDULE_EXECUTE_CLEAR_DATA_SOCKET,
+  SCHEDULE_EXECUTE_COMMISSION_REF: process.env.SCHEDULE_EXECUTE_COMMISSION_REF,
 };

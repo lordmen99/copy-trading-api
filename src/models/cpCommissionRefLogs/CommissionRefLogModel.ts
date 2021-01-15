@@ -1,4 +1,4 @@
-import {Schema} from 'mongoose';
+import { Schema } from 'mongoose';
 import ICommissionRefLogModel from './ICommissionRefLogModel';
 
 export default class CommissionRefLogModel {
@@ -24,23 +24,27 @@ export default class CommissionRefLogModel {
     return this._commissionRefLogModel.id_history;
   }
 
-  get level(): Schema.Types.Number {
+  get level(): number {
     return this._commissionRefLogModel.level;
   }
 
-  get investment_amount(): Schema.Types.Decimal128 {
+  get investment_amount(): number {
     return this._commissionRefLogModel.investment_amount;
   }
 
-  get amount(): Schema.Types.Decimal128 {
+  get amount(): number {
     return this._commissionRefLogModel.amount;
   }
 
-  get is_withdraw(): Schema.Types.Boolean {
+  get amount_withdraw(): number {
+    return this._commissionRefLogModel.amount_withdraw;
+  }
+
+  get is_withdraw(): boolean {
     return this._commissionRefLogModel.is_withdraw;
   }
 
-  get createdAt(): Schema.Types.Date {
+  get createdAt(): Date {
     return this._commissionRefLogModel.createdAt;
   }
 }
