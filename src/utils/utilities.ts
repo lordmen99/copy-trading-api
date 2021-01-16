@@ -1,3 +1,4 @@
-const formatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+const formatter2 = new Intl.NumberFormat('en-US', {maximumFractionDigits: 2});
+const formatter5 = new Intl.NumberFormat('en-US', {maximumFractionDigits: 5});
 
-export default { formatter };
+export default {formatter2, formatter5};
