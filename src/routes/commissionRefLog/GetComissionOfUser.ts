@@ -1,10 +1,10 @@
-import TradingHistoryController from '@src/controllers/TradingHistoryController';
+import CommissionRefLogController from '@src/controllers/CommissionRefLogController';
 import {Router} from 'express';
 
 /**
- * @api {post} /trading_history/get_list_trading_histories_follow_expert 4. Get list trading histories follow expert
+ * @api {post} /commission_ref/get_commission_of_user 1. Commission of user
  * @apiVersion 0.1.0
- * @apiGroup IV. Trading History
+ * @apiGroup X. Commission Ref
  *
  * @apiHeader {String} Authorization The token can be generated after user login.
  * @apiHeader {String} Content-Type application/json.
@@ -15,9 +15,11 @@ import {Router} from 'express';
  *      "Content-Type": "application/json"
  *      "Accept": "application/json"
  *
- * @apiParam {String} id_expert
+ * @apiParam {String} id_user
  * @apiParam {Number} page
  * @apiParam {Number} size
+ * @apiParam {Date} fromDate
+ * @apiParam {Date} toDate
  *
  * @apiSuccess {Object} data
  *
@@ -74,7 +76,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post(
-    '/get_list_trading_histories_follow_expert',
-    new TradingHistoryController().getListTradingHistoriesFollowExpert,
-  );
+  route.post('/get_commission_of_user', new CommissionRefLogController().getComissionOfUser);

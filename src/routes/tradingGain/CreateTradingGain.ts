@@ -1,5 +1,4 @@
 import TradingGainController from '@src/controllers/TradingGainController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -52,5 +51,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/update_trading_gain', isAuthenticated, new TradingGainController().updateTradingGain);
+export default (route: Router) => route.post('/update_trading_gain', new TradingGainController().updateTradingGain);

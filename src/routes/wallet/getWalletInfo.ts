@@ -1,5 +1,4 @@
 import WalletController from '@src/controllers/WalletController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -38,4 +37,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) => route.post('/get_wallet_info', isAuthenticated, new WalletController().getWalletInfo);
+export default (route: Router) => route.post('/get_wallet_info', new WalletController().getWalletInfo);

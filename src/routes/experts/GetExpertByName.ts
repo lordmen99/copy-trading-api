@@ -1,5 +1,4 @@
 import ExpertController from '@src/controllers/ExpertController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -50,5 +49,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/get_expert_by_name', isAuthenticated, new ExpertController().getExpertByName);
+export default (route: Router) => route.post('/get_expert_by_name', new ExpertController().getExpertByName);

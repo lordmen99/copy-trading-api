@@ -1,5 +1,4 @@
 import UserController from '@src/controllers/UserController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -39,5 +38,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/view_wallet_history_admin', isAuthenticated, new UserController().viewWalletHistoryAdmin);
+export default (route: Router) => route.post('/view_wallet_history_admin', new UserController().viewWalletHistoryAdmin);

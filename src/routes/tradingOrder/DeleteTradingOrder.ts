@@ -1,5 +1,4 @@
 import TradingOrderController from '@src/controllers/TradingOrderController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -37,5 +36,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/delete_trading_order', isAuthenticated, new TradingOrderController().deleteTradingOrder);
+export default (route: Router) => route.post('/delete_trading_order', new TradingOrderController().deleteTradingOrder);

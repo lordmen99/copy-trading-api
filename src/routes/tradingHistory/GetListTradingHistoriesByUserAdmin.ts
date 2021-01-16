@@ -1,5 +1,4 @@
 import TradingHistoryController from '@src/controllers/TradingHistoryController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -77,6 +76,5 @@ import {Router} from 'express';
 export default (route: Router) =>
   route.post(
     '/get_list_trading_histories_by_user_admin',
-    isAuthenticated,
     new TradingHistoryController().getListTradingHistoriesByUserAdmin,
   );

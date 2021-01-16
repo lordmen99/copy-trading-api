@@ -19,7 +19,7 @@ export default class CommissionRefLogBussiness {
       const listUserRef = [];
       const amountUserRef = [];
       await Promise.all(
-        commissionRefHistory.map(async (item) => {
+        commissionRefHistory.map(async item => {
           let totalAmountRef = 0;
           item.history_logs.map((x: ICommissionRefLogModel) => {
             const amount = Number((x.amount * COMMISSION_LEVEL[x.level - 1]) / 100);
@@ -37,7 +37,44 @@ export default class CommissionRefLogBussiness {
         }),
       );
       console.log(listUserRef, 'listUserRef');
+      /** cập nhật amount withdraw cho bản ghi trong commission_ref_log */
+      if (listUserRef.length > 0)
+        Promise.all(
+          listUserRef.map(item => this._commissionRefLogRepository.updateAmountWithdraw(item.id, item.amountRef)),
+        );
+
       console.log(amountUserRef, 'amountUserRef');
+      /** cập nhật amount vào tổng amount của user */
+      if (amountUserRef.length > 0)
+        Promise.all(amountUserRef.map(item => this._userRepository.updateAmountUser(item.id, item.amount)));
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getComissionOfUser(
+    id_user: string,
+    page: number,
+    size: number,
+    fromDate: Date,
+    toDate: Date,
+  ): Promise<any> {
+    try {
+      const result = this._commissionRefLogRepository.getComissionOfUser(
+        id_user,
+        page,
+        size,
+        'id_expert',
+        '_id',
+        'expert',
+        'cp_experts',
+        fromDate,
+        toDate,
+      );
+      if (result) {
+        return result;
+      }
+      return [];
     } catch (err) {
       throw err;
     }

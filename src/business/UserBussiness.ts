@@ -151,14 +151,14 @@ export default class UserBussiness {
                   .update(wallet._id, {
                     amount: parseFloat(wallet.amount.toString()) - parseFloat(params.amount.toString()),
                   })
-                  .then(async (res) => {
+                  .then(async res => {
                     if ((res as any).nModified !== 0) {
                       await this._userRepository
                         .update(result._id, {
                           total_amount:
                             parseFloat(result.total_amount.toString()) + parseFloat(params.amount.toString()),
                         })
-                        .then(async (res) => {
+                        .then(async res => {
                           if ((res as any).nModified !== 0) {
                             const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                             const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
@@ -187,13 +187,13 @@ export default class UserBussiness {
                   .update(result._id, {
                     total_amount: parseFloat(result.total_amount.toString()) - parseFloat(params.amount.toString()),
                   })
-                  .then(async (res) => {
+                  .then(async res => {
                     if ((res as any).nModified !== 0) {
                       await this._realUserRepository
                         .update(wallet._id, {
                           amount: parseFloat(wallet.amount.toString()) + parseFloat(params.amount.toString()),
                         })
-                        .then(async (res) => {
+                        .then(async res => {
                           if ((res as any).nModified !== 0) {
                             const tradingWithdrawBussiness = new TradingWithdrawBussiness();
                             const resultWithdraw = await tradingWithdrawBussiness.createTradingWithdraw({
@@ -382,7 +382,7 @@ export default class UserBussiness {
         },
       });
       if (result) {
-        result.map(async (user) => {
+        result.map(async user => {
           await this._userRepository.update(user._id, {
             status_trading_copy: contants.STATUS.ACTIVE,
           });

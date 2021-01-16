@@ -1,5 +1,4 @@
 import TradingCopyController from '@src/controllers/TradingCopyController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -53,4 +52,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/get_user_stop_copy_by_expert', isAuthenticated, new TradingCopyController().getUserStopCopyByExpert);
+  route.post('/get_user_stop_copy_by_expert', new TradingCopyController().getUserStopCopyByExpert);

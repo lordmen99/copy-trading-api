@@ -1,5 +1,4 @@
 import UserController from '@src/controllers/UserController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -35,5 +34,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/get_available_money', isAuthenticated, new UserController().getAvailableMoney);
+export default (route: Router) => route.post('/get_available_money', new UserController().getAvailableMoney);

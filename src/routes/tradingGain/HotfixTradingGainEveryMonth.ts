@@ -1,5 +1,4 @@
 import TradingGainController from '@src/controllers/TradingGainController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -53,8 +52,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post(
-    '/hotfix_trading_gain_every_month',
-    isAuthenticated,
-    new TradingGainController().hotfixTradingGainEveryMonth,
-  );
+  route.post('/hotfix_trading_gain_every_month', new TradingGainController().hotfixTradingGainEveryMonth);
