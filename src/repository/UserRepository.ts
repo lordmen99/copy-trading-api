@@ -1,6 +1,7 @@
 import IUserModel from '@src/models/cpUser/IUserModel';
 import CPUserSchema from '@src/schemas/CPUserSchema';
 import {contants} from '@src/utils';
+import {Schema} from 'mongoose';
 import {RepositoryBase} from './base';
 
 export default class UserRepository extends RepositoryBase<IUserModel> {
@@ -50,6 +51,15 @@ export default class UserRepository extends RepositoryBase<IUserModel> {
           },
         },
       ]);
+      return result;
+    } catch (err) {
+      throw err.errors ? err.errors.shift() : err;
+    }
+  }
+
+  public async updateAmountUser(id: Schema.Types.ObjectId, amount: number) {
+    try {
+      const result = await CPUserSchema.findOneAndUpdate({_id: id}, {$inc: {total_amount: amount}});
       return result;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;

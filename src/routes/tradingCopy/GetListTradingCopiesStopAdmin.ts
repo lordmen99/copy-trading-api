@@ -1,5 +1,4 @@
 import TradingCopyController from '@src/controllers/TradingCopyController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -40,8 +39,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post(
-    '/get_list_stop_trading_copies_admin',
-    isAuthenticated,
-    new TradingCopyController().getListStopTradingCopiesAdmin,
-  );
+  route.post('/get_list_stop_trading_copies_admin', new TradingCopyController().getListStopTradingCopiesAdmin);

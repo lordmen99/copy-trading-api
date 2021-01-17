@@ -3,27 +3,26 @@ import ITradingHistoryModel from '@src/models/cpTradingHistory/ITradingHistoryMo
 import ITradingOrderModel from '@src/models/cpTradingOrder/ITradingOrderModel';
 import ITradingWithdrawModel from '@src/models/cpTradingWithdraw/ITradingWithdrawModel';
 import BlockRepository from '@src/repository/BlockRepository';
+import CommissionRefLogRepository from '@src/repository/CommissionRefLogRespository';
 import ExpertRepository from '@src/repository/ExpertRepository';
+import RealUserRepository from '@src/repository/RealUserRepository';
 import SymbolRepository from '@src/repository/SymbolRepository';
 import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants} from '@src/utils';
-import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
-import {
-  CreateTradingOrder,
-  DeleteTradingOrder,
-  EditTradingOrder,
-} from '@src/validator/trading_orders/trading_orders.validator';
-import {validate} from 'class-validator';
+import { contants } from '@src/utils';
+import { CreateTradingHistory } from '@src/validator/trading_histories/trading_histories.validator';
+import { CreateTradingOrder, DeleteTradingOrder, EditTradingOrder } from '@src/validator/trading_orders/trading_orders.validator';
+import { validate } from 'class-validator';
 import _ from 'lodash';
 import moment from 'moment';
-import {Schema} from 'mongoose';
+import { Schema } from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
+
 export default class TradingOrderBussiness {
   private _tradingOrderRepository: TradingOrderRepository;
   private _tradingHistoryRepository: TradingHistoryRepository;
@@ -33,6 +32,8 @@ export default class TradingOrderBussiness {
   private _blockRepository: BlockRepository;
   private _symbolRepository: SymbolRepository;
   private _userRepository: UserRepository;
+  private _realUserRepository: RealUserRepository;
+  private _commissionRefLogRepository: CommissionRefLogRepository;
 
   constructor() {
     this._tradingWithdrawRepository = new TradingWithdrawRepository();
@@ -43,6 +44,8 @@ export default class TradingOrderBussiness {
     this._blockRepository = new BlockRepository();
     this._symbolRepository = new SymbolRepository();
     this._userRepository = new UserRepository();
+    this._realUserRepository = new RealUserRepository();
+    this._commissionRefLogRepository = new CommissionRefLogRepository();
   }
 
   public async findById(id: string): Promise<ITradingOrderModel> {
@@ -110,7 +113,7 @@ export default class TradingOrderBussiness {
       const result = await this._tradingOrderRepository.findWhereSortByField(
         {
           status: contants.STATUS.PENDING,
-          timeSetup: {$lt: date},
+          timeSetup: { $lt: date },
         },
         'timeSetup',
       );
@@ -133,7 +136,7 @@ export default class TradingOrderBussiness {
           }
         } else {
           const timeSetup = moment(item.timeSetup).format('YYYY-MM-DD HH:mm:00');
-          const fromTime = moment(timeSetup).subtract(2, 'minutes').format('YYYY-MM-DD HH:mm:00');
+          const fromTime = moment(timeSetup).subtract(3, 'minutes').format('YYYY-MM-DD HH:mm:59');
           const toDate = moment(timeSetup).subtract(1, 'minutes').format('YYYY-MM-DD HH:mm:30');
           const blocks = await this._blockRepository.findWhere({
             createdAt: {
@@ -142,7 +145,7 @@ export default class TradingOrderBussiness {
             },
           });
           if (blocks.length === 3) {
-            const blockIds = blocks.map((item) => item.block_id);
+            const blockIds = blocks.map(item => item.block_id);
             const symbols = await this._symbolRepository.getListSymbols(blockIds);
             if (symbols.length === 3) {
               const dataSocket = {
@@ -156,7 +159,7 @@ export default class TradingOrderBussiness {
               };
 
               // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
-              this._tradingOrderRepository.update(item._id, {status: contants.STATUS.FINISH});
+              this._tradingOrderRepository.update(item._id, { status: contants.STATUS.FINISH });
 
               /** khởi tạo time vào lệnh cho cả chuyên gia và user */
               let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
@@ -309,7 +312,7 @@ export default class TradingOrderBussiness {
   ): Promise<void> {
     try {
       const dataTradingHistory: ITradingHistoryModel[] = [];
-      const dataCalculateMoney: {id_copy: Schema.Types.ObjectId; money: number}[] = [];
+      const dataCalculateMoney: { id_copy: Schema.Types.ObjectId; money: number; }[] = [];
       const dataTradingWithdraw: ITradingWithdrawModel[] = [];
       const dataPauseCopy: ITradingCopyModel[] = [];
 
@@ -418,7 +421,12 @@ export default class TradingOrderBussiness {
       this._tradingWithdrawRepository.insertManyTradingWithdraw(dataTradingWithdraw);
 
       /** thêm vào lịch sử giao dịch */
-      await this._tradingHistoryRepository.insertManyTradingHistory(dataTradingHistory);
+      this._tradingHistoryRepository
+        .insertManyTradingHistory(dataTradingHistory)
+        .then((listTradingHistory: ITradingHistoryModel[]) => {
+          /** thêm vào bảng cp_commission_ref_log để tính hoa hồng cho các cấp */
+          this.addCommissionRefLogs(listTradingHistory);
+        });
 
       /** tính toán số tiền nhận được */
       this.calculatorAmount(dataCalculateMoney).then(() => {
@@ -433,11 +441,11 @@ export default class TradingOrderBussiness {
   }
 
   private async autoStopOrder(dataPauseCopy: ITradingCopyModel[]): Promise<void> {
-    this.getAllUserCopy(dataPauseCopy).then((result) => {
-      this.calculatorTotalAmount(result).then(async (data) => {
+    this.getAllUserCopy(dataPauseCopy).then(result => {
+      this.calculatorTotalAmount(result).then(async data => {
         const listNoDup = _.uniqBy(data, 'id_user');
         listNoDup.forEach((noDup, index) => {
-          data.forEach((dup) => {
+          data.forEach(dup => {
             if (noDup['id_user'] === dup['id_user']) {
               listNoDup[index].totalAmount += dup['listBase'][0].investment_amount;
               if (dup['listKeep'] && dup['listKeep'].length > 0) {
@@ -446,8 +454,8 @@ export default class TradingOrderBussiness {
             }
           });
         });
-        listNoDup.map(async (copyBase) => {
-          const user = await this._userRepository.findOne({_id: copyBase.id_user});
+        listNoDup.map(async copyBase => {
+          const user = await this._userRepository.findOne({ _id: copyBase.id_user });
           await this._userRepository.update(copyBase.id_user, {
             blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
@@ -458,35 +466,35 @@ export default class TradingOrderBussiness {
     });
   }
 
-  private calculatorAmount = async (dataCalculateMoney) => {
-    return Promise.all(dataCalculateMoney.map((item) => this.updateAmountAsync(item)));
-  };
+  private async calculatorAmount(dataCalculateMoney) {
+    return Promise.all(dataCalculateMoney.map(item => this.updateAmountAsync(item)));
+  }
 
-  private updateAmountAsync = async (item: {id_copy: Schema.Types.ObjectId; money: number}) => {
-    const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
+  private async updateAmountAsync(item: { id_copy: Schema.Types.ObjectId; money: number; }) {
+    const copy = await this._tradingCopyRepository.findOne({ _id: item.id_copy });
     await this._tradingCopyRepository.update(copy._id, {
       investment_amount: copy.investment_amount + item.money,
     });
     return Promise.resolve(copy);
-  };
+  }
 
-  private getAllUserCopy = async (dataPauseCopy) => {
-    return Promise.all(dataPauseCopy.map((item) => this.getUserCopyAsync(item)));
-  };
+  private async getAllUserCopy(dataPauseCopy) {
+    return Promise.all(dataPauseCopy.map(item => this.getUserCopyAsync(item)));
+  }
 
-  private getUserCopyAsync = async (item) => {
+  private async getUserCopyAsync(item) {
     const copy = await this._tradingCopyRepository.findOne({
       _id: item._id,
       id_user: item.id_user,
     });
     return Promise.resolve(copy);
-  };
+  }
 
-  private calculatorTotalAmount = async (dataCalculateMoney) => {
-    return Promise.all(dataCalculateMoney.map((item) => this.countTotalAmount(item)));
-  };
+  private async calculatorTotalAmount(dataCalculateMoney) {
+    return Promise.all(dataCalculateMoney.map(item => this.countTotalAmount(item)));
+  }
 
-  private countTotalAmount = async (copy: ITradingCopyModel) => {
+  private async countTotalAmount(copy: ITradingCopyModel) {
     const listBase = [];
     const listKeep = [];
     const isProfit = copy.investment_amount > copy.base_amount ? true : false;
@@ -548,7 +556,7 @@ export default class TradingOrderBussiness {
       listBase.push(copy);
     }
 
-    const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+    const expert = await this._expertRepository.findOne({ _id: copy.id_expert });
     await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
     if (isProfit) {
       await this._tradingCopyRepository.update(copy._id, {
@@ -583,5 +591,40 @@ export default class TradingOrderBussiness {
       totalAmount: 0,
     };
     return Promise.resolve(data);
-  };
+  }
+
+  private async addCommissionRefLogs(listTradingHistory: ITradingHistoryModel[]) {
+    try {
+      if (listTradingHistory.length > 0) {
+        const commissionRefLogModel = [];
+        for (const item of listTradingHistory) {
+          const tradingCopy = await this._tradingCopyRepository.findById(item.id_copy.toString());
+          if (!tradingCopy) return;
+          const user = await this._userRepository.findById(item.id_user.toString());
+          if (!user) return;
+          const realUser = await this._realUserRepository.findById(user.id_user_trading.toString());
+          if (!realUser) return;
+          if (!realUser.sponsor_path || realUser.sponsor_path.length <= 0) return;
+          const arrayCommission = realUser.sponsor_path.slice(0, 10);
+          arrayCommission.reverse().map((x, index) => {
+            commissionRefLogModel.push({
+              id_user: realUser.id,
+              id_user_ref: x,
+              id_copy: item.id_copy,
+              id_history: item.id,
+              level: index + 1,
+              investment_amount: tradingCopy.base_amount,
+              amount: item.order_amount,
+              amount_withdraw: 0,
+              is_withdraw: false,
+            });
+          });
+        }
+        if (commissionRefLogModel.length > 0)
+          this._commissionRefLogRepository.insertManyCommissionRefLog(commissionRefLogModel);
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
 }

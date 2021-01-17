@@ -1,5 +1,4 @@
 import UserController from '@src/controllers/UserController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -50,5 +49,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.get('/get_user_by_id_admin', isAuthenticated, new UserController().getUserByIdAdmin);
+export default (route: Router) => route.get('/get_user_by_id_admin', new UserController().getUserByIdAdmin);

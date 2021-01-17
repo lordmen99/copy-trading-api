@@ -1,5 +1,4 @@
 import TradingOrderController from '@src/controllers/TradingOrderController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -74,4 +73,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post('/get_list_trading_orders', isAuthenticated, new TradingOrderController().getListTradingOrders);
+  route.post('/get_list_trading_orders', new TradingOrderController().getListTradingOrders);

@@ -1,5 +1,4 @@
 import TradingCopyController from '@src/controllers/TradingCopyController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -38,5 +37,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/pause_trading_copy', isAuthenticated, new TradingCopyController().pauseTradingCopy);
+export default (route: Router) => route.post('/pause_trading_copy', new TradingCopyController().pauseTradingCopy);

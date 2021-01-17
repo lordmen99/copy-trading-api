@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 
 export default interface IRealUserModel extends mongoose.Document {
   full_name?: string;
@@ -16,8 +16,8 @@ export default interface IRealUserModel extends mongoose.Document {
   commission_matrix?: number;
   commission_botAI?: number;
   is_root_sponsor?: boolean;
-  sponsor_id?: string;
-  sponsor_path?: string;
+  sponsor_id?: Schema.Types.ObjectId;
+  sponsor_path?: Schema.Types.ObjectId[];
   withdraw_blocked_at?: Date;
   login_blocked_at?: Date;
   tfa_secret?: string;

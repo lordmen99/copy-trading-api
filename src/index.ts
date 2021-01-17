@@ -34,9 +34,9 @@ server.on('listening', () => {
     );
 
     /** get user from trading */
-    RealUserSchema.find({is_fake_user: false, main_acc_id: null}).then((result) => {
-      result.map((item) => {
-        UserSchema.findOne({id_user_trading: item.id}).then((rs) => {
+    RealUserSchema.find({is_fake_user: false, main_acc_id: null}).then(result => {
+      result.map(item => {
+        UserSchema.findOne({id_user_trading: item.id}).then(rs => {
           if (!rs) {
             UserSchema.create({
               id_user_trading: item.id,
@@ -53,7 +53,7 @@ server.on('listening', () => {
     });
     /** end: get user from trading */
   });
-  mongoose.connection.on('error', (err) => {
+  mongoose.connection.on('error',err => {
     console.error('\n🚀Unable to connect to Mongo via Mongoose', err);
   });
 });

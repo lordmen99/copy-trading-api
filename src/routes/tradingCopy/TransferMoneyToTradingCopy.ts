@@ -1,5 +1,4 @@
 import TradingCopyController from '@src/controllers/TradingCopyController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -40,8 +39,4 @@ import {Router} from 'express';
  *  }
  */
 export default (route: Router) =>
-  route.post(
-    '/transfer_money_to_trading_copy',
-    isAuthenticated,
-    new TradingCopyController().transferMoneyToTradingCopy,
-  );
+  route.post('/transfer_money_to_trading_copy', new TradingCopyController().transferMoneyToTradingCopy);

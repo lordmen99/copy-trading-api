@@ -1,5 +1,4 @@
 import TradingOrderController from '@src/controllers/TradingOrderController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -54,5 +53,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/create_trading_order', isAuthenticated, new TradingOrderController().createTradingOrder);
+export default (route: Router) => route.post('/create_trading_order', new TradingOrderController().createTradingOrder);

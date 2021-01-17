@@ -114,7 +114,7 @@ export default class TradingWithdrawBussiness {
         status: 'FINISH',
       });
       if (result.length > 0) {
-        result.map((item) => {
+        result.map(item => {
           this._tradingHistoryRepository.hotfixUpdateStatus(item.id_user, item.id_expert, item.id_order, item.id_copy);
         });
       }

@@ -1,5 +1,4 @@
 import AdminController from '@src/controllers/AdminController';
-import {isAuthenticated} from '@src/middleware/auth/oAuth2';
 import {Router} from 'express';
 
 /**
@@ -38,5 +37,4 @@ import {Router} from 'express';
  *    "message": "error message"
  *  }
  */
-export default (route: Router) =>
-  route.post('/change_password_admin', isAuthenticated, new AdminController().changePasswordAdmin);
+export default (route: Router) => route.post('/change_password_admin', new AdminController().changePasswordAdmin);
