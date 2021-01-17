@@ -1,7 +1,7 @@
 import ICommissionRefLogModel from '@src/models/cpCommissionRefLogs/ICommissionRefLogModel';
 import CPCommissionRefLogSchema from '@src/schemas/CPCommissionRefLogSchema';
-import {Schema} from 'mongoose';
-import {RepositoryBase} from './base';
+import { Schema } from 'mongoose';
+import { RepositoryBase } from './base';
 
 export default class CommissionRefLogRepository extends RepositoryBase<ICommissionRefLogModel> {
   constructor() {
@@ -75,7 +75,7 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
       const result = await CPCommissionRefLogSchema.aggregate([
         {
           $match: {
-            level: {$lte: 10},
+            level: { $lte: 10 },
             is_withdraw: false,
           },
         },
@@ -100,7 +100,7 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
 
   public async updateAmountWithdraw(id: Schema.Types.ObjectId, amount_withdraw: number) {
     try {
-      const result = await CPCommissionRefLogSchema.findOneAndUpdate({_id: id}, {amount_withdraw, is_withdraw: true});
+      const result = await CPCommissionRefLogSchema.findOneAndUpdate({ _id: id }, { amount_withdraw, is_withdraw: true });
       return result;
     } catch (err) {
       throw err.errors ? err.errors.shift() : err;
@@ -122,8 +122,8 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
         {
           $facet: {
             data: [
-              {$skip: (parseInt(page.toString()) - 1) * parseInt(size.toString())},
-              {$limit: parseInt(size.toString())},
+              { $skip: (parseInt(page.toString()) - 1) * parseInt(size.toString()) },
+              { $limit: parseInt(size.toString()) },
               {
                 $lookup: {
                   from: 'cp_users',
@@ -146,20 +146,18 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
                 },
               },
             ],
-            totalCount: [{$count: 'count'}],
+            totalCount: [{ $count: 'count' }],
           },
         },
-        {$unwind: '$totalCount'},
-        {$project: {data: '$data', count: '$totalCount.count'}},
+        { $unwind: '$totalCount' },
+        { $project: { data: '$data', count: '$totalCount.count' } },
       ]);
       if (result.length > 0) {
-        const count = await CPCommissionRefLogSchema.countDocuments(item);
-
-        const profit = await CPCommissionRefLogSchema.aggregate([
+        const totalWithdrawTime = await CPCommissionRefLogSchema.aggregate([
           {
             $match: {
-              id_user: this.toObjectId(item.id_user),
-              closing_time: {
+              id_user_ref: this.toObjectId(id),
+              createdAt: {
                 $gte: new Date(new Date(fromDate).setHours(0, 0, 0)),
                 $lt: new Date(new Date(toDate).setHours(23, 59, 59)),
               },
@@ -167,27 +165,36 @@ export default class CommissionRefLogRepository extends RepositoryBase<ICommissi
           },
           {
             $group: {
-              _id: null,
-              profit: {$sum: '$profit'},
-              fee_to_trading: {$sum: '$fee_to_trading'},
-              fee_to_expert: {$sum: '$fee_to_expert'},
+              _id: '$id_user_ref',
+              amount_withdraw: { $sum: "$amount_withdraw" }
+            },
+          }
+        ]);
+        const totalWithdraw = await CPCommissionRefLogSchema.aggregate([
+          {
+            $match: {
+              id_user_ref: this.toObjectId(id)
             },
           },
+          {
+            $group: {
+              _id: '$id_user_ref',
+              amount_withdraw: { $sum: "$amount_withdraw" }
+            },
+          }
         ]);
-
-        if (result.length > 0) {
-          if (result[0].data.length > 0)
-            for (const history of result[0].data) {
-              if (history.profit === 0) {
-                if (profit.length > 0) profit[0].profit -= history.order_amount;
-              }
-            }
-        }
+        return {
+          result: result[0].data,
+          count: result[0].count,
+          totalAmountWithdraw: totalWithdrawTime[0].amount_withdraw,
+          totalWithdraw: totalWithdraw[0].amount_withdraw,
+        };
       } else {
         return {
           result: [],
           count: 0,
-          profit: 0,
+          totalAmountWithdraw: 0,
+          totalWithdraw: 0
         };
       }
     } catch (err) {

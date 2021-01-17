@@ -12,17 +12,13 @@ import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingOrderRepository from '@src/repository/TradingOrderRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants} from '@src/utils';
-import {CreateTradingHistory} from '@src/validator/trading_histories/trading_histories.validator';
-import {
-  CreateTradingOrder,
-  DeleteTradingOrder,
-  EditTradingOrder,
-} from '@src/validator/trading_orders/trading_orders.validator';
-import {validate} from 'class-validator';
+import { contants } from '@src/utils';
+import { CreateTradingHistory } from '@src/validator/trading_histories/trading_histories.validator';
+import { CreateTradingOrder, DeleteTradingOrder, EditTradingOrder } from '@src/validator/trading_orders/trading_orders.validator';
+import { validate } from 'class-validator';
 import _ from 'lodash';
 import moment from 'moment';
-import {Schema} from 'mongoose';
+import { Schema } from 'mongoose';
 import TradingCopyBussiness from './TradingCopyBussiness';
 import TradingHistoryBussiness from './TradingHistoryBussiness';
 import TradingWithdrawBussiness from './TradingWithdrawBussiness';
@@ -117,7 +113,7 @@ export default class TradingOrderBussiness {
       const result = await this._tradingOrderRepository.findWhereSortByField(
         {
           status: contants.STATUS.PENDING,
-          timeSetup: {$lt: date},
+          timeSetup: { $lt: date },
         },
         'timeSetup',
       );
@@ -163,7 +159,7 @@ export default class TradingOrderBussiness {
               };
 
               // khớp thời gian đánh lệnh, chuyển trạng thái order về FINISH
-              this._tradingOrderRepository.update(item._id, {status: contants.STATUS.FINISH});
+              this._tradingOrderRepository.update(item._id, { status: contants.STATUS.FINISH });
 
               /** khởi tạo time vào lệnh cho cả chuyên gia và user */
               let secondOpen = Math.floor(Math.random() * (29 - 1) + 1).toString();
@@ -316,7 +312,7 @@ export default class TradingOrderBussiness {
   ): Promise<void> {
     try {
       const dataTradingHistory: ITradingHistoryModel[] = [];
-      const dataCalculateMoney: {id_copy: Schema.Types.ObjectId; money: number}[] = [];
+      const dataCalculateMoney: { id_copy: Schema.Types.ObjectId; money: number; }[] = [];
       const dataTradingWithdraw: ITradingWithdrawModel[] = [];
       const dataPauseCopy: ITradingCopyModel[] = [];
 
@@ -459,7 +455,7 @@ export default class TradingOrderBussiness {
           });
         });
         listNoDup.map(async copyBase => {
-          const user = await this._userRepository.findOne({_id: copyBase.id_user});
+          const user = await this._userRepository.findOne({ _id: copyBase.id_user });
           await this._userRepository.update(copyBase.id_user, {
             blockedAt: new Date(new Date().getTime() + 60 * 60 * 24 * 1000),
             status_trading_copy: contants.STATUS.BLOCK,
@@ -474,8 +470,8 @@ export default class TradingOrderBussiness {
     return Promise.all(dataCalculateMoney.map(item => this.updateAmountAsync(item)));
   }
 
-  private async updateAmountAsync(item: {id_copy: Schema.Types.ObjectId; money: number}) {
-    const copy = await this._tradingCopyRepository.findOne({_id: item.id_copy});
+  private async updateAmountAsync(item: { id_copy: Schema.Types.ObjectId; money: number; }) {
+    const copy = await this._tradingCopyRepository.findOne({ _id: item.id_copy });
     await this._tradingCopyRepository.update(copy._id, {
       investment_amount: copy.investment_amount + item.money,
     });
@@ -560,7 +556,7 @@ export default class TradingOrderBussiness {
       listBase.push(copy);
     }
 
-    const expert = await this._expertRepository.findOne({_id: copy.id_expert});
+    const expert = await this._expertRepository.findOne({ _id: copy.id_expert });
     await this._expertRepository.findAndUpdateExpert(copy.id_expert, expert.real_copier, contants.STATUS.STOP);
     if (isProfit) {
       await this._tradingCopyRepository.update(copy._id, {
@@ -609,7 +605,8 @@ export default class TradingOrderBussiness {
           const realUser = await this._realUserRepository.findById(user.id_user_trading.toString());
           if (!realUser) return;
           if (!realUser.sponsor_path || realUser.sponsor_path.length <= 0) return;
-          realUser.sponsor_path.map((x, index) => {
+          const arrayCommission = realUser.sponsor_path.slice(0, 10);
+          arrayCommission.reverse().map((x, index) => {
             commissionRefLogModel.push({
               id_user: realUser.id,
               id_user_ref: x,

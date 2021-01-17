@@ -8,11 +8,11 @@ import TradingCopyRepository from '@src/repository/TradingCopyRepository';
 import TradingHistoryRepository from '@src/repository/TradingHistoryRepository';
 import TradingWithdrawRepository from '@src/repository/TradingWithdrawRepository';
 import UserRepository from '@src/repository/UserRepository';
-import {contants, security} from '@src/utils';
-import {AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser} from '@src/validator/users/users.validator';
-import {AvailableWalletUser} from '@src/validator/users/users_money.validator';
-import {validate} from 'class-validator';
-import {Error} from 'mongoose';
+import { contants, security } from '@src/utils';
+import { AddUser, EditUser, GetUser, TransferMoneyUser, WalletUser } from '@src/validator/users/users.validator';
+import { AvailableWalletUser } from '@src/validator/users/users_money.validator';
+import { validate } from 'class-validator';
+import { Error } from 'mongoose';
 
 export default class UserBussiness {
   private _userRepository: UserRepository;
@@ -41,7 +41,7 @@ export default class UserBussiness {
         if (!result) {
           const user = await this._realUserRepository.findById(params._id.toString());
           if (user) {
-            const result = await this._userRepository.findOne({id_user_trading: user._id});
+            const result = await this._userRepository.findOne({ id_user_trading: user._id });
             return {
               _id: result._id,
               username: result.username,
@@ -49,6 +49,7 @@ export default class UserBussiness {
               status: result.status,
               status_trading_copy: result.status_trading_copy,
               avatar: result.avatar,
+              id_user_trading: result.id_user_trading
             };
           } else {
             throw new Error('User is not exist!');
@@ -64,6 +65,7 @@ export default class UserBussiness {
           status: result.status,
           status_trading_copy: result.status_trading_copy,
           avatar: result.avatar,
+          id_user_trading: result.id_user_trading
         };
       }
     } catch (err) {
@@ -98,7 +100,7 @@ export default class UserBussiness {
   public async getListUsers(page: number, size: number): Promise<IUserModel[]> {
     try {
       const result = await this._userRepository.findWithPagingById(
-        {status: contants.STATUS.ACTIVE},
+        { status: contants.STATUS.ACTIVE },
         parseInt(page.toString()),
         parseInt(size.toString()),
       );
@@ -141,9 +143,9 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user});
+        const result = await this._userRepository.findOne({ _id: params.id_user });
         if (result) {
-          const wallet = await this._realUserRepository.findOne({_id: result.id_user_trading});
+          const wallet = await this._realUserRepository.findOne({ _id: result.id_user_trading });
           if (wallet) {
             if (params.source === contants.TYPE_OF_WALLET.WALLET) {
               if (parseFloat(wallet.amount.toString()) >= parseFloat(params.amount.toString())) {
@@ -308,7 +310,7 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user});
+        const result = await this._userRepository.findOne({ _id: params.id_user });
         if (result) {
           const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
@@ -329,7 +331,7 @@ export default class UserBussiness {
       if (errors.length > 0) {
         throw new Error(Object.values(errors[0].constraints)[0]);
       } else {
-        const result = await this._userRepository.findOne({_id: params.id_user});
+        const result = await this._userRepository.findOne({ _id: params.id_user });
         if (result) {
           const tradingWithdrawBussiness = new TradingWithdrawBussiness();
 
@@ -396,7 +398,7 @@ export default class UserBussiness {
   public async findByName(username: string, page: number, size: number): Promise<IUserModel[]> {
     try {
       return this._userRepository.findWithPagingById(
-        {username: {$regex: '.*' + username + '.*'}} as any,
+        { username: { $regex: '.*' + username + '.*' } } as any,
         parseInt(page.toString()),
         parseInt(size.toString()),
       );

@@ -1,4 +1,4 @@
-import {COMMISSION_LEVEL} from '@src/contants/CommissionLevel';
+import { COMMISSION_LEVEL } from '@src/contants/CommissionLevel';
 import ICommissionRefLogModel from '@src/models/cpCommissionRefLogs/ICommissionRefLogModel';
 import CommissionRefLogRepository from '@src/repository/CommissionRefLogRespository';
 import UserRepository from '@src/repository/UserRepository';
@@ -29,7 +29,7 @@ export default class CommissionRefLogBussiness {
               amountRef: amount,
             });
           });
-          const user = await this._userRepository.findOne({id_user_trading: item._id});
+          const user = await this._userRepository.findOne({ id_user_trading: item._id });
           amountUserRef.push({
             id: user.id,
             amount: totalAmountRef,
@@ -52,28 +52,17 @@ export default class CommissionRefLogBussiness {
     }
   }
 
-  public async getComissionOfUser(
-    id_user: string,
-    page: number,
-    size: number,
-    fromDate: Date,
-    toDate: Date,
-  ): Promise<any> {
+  public async getComissionOfUser(id_user: string, page: number, size: number, fromDate: Date, toDate: Date)
+    : Promise<any> {
     try {
       const result = this._commissionRefLogRepository.getComissionOfUser(
         id_user,
         page,
         size,
-        'id_expert',
-        '_id',
-        'expert',
-        'cp_experts',
         fromDate,
         toDate,
       );
-      if (result) {
-        return result;
-      }
+      if (result) return result;
       return [];
     } catch (err) {
       throw err;
