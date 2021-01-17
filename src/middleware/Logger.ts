@@ -16,13 +16,14 @@ export default winston.createLogger({
     winston.format.colorize(),
     winston.format.timestamp(),
     winston.format.align(),
-    winston.format.printf(
-      (info) => `[${moment(info.timestamp).format('YYYY-MM-DD HH:mm:ss')}] ${info.level}: ${info.message}`,
+    winston.format.printf(info => `[${moment(info.timestamp).format('YYYY-MM-DD HH:mm:ss')}] ${info.level}: ${info.message}`,
     ),
   ),
   transports: [
     // info console log
-    new winston.transports.Console(),
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    }),
     // info log file
     new winston.transports.File({
       filename: path.resolve(__dirname, `../logs/${moment().format('YYYY-MM-DD HH')}-00.log`),

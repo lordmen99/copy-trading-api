@@ -22,6 +22,7 @@
     "interface-name": false,
     "no-string-literal": false,
     "quotemark": [true, "single", "avoid-escape"],
-    "no-console": false
+    "no-console": false,
+    "forin": false
   }
 }

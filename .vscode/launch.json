@@ -16,10 +16,18 @@
       "cwd": "${workspaceFolder}",
       "protocol": "inspector",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "outputCapture": "std",
       "env": {
         "NODE_ENV": "development",
-        "PORT": "3000",
-        "MONGODB_URI": "mongodb+srv://ninhpm:ninhpm123@cluster0.ofmu5.mongodb.net/bo_trading"
+        "PORT": "5000",
+        "MONGODB_URI": "mongodb+srv://ninhpm:ninhpm123@cluster0.ofmu5.mongodb.net/bo_trading",
+        "SERVER_TRADING_URI": "http://13.231.217.254:6789",
+        "SOCKET_TRADING_URI": "/kline",
+        "SCHEDULE_EXECUTE_EVERY_MINUTE": "0 */5 * * * *",
+        "SCHEDULE_EXECUTE_EVERY_MONTH": "0 5 0 1 * *",
+        "SCHEDULE_EXECUTE_EVERY_DAY": "0 55 23 * * *",
+        "SCHEDULE_EXECUTE_DATA_SOCKET": "*/15 * * * * *",
+        "SCHEDULE_EXECUTE_COMMISSION_REF": "*/15 * * * * *"
       }
     }
   ]
